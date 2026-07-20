@@ -2,21 +2,45 @@
 // 인투메디 전자라벨 공용 스크립트 (script.js)
 // =====================================================
 
-// ▼ QR 코드에 사용할 기본 주소 (나중에 실제 서버 주소로 변경 가능)
 // ▼ QR 코드 스캔 시 연결될 실제 인터넷 주소 (GitHub Pages)
 const E_LABEL_BASE_URL = "https://pro2-gif.github.io/e-label/index.html";
 
 // 구글 시트 ID
 const SHEET_ID = "1dQOhtidzJfK3NXzzrzzPeAC10pv8wvbqnWRU-WjM3wQ";
 
+// 식약처 화장품 성분 API 인증키
+const MFDS_API_KEY = "8438e0c9c0276651df0610f950fb14f1e6b328ad92f388072a7fdf5dfed4c8b3";
+const MFDS_API_URL = "https://apis.data.go.kr/1471000/CsmtcsIngdCpntInfoService01/getCsmtcsIngdCpntInfoService01";
+
+// ▼ 새로운 구글 시트 컬럼 순서 (0-based)
+// 0: 제품명 | 1: 용량 | 2: 기능성분류 | 3: 사용방법
+// 4: 제조업자 | 5: 전성분 | 6: 주의사항 | 7: 소비자상담 | 8: 구매링크URL
+const COL = {
+    name:         0,
+    volume:       1,
+    functional:   2,
+    howToUse:     3,
+    manufacturer: 4,
+    ingredients:  5,
+    cautions:     6,
+    customer:     7,
+    buyUrl:       8
+};
+
 // 앱 상태 변수
 let currentLang = 'ko';
-let productsData = []; // 시트에서 파싱된 제품 배열
+let productsData = [];
 let qrInstance = null;
+
+// 번역 캐시 (API 재호출 방지)
+const translationCache = {};
+// 식약처 성분 영문명 캐시
+const ingredientEnCache = {};
 
 // 다국어 UI 라벨
 const uiLabels = {
-    volume:       { ko: "용량 및 기능성",         en: "Volume & Functional" },
+    volume:       { ko: "용량",                   en: "Volume" },
+    functional:   { ko: "기능성 분류",             en: "Functional Classification" },
     howToUse:     { ko: "사용방법",               en: "How to Use" },
     manufacturer: { ko: "제조 및 책임판매업자",   en: "Manufacturer & Distributor" },
     ingredients:  { ko: "전성분",                 en: "Ingredients" },
@@ -29,27 +53,23 @@ const uiLabels = {
 // ■ 구글 시트 데이터 로딩 (JSONP 방식 - CORS 문제 없음)
 // =====================================================
 function loadSheetData(callback) {
-    // JSONP 콜백 함수를 전역으로 등록
     window._sheetCallback = function(json) {
         try {
             const rows = json.table.rows;
             if (!rows || rows.length < 2) throw new Error("데이터가 없습니다.");
 
-            // 첫 번째 행: 헤더 (컬럼명)
             const headers = rows[0].c.map(cell => (cell && cell.v) ? String(cell.v).trim() : '');
 
-            // 두 번째 행부터: 실제 데이터
             productsData = [];
             for (let i = 1; i < rows.length; i++) {
                 const rowCells = rows[i].c;
                 const item = {};
                 for (let j = 0; j < headers.length; j++) {
-                    // 값이 있으면 문자열로 변환, 없으면 빈 문자열
                     item[headers[j]] = (rowCells && rowCells[j] && rowCells[j].v != null)
                         ? String(rowCells[j].v).trim()
                         : '';
                 }
-                // 제품명이 비어있는 행은 건너뜀
+                // 제품명(첫 번째 열)이 비어있는 행은 건너뜀
                 const firstColKey = headers[0];
                 if (item[firstColKey]) {
                     productsData.push(item);
@@ -62,22 +82,20 @@ function loadSheetData(callback) {
         }
     };
 
-    // JSONP 스크립트 태그 삽입
     const script = document.createElement('script');
     script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:_sheetCallback`;
     script.onerror = () => callback(new Error("네트워크 연결 오류"), null);
     document.head.appendChild(script);
 }
 
-// 제품명(첫 번째 컬럼)의 국문 이름만 추출 (영문 포함된 경우 첫 줄만)
+// 제품명 (첫 번째 열, 개행 이전 첫 줄만 표시)
 function getProductDisplayName(item) {
-    const headers = Object.keys(item);
-    const rawName = item[headers[0]] || '';
-    // 개행이 있으면 첫 줄만
+    const keys = Object.keys(item);
+    const rawName = item[keys[COL.name]] || '';
     return rawName.split('\n')[0].trim();
 }
 
-// 컬럼명 키를 순서로 가져오는 헬퍼
+// 컬럼 인덱스로 값 가져오기
 function getColValue(item, colIndex) {
     const keys = Object.keys(item);
     return keys[colIndex] ? (item[keys[colIndex]] || '') : '';
@@ -92,8 +110,7 @@ function initViewer() {
     const mainEl    = document.getElementById('main-content');
     const footerEl  = document.getElementById('bottom-footer');
 
-    // URL 파라미터에서 제품명 추출
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams    = new URLSearchParams(window.location.search);
     const productParam = urlParams.get('product');
 
     loadSheetData(function(err, data) {
@@ -104,7 +121,7 @@ function initViewer() {
             return;
         }
 
-        // 파라미터로 제품 찾기 (이름의 일부만 포함돼도 매칭)
+        // QR 파라미터로 제품 찾기 (이름 부분 포함 매칭)
         let targetIndex = 0;
         if (productParam) {
             const found = data.findIndex(item => {
@@ -114,50 +131,141 @@ function initViewer() {
             if (found !== -1) targetIndex = found;
         }
 
+        const target = data[targetIndex];
+
         loadingEl.style.display = 'none';
         mainEl.style.display = 'block';
         footerEl.style.display = 'flex';
 
-        renderLabel(data[targetIndex], 'ko');
+        renderLabel(target, 'ko');
 
         // 언어 버튼
         document.getElementById('btn-ko').addEventListener('click', () => {
+            if (currentLang === 'ko') return;
             currentLang = 'ko';
             document.getElementById('btn-ko').classList.add('active');
             document.getElementById('btn-en').classList.remove('active');
-            renderLabel(data[targetIndex], 'ko');
+            renderLabel(target, 'ko');
         });
         document.getElementById('btn-en').addEventListener('click', () => {
+            if (currentLang === 'en') return;
             currentLang = 'en';
             document.getElementById('btn-en').classList.add('active');
             document.getElementById('btn-ko').classList.remove('active');
-            renderLabel(data[targetIndex], 'en');
+            renderLabel(target, 'en');
         });
 
-        // 구매하기 버튼
+        // ▼ 구매하기 버튼: 구글 시트 8번째 열 (구매링크 URL) 사용
         document.getElementById('btn-buy').addEventListener('click', () => {
-            window.open('https://intomedipro.com/', '_blank');
+            const buyUrl = getColValue(target, COL.buyUrl);
+            if (buyUrl && buyUrl.startsWith('http')) {
+                window.open(buyUrl, '_blank');
+            } else {
+                window.open('https://intomedipro.com/', '_blank');
+            }
         });
 
         // TTS 버튼
         document.getElementById('btn-tts').addEventListener('click', () => {
-            handleTts(data[targetIndex]);
+            handleTts(target);
         });
     });
 }
 
 // =====================================================
+// ■ 식약처 API: 한글 성분명 → 영문명 조회
+// =====================================================
+async function lookupIngredientEn(korName) {
+    const trimmed = korName.trim();
+    if (!trimmed) return trimmed;
+    if (ingredientEnCache[trimmed]) return ingredientEnCache[trimmed]; // 캐시 확인
+
+    try {
+        // CORS 우회: allorigins 프록시를 통해 식약처 API 호출
+        const apiUrl = `${MFDS_API_URL}?serviceKey=${MFDS_API_KEY}&IngdKorNm=${encodeURIComponent(trimmed)}&type=json&numOfRows=1`;
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
+        const res = await fetch(proxyUrl);
+        const data = await res.json();
+
+        const engName = data?.body?.items?.[0]?.INGR_ENG_NAME;
+        if (engName) {
+            ingredientEnCache[trimmed] = engName;
+            return engName;
+        }
+    } catch (e) {
+        // 조회 실패 시 원본 반환
+    }
+
+    // 식약처 DB에 없으면 한글명 그대로 반환 (대부분 INCI명은 국제 공통)
+    ingredientEnCache[trimmed] = trimmed;
+    return trimmed;
+}
+
+// =====================================================
+// ■ 전성분 목록 전체 영문 변환
+//   1차: 식약처 API 조회
+//   2차: 조회 실패 시 Google Translate 번역
+// =====================================================
+async function translateIngredients(korIngredients) {
+    if (!korIngredients || korIngredients.trim() === '') return korIngredients;
+
+    // 콤마 단위로 개별 성분 분리
+    const parts = korIngredients.split(',').map(s => s.trim()).filter(s => s);
+
+    // 모든 성분을 병렬로 동시에 조회 (속도 최적화)
+    const enNames = await Promise.all(parts.map(kor => lookupIngredientEn(kor)));
+
+    return enNames.join(', ');
+}
+
+// =====================================================
+// ■ 일반 텍스트 자동 번역 (Google Translate 무료 API)
+// =====================================================
+async function translateText(text) {
+    if (!text || text.trim() === '') return text;
+    if (translationCache[text]) return translationCache[text];
+
+    try {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ko&tl=en&dt=t&q=${encodeURIComponent(text)}`;
+        const res  = await fetch(url);
+        const data = await res.json();
+
+        let translated = '';
+        if (data && data[0]) {
+            for (let i = 0; i < data[0].length; i++) {
+                if (data[0][i][0]) translated += data[0][i][0];
+            }
+        }
+
+        if (translated) {
+            translationCache[text] = translated;
+            return translated;
+        }
+        return text;
+    } catch (e) {
+        return text;
+    }
+}
+
+// =====================================================
 // ■ 라벨 데이터 화면 렌더링
 // =====================================================
-function renderLabel(item, lang) {
-    const headers = Object.keys(item);
-    // 열 순서: 0=제품명, 1=용량/기능성, 2=사용방법, 3=제조업자, 4=전성분, 5=주의사항, 6=소비자상담
+async function renderLabel(item, lang) {
+    const loadingEl = document.getElementById('loading-screen');
+    const mainEl    = document.getElementById('main-content');
+    const footerEl  = document.getElementById('bottom-footer');
 
-    // 제품명 (첫 번째 열, 첫 줄만 사용)
-    document.getElementById('product-name').textContent = getProductDisplayName(item);
+    // 영어 번역 중 로딩 화면 표시
+    if (lang === 'en') {
+        mainEl.style.display   = 'none';
+        footerEl.style.display = 'none';
+        loadingEl.style.display = 'flex';
+        loadingEl.querySelector('p').textContent = 'Translating product info...';
+    }
 
-    // UI 라벨 (테이블 왼쪽 항목명)
+    // UI 라벨 (테이블 왼쪽 항목명) 업데이트
     document.getElementById('label-volume').textContent       = uiLabels.volume[lang];
+    document.getElementById('label-functional').textContent  = uiLabels.functional[lang];
     document.getElementById('label-how-to-use').textContent  = uiLabels.howToUse[lang];
     document.getElementById('label-manufacturer').textContent = uiLabels.manufacturer[lang];
     document.getElementById('label-ingredients').textContent  = uiLabels.ingredients[lang];
@@ -165,34 +273,75 @@ function renderLabel(item, lang) {
     document.getElementById('label-customer').textContent    = uiLabels.customer[lang];
     document.getElementById('btn-buy').textContent           = uiLabels.buyBtn[lang];
 
-    // 데이터 값 채우기 (열 순서 기반)
-    document.getElementById('val-volume').textContent       = getColValue(item, 1);
-    document.getElementById('val-manufacturer').textContent = getColValue(item, 3);
-    document.getElementById('val-ingredients').textContent  = getColValue(item, 4);
-    document.getElementById('val-cautions').textContent     = getColValue(item, 5);
-    document.getElementById('val-customer').textContent     = getColValue(item, 6);
+    // 원본 한국어 데이터
+    let productName  = getProductDisplayName(item);
+    let volume       = getColValue(item, COL.volume);
+    let functional   = getColValue(item, COL.functional);
+    let manufacturer = getColValue(item, COL.manufacturer);
+    let ingredients  = getColValue(item, COL.ingredients);
+    let cautions     = getColValue(item, COL.cautions);
+    let customer     = getColValue(item, COL.customer);
+
+    // ▼ 영어 모드: 각 항목 번역 수행
+    if (lang === 'en') {
+        // 일반 항목은 Google Translate 번역
+        [productName, volume, functional, manufacturer, cautions, customer] = await Promise.all([
+            translateText(productName),
+            translateText(volume),
+            translateText(functional),
+            translateText(manufacturer),
+            translateText(cautions),
+            translateText(customer)
+        ]);
+
+        // 전성분은 식약처 API(INCI 영문명) 우선 조회 후 번역
+        ingredients = await translateIngredients(ingredients);
+    }
+
+    // 제품명 표시
+    document.getElementById('product-name').textContent = productName;
+
+    // 데이터 값 채우기
+    document.getElementById('val-volume').textContent       = volume;
+    document.getElementById('val-functional').textContent  = functional;
+    document.getElementById('val-manufacturer').textContent = manufacturer;
+    document.getElementById('val-ingredients').textContent  = ingredients;
+    document.getElementById('val-cautions').textContent    = cautions;
+    document.getElementById('val-customer').textContent    = customer;
 
     // 사용방법: 주의사항 경고 박스 분리 렌더링
-    const howToUseRaw = getColValue(item, 2);
-    const warnKeyword = "* 주의사항 :";
-    const valHowToUseEl = document.getElementById('val-how-to-use');
+    const warnKeywordKo  = "* 주의사항 :";
+    const originalHowToUse = getColValue(item, COL.howToUse);
+    const valHowToUseEl  = document.getElementById('val-how-to-use');
     valHowToUseEl.innerHTML = '';
 
-    if (howToUseRaw.includes(warnKeyword)) {
-        const parts = howToUseRaw.split(warnKeyword);
+    if (originalHowToUse.includes(warnKeywordKo)) {
+        const parts = originalHowToUse.split(warnKeywordKo);
         const mainDiv = document.createElement('div');
         mainDiv.style.whiteSpace = 'pre-line';
-        mainDiv.textContent = parts[0].trim();
 
         const warnDiv = document.createElement('div');
         warnDiv.className = 'warning-box';
-        warnDiv.innerHTML = `<span class="material-icons" style="font-size:18px;margin-top:2px;">warning</span><span>* 주의사항 : ${parts[1].trim()}</span>`;
 
+        if (lang === 'en') {
+            mainDiv.textContent = await translateText(parts[0].trim());
+            warnDiv.innerHTML = `<span class="material-icons" style="font-size:18px;margin-top:2px;">warning</span><span>* Precautions: ${await translateText(parts[1].trim())}</span>`;
+        } else {
+            mainDiv.textContent = parts[0].trim();
+            warnDiv.innerHTML = `<span class="material-icons" style="font-size:18px;margin-top:2px;">warning</span><span>* 주의사항 : ${parts[1].trim()}</span>`;
+        }
         valHowToUseEl.appendChild(mainDiv);
         valHowToUseEl.appendChild(warnDiv);
     } else {
         valHowToUseEl.style.whiteSpace = 'pre-line';
-        valHowToUseEl.textContent = howToUseRaw;
+        valHowToUseEl.textContent = lang === 'en' ? await translateText(originalHowToUse) : originalHowToUse;
+    }
+
+    // 번역 완료 후 화면 다시 표시
+    if (lang === 'en') {
+        loadingEl.style.display = 'none';
+        mainEl.style.display   = 'block';
+        footerEl.style.display = 'flex';
     }
 }
 
@@ -200,12 +349,9 @@ function renderLabel(item, lang) {
 // ■ QR 메이커 모드 (qr_maker.html) - 관리자용
 // =====================================================
 function initQrMaker() {
-    const selectEl      = document.getElementById('product-select-maker');
-    const titleDisplay  = document.getElementById('qr-product-title-display');
-    const urlPreview    = document.getElementById('qr-url-preview');
-    const downloadBtn   = document.getElementById('btn-download');
+    const selectEl     = document.getElementById('product-select-maker');
+    const downloadBtn  = document.getElementById('btn-download');
 
-    // QRious 인스턴스 초기화
     qrInstance = new QRious({
         element: document.getElementById('qr-canvas'),
         size: 260,
@@ -213,14 +359,12 @@ function initQrMaker() {
         value: E_LABEL_BASE_URL
     });
 
-    // 시트 데이터 로딩
     loadSheetData(function(err, data) {
         if (err || !data || data.length === 0) {
             selectEl.innerHTML = '<option value="">데이터 로딩 실패 - 인터넷 연결 확인</option>';
             return;
         }
 
-        // 드롭다운 채우기
         selectEl.innerHTML = '';
         data.forEach((item, idx) => {
             const option = document.createElement('option');
@@ -229,26 +373,22 @@ function initQrMaker() {
             selectEl.appendChild(option);
         });
 
-        // 첫 번째 제품으로 초기 QR 렌더링
         updateQrDisplay(data[0]);
 
-        // 제품 변경 시 QR 갱신
         selectEl.addEventListener('change', () => {
             const idx = parseInt(selectEl.value);
             updateQrDisplay(data[idx]);
         });
     });
 
-    // QR 이미지 다운로드 (제품명 + QR 합성)
+    // QR 이미지 다운로드 (제품명 포함 합성)
     downloadBtn.addEventListener('click', () => {
-        const idx = parseInt(selectEl.value) || 0;
         const productName = selectEl.options[selectEl.selectedIndex]?.textContent || '제품';
-        const qrCanvas = document.getElementById('qr-canvas');
+        const qrCanvas    = document.getElementById('qr-canvas');
 
-        // 합성 캔버스 생성 (제품명 텍스트 + QR 이미지)
         const compositeCanvas = document.createElement('canvas');
-        const ctx = compositeCanvas.getContext('2d');
-        const padding = 30;
+        const ctx      = compositeCanvas.getContext('2d');
+        const padding  = 30;
         const textHeight = 50;
         compositeCanvas.width  = qrCanvas.width + padding * 2;
         compositeCanvas.height = qrCanvas.height + padding * 2 + textHeight;
@@ -256,12 +396,11 @@ function initQrMaker() {
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
 
-        ctx.fillStyle = '#111827';
-        ctx.font = 'bold 20px Pretendard, sans-serif';
-        ctx.textAlign = 'center';
+        ctx.fillStyle    = '#111827';
+        ctx.font         = 'bold 20px Pretendard, sans-serif';
+        ctx.textAlign    = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(productName, compositeCanvas.width / 2, padding + textHeight / 2);
-
         ctx.drawImage(qrCanvas, padding, padding + textHeight);
 
         const link = document.createElement('a');
@@ -276,10 +415,10 @@ function initQrMaker() {
 
 // QR 코드 화면 업데이트
 function updateQrDisplay(item) {
-    const titleDisplay  = document.getElementById('qr-product-title-display');
-    const urlPreview    = document.getElementById('qr-url-preview');
-    const name          = getProductDisplayName(item);
-    const qrUrl         = `${E_LABEL_BASE_URL}?product=${encodeURIComponent(name)}`;
+    const titleDisplay = document.getElementById('qr-product-title-display');
+    const urlPreview   = document.getElementById('qr-url-preview');
+    const name         = getProductDisplayName(item);
+    const qrUrl        = `${E_LABEL_BASE_URL}?product=${encodeURIComponent(name)}`;
 
     titleDisplay.textContent = name;
     urlPreview.textContent   = qrUrl;
@@ -300,14 +439,15 @@ function handleTts(item) {
     }
 
     const productName = getProductDisplayName(item);
-    const volume      = getColValue(item, 1);
-    const howToUse    = getColValue(item, 2).split('* 주의사항 :')[0].trim();
-    const cautions    = getColValue(item, 5);
+    const volume      = getColValue(item, COL.volume);
+    const functional  = getColValue(item, COL.functional);
+    const howToUse    = getColValue(item, COL.howToUse).split('* 주의사항 :')[0].trim();
+    const cautions    = getColValue(item, COL.cautions);
 
-    const text = `${productName}. ${uiLabels.volume[currentLang]}, ${volume}. ${uiLabels.howToUse[currentLang]}, ${howToUse}. ${uiLabels.cautions[currentLang]}, ${cautions}`;
+    const text = `${productName}. ${uiLabels.volume[currentLang]}, ${volume}. ${uiLabels.functional[currentLang]}, ${functional}. ${uiLabels.howToUse[currentLang]}, ${howToUse}. ${uiLabels.cautions[currentLang]}, ${cautions}`;
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
-    utterance.rate = 0.9;
+    const utterance  = new SpeechSynthesisUtterance(text);
+    utterance.lang   = currentLang === 'ko' ? 'ko-KR' : 'en-US';
+    utterance.rate   = 0.9;
     window.speechSynthesis.speak(utterance);
 }
