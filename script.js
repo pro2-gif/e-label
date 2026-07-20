@@ -3,7 +3,8 @@
 // =====================================================
 
 // ▼ QR 코드에 사용할 기본 주소 (나중에 실제 서버 주소로 변경 가능)
-const E_LABEL_BASE_URL = "https://intomedipro.com/e-label/index.html";
+// ▼ QR 코드 스캔 시 연결될 실제 인터넷 주소 (GitHub Pages)
+const E_LABEL_BASE_URL = "https://pro2-gif.github.io/e-label/index.html";
 
 // 구글 시트 ID
 const SHEET_ID = "1dQOhtidzJfK3NXzzrzzPeAC10pv8wvbqnWRU-WjM3wQ";
