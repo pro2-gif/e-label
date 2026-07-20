@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>e-Label</title>
-    <!-- 고급스러운 폰트 (Pretendard) 적용 -->
+    <title>인투메디 전자라벨 (e-Label)</title>
+    <meta name="description" content="인투메디 클리닉스 화장품 전자라벨 - 식약처 e-라벨 가이드라인 준수">
+    <!-- Pretendard 고급 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <!-- 아이콘용 구글 머티리얼 아이콘 폰트 -->
+    <!-- 구글 머티리얼 아이콘 -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+
+    <!-- Google Visualization API JSONP (CORS 없이 시트 데이터 로딩) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
     <!-- 상단 컨트롤러 -->
@@ -24,11 +28,24 @@
         </div>
     </header>
 
-    <!-- 메인 라벨 영역 -->
-    <main class="main-content">
-        <!-- 제품명 (매우 크고 볼드하게 처리될 요소) -->
-        <h1 id="product-name" class="product-name">인투메디 클리닉스 리쥬</h1>
-        
+    <!-- 로딩 화면 -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>제품 정보를 불러오는 중...</p>
+    </div>
+
+    <!-- 오류 화면 -->
+    <div id="error-screen" class="error-screen" style="display:none;">
+        <span class="material-icons" style="font-size:48px;color:#dc2626;">error_outline</span>
+        <h2>제품 정보를 찾을 수 없습니다</h2>
+        <p id="error-msg">올바른 QR 코드로 다시 시도해 주세요.</p>
+    </div>
+
+    <!-- 메인 라벨 영역 (숨김 상태로 시작) -->
+    <main class="main-content" id="main-content" style="display:none;">
+        <!-- 제품명 -->
+        <h1 id="product-name" class="product-name"></h1>
+
         <div class="table-container">
             <table class="info-table">
                 <tbody>
@@ -41,7 +58,7 @@
                         <td id="val-how-to-use"></td>
                     </tr>
                     <tr>
-                        <th id="label-manufacturer">제조업자 및 책임판매업자</th>
+                        <th id="label-manufacturer">제조 및 책임판매업자</th>
                         <td id="val-manufacturer"></td>
                     </tr>
                     <tr>
@@ -49,11 +66,11 @@
                         <td id="val-ingredients"></td>
                     </tr>
                     <tr>
-                        <th id="label-cautions">사용 시 주의사항</th>
+                        <th id="label-cautions">사용할 때의 주의사항</th>
                         <td id="val-cautions"></td>
                     </tr>
                     <tr>
-                        <th id="label-customer">소비자상담실</th>
+                        <th id="label-customer">소비자 상담</th>
                         <td id="val-customer"></td>
                     </tr>
                 </tbody>
@@ -62,10 +79,15 @@
     </main>
 
     <!-- 하단 고정 영역 -->
-    <footer class="bottom-fixed">
+    <footer class="bottom-fixed" id="bottom-footer" style="display:none;">
         <button id="btn-buy" class="buy-btn">구매하기</button>
     </footer>
 
+    <!-- 자바스크립트: 소비자 뷰어용 -->
     <script src="script.js"></script>
+    <script>
+        // index.html은 "뷰어(viewer)" 모드로 실행
+        initViewer();
+    </script>
 </body>
 </html>

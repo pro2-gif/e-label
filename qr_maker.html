@@ -3,132 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>단상자용 QR코드 생성기</title>
-    <!-- QR 코드 생성을 위한 라이브러리 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <!-- 폰트 적용 -->
+    <title>인투메디 QR 코드 생성기 (관리자용)</title>
+    <!-- Pretendard 고급 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- QR 코드 생성 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <link rel="stylesheet" href="style.css">
     <style>
+        /* QR 생성기 전용 추가 스타일 */
         body {
-            font-family: 'Pretendard', sans-serif;
-            background-color: #f9fafb;
+            padding-bottom: 40px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f4ff 0%, #fafafa 100%);
+        }
+
+        .qr-maker-wrapper {
+            max-width: 520px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .qr-maker-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .qr-maker-header .brand-logo {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: #6b7280;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .qr-maker-header h1 {
+            font-size: 26px;
+            font-weight: 800;
             color: #111827;
+            background: linear-gradient(135deg, #111827, #4b5563);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .qr-maker-header p {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .qr-card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 32px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px 20px;
+            gap: 24px;
         }
-        h2 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
+
+        .select-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            align-self: flex-start;
         }
-        p {
-            color: #4b5563;
-            margin-bottom: 24px;
-            text-align: center;
-            font-size: 15px;
-        }
-        .input-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 32px;
+
+        .product-select-full {
             width: 100%;
-            max-width: 500px;
-        }
-        input[type="text"] {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 15px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            background-color: #f9fafb;
+            color: #111827;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
         }
-        input[type="text"]:focus {
+
+        .product-select-full:focus {
             border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
-        .qr-card {
-            background-color: white;
-            padding: 32px;
+
+        .qr-canvas-wrapper {
+            background: #fff;
             border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .qr-product-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #111827;
             text-align: center;
-            margin-bottom: 24px;
+            letter-spacing: -0.01em;
         }
-        /* 단상자 인쇄 가이드라인 스타일 */
-        .qr-wrapper {
-            border: 2px dashed #9ca3af;
-            padding: 16px;
+
+        #qr-canvas {
+            width: 260px;
+            height: 260px;
             border-radius: 8px;
-            display: inline-block;
-            margin-bottom: 16px;
         }
-        canvas {
-            display: block;
+
+        .qr-url-preview {
+            font-size: 11px;
+            color: #9ca3af;
+            word-break: break-all;
+            text-align: center;
+            padding: 0 8px;
         }
-        .download-btn {
-            background-color: #2563eb;
+
+        .btn-download {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
             border: none;
-            padding: 14px 24px;
+            border-radius: 14px;
             font-size: 16px;
-            font-weight: 600;
-            border-radius: 8px;
+            font-weight: 700;
             cursor: pointer;
-            transition: background-color 0.2s;
-            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.4);
         }
-        .download-btn:hover {
-            background-color: #1d4ed8;
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37,99,235,0.5);
+        }
+
+        .btn-download:active {
+            transform: translateY(0);
+        }
+
+        .loading-inline {
+            font-size: 14px;
+            color: #6b7280;
         }
     </style>
 </head>
 <body>
-    <h2>단상자 삽입용 e-라벨 QR 코드 생성기</h2>
-    <p>아래 입력창에 실제로 e-라벨 화면이 서비스될 <strong>웹사이트 주소(URL)</strong>를 입력하시면, <br>인쇄용 고해상도 QR 코드가 실시간으로 생성됩니다.</p>
-    
-    <div class="input-group">
-        <input type="text" id="url-input" value="https://intomedipro.com/e-label/reju" placeholder="https://..." />
+    <div class="qr-maker-wrapper">
+        <div class="qr-maker-header">
+            <p class="brand-logo">인투메디 (INTOMEDI)</p>
+            <h1>단상자용 QR 코드 생성기</h1>
+            <p>제품을 선택하면 QR 코드가 즉시 생성됩니다.</p>
+        </div>
+
+        <div class="qr-card">
+            <label class="select-label" for="product-select-maker">제품 선택</label>
+            <select id="product-select-maker" class="product-select-full">
+                <option value="">-- 데이터 불러오는 중... --</option>
+            </select>
+
+            <div class="qr-canvas-wrapper">
+                <div id="qr-product-title-display" class="qr-product-title">제품을 선택해 주세요</div>
+                <canvas id="qr-canvas"></canvas>
+                <div id="qr-url-preview" class="qr-url-preview"></div>
+            </div>
+
+            <button id="btn-download" class="btn-download">
+                <span class="material-icons" style="font-size:20px;">download</span>
+                QR 코드 이미지 다운로드 (.png)
+            </button>
+        </div>
     </div>
 
-    <div class="qr-card">
-        <div class="qr-wrapper">
-            <canvas id="qr-canvas"></canvas>
-        </div>
-        <div>
-            <button class="download-btn" onclick="downloadQR()">📥 QR 코드 이미지 다운로드 (.png)</button>
-        </div>
-    </div>
-
+    <script src="script.js"></script>
     <script>
-        // QR 생성기 초기화 (H 레벨: 가장 높은 오류 복구율을 가져서 인쇄용 단상자에 적합함)
-        const qr = new QRious({
-            element: document.getElementById('qr-canvas'),
-            value: document.getElementById('url-input').value,
-            size: 300, 
-            level: 'H' 
-        });
-
-        // 주소가 바뀔 때마다 QR 코드 실시간 업데이트
-        document.getElementById('url-input').addEventListener('input', function(e) {
-            qr.value = e.target.value;
-        });
-
-        // 다운로드 기능
-        function downloadQR() {
-            const canvas = document.getElementById('qr-canvas');
-            // 캔버스 이미지를 PNG 데이터로 변환
-            const imageUrl = canvas.toDataURL("image/png");
-            
-            // 가상의 링크를 만들어 클릭 이벤트를 발생시켜 다운로드 실행
-            const link = document.createElement('a');
-            link.download = '인투메디_단상자_QR코드.png';
-            link.href = imageUrl;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+        // qr_maker.html은 "메이커(maker)" 모드로 실행
+        initQrMaker();
     </script>
 </body>
 </html>

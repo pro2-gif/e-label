@@ -1,174 +1,312 @@
-const db = {
-  product_info: {
-    product_name: {
-      ko: "인투메디 클리닉스 리쥬",
-      en: "INTOMEDI CLINICS REJU"
-    },
-    volume_functional: {
-      ko: "5ml x 5ea / 주름개선 기능성 화장품\n※ 본 제품은 질병의 예방 및 치료를 위한 의약품이 아닙니다.",
-      en: "5ml x 5ea / Anti-wrinkle Functional Cosmetics\n※ This product is not a medicine for the prevention or treatment of diseases."
-    },
-    how_to_use: {
-      ko: "적당량을 덜어 피부에 골고루 펴 바른 후 흡수시켜 줍니다.\n\n[바이알 오픈 방법]\n바이알의 캡을 화살표 방향으로 힘을 주어 연 다음 테두리의 알루미늄을 제거 후 고무마개를 열어줍니다. 이후 드로퍼를 끼워 사용해 주세요.\n* 주의사항 : 바이알 개봉 시 오픈 부분이 날카로울 수 있으니 사용에 주의하시기 바랍니다.",
-      en: "Take an appropriate amount, spread it evenly over the skin, and let it absorb.\n\n[How to open the vial]\nPull up the vial cap firmly in the direction of the arrow, remove the aluminum rim, and open the rubber stopper. Then, attach the dropper before use.\n* Caution: Be careful when opening the vial as the opened edge can be sharp."
-    },
-    manufacturer_distributor: {
-      ko: "(주)제니트리",
-      en: "ZENITREE Co., Ltd."
-    },
-    ingredients: {
-      ko: "정제수, 펜틸렌글라이콜, 트라넥사믹애씨드, 락토바실러스/하이드롤라이즈드완두콩추출발효여과물, 부틸렌글라이콜, 다이메틸설폰, 덱스판테놀, 하이드록시프로필사이클로덱스트린, 병풀추출물, 페퍼민트추출물, 알란토인, 하이드롤라이즈드콜라겐, 소듐하이알루로네이트, 아데노신, 호장근뿌리추출물, 황금추출물, 알지닌, 1,2-헥산다이올, 녹차추출물, 스페인감초뿌리추출물, 소듐하이알루로네이트크로스폴리머, 마트리카리아꽃추출물, 로즈마리잎추출물, 아세틸헥사펩타이드-8, 카퍼트라이펩타이드-1, 소듐디엔에이, 에스에이치-올리고펩타이드-1",
-      en: "Water, Pentylene Glycol, Tranexamic Acid, Lactobacillus/Hydrolyzed Pea Extract Ferment Filtrate, Butylene Glycol, Dimethyl Sulfone, Dexpanthenol, Hydroxypropyl Cyclodextrin, Centella Asiatica Extract, Peppermint Extract, Allantoin, Hydrolyzed Collagen, Sodium Hyaluronate, Adenosine, Polygonum Cuspidatum Root Extract, Scutellaria Baicalensis Root Extract, Arginine, 1,2-Hexanediol, Green Tea Extract, Glycyrrhiza Glabra (Licorice) Root Extract, Sodium Hyaluronate Crosspolymer, Matricaria Flower Extract, Rosemary Leaf Extract, Acetyl Hexapeptide-8, Copper Tripeptide-1, Sodium DNA, sh-Oligopeptide-1"
-    },
-    cautions: {
-      ko: "1) 화장품 사용 시 또는 사용 후 직사광선에 의하여 사용부위가 붉은 반점, 부어오름 또는 가려움증 등의 이상 증상이나 부작용이 있는 경우에는 전문의 등과 상담할 것\n2) 상처가 있는 부위 등에는 사용을 자제할 것\n3) 보관 및 취급 시 주의사항\n  가) 어린이의 손이 닿지 않는 곳에 보관할 것\n  나) 직사광선을 피해서 보관할 것",
-      en: "1) If there are any abnormal symptoms or side effects such as red spots, swelling, or itching on the area of use due to direct sunlight during or after using cosmetics, consult a specialist.\n2) Refrain from using on wounded areas.\n3) Cautions for storage and handling\n  A) Keep out of reach of children.\n  B) Store away from direct sunlight."
-    },
-    customer_service: {
-      ko: "1661-2383, 02-868-1921",
-      en: "+82-1661-2383, +82-2-868-1921"
-    }
-  }
-};
+// =====================================================
+// 인투메디 전자라벨 공용 스크립트 (script.js)
+// =====================================================
 
-const labels = {
-  volume: { ko: "용량 및 기능성", en: "Volume & Functional" },
-  howToUse: { ko: "사용방법", en: "How to Use" },
-  manufacturer: { ko: "제조업자 및 책임판매업자", en: "Manufacturer & Distributor" },
-  ingredients: { ko: "전성분", en: "Ingredients" },
-  cautions: { ko: "사용 시 주의사항", en: "Cautions" },
-  customer: { ko: "소비자상담실", en: "Customer Service" },
-  buyBtn: { ko: "구매하기", en: "Buy Now" }
-};
+// ▼ QR 코드에 사용할 기본 주소 (나중에 실제 서버 주소로 변경 가능)
+const E_LABEL_BASE_URL = "https://intomedipro.com/e-label/index.html";
 
-const storeLinks = {
-  ko: "https://intomedipro.com/",
-  en: "https://intomedipro.com/"
-};
+// 구글 시트 ID
+const SHEET_ID = "1dQOhtidzJfK3NXzzrzzPeAC10pv8wvbqnWRU-WjM3wQ";
 
+// 앱 상태 변수
 let currentLang = 'ko';
+let productsData = []; // 시트에서 파싱된 제품 배열
+let qrInstance = null;
 
-// 문서 요소 선택
-const els = {
-  btnKo: document.getElementById('btn-ko'),
-  btnEn: document.getElementById('btn-en'),
-  productName: document.getElementById('product-name'),
-  lblVolume: document.getElementById('label-volume'),
-  valVolume: document.getElementById('val-volume'),
-  lblHowToUse: document.getElementById('label-how-to-use'),
-  valHowToUse: document.getElementById('val-how-to-use'),
-  lblManufacturer: document.getElementById('label-manufacturer'),
-  valManufacturer: document.getElementById('val-manufacturer'),
-  lblIngredients: document.getElementById('label-ingredients'),
-  valIngredients: document.getElementById('val-ingredients'),
-  lblCautions: document.getElementById('label-cautions'),
-  valCautions: document.getElementById('val-cautions'),
-  lblCustomer: document.getElementById('label-customer'),
-  valCustomer: document.getElementById('val-customer'),
-  btnBuy: document.getElementById('btn-buy'),
-  btnTts: document.getElementById('btn-tts')
+// 다국어 UI 라벨
+const uiLabels = {
+    volume:       { ko: "용량 및 기능성",         en: "Volume & Functional" },
+    howToUse:     { ko: "사용방법",               en: "How to Use" },
+    manufacturer: { ko: "제조 및 책임판매업자",   en: "Manufacturer & Distributor" },
+    ingredients:  { ko: "전성분",                 en: "Ingredients" },
+    cautions:     { ko: "사용할 때의 주의사항",   en: "Cautions" },
+    customer:     { ko: "소비자 상담",             en: "Customer Service" },
+    buyBtn:       { ko: "구매하기",               en: "Buy Now" }
 };
 
-// UI 업데이트 함수
-function updateUI(lang) {
-  currentLang = lang;
-  
-  // 버튼 스타일 업데이트
-  if (lang === 'ko') {
-    els.btnKo.classList.add('active');
-    els.btnEn.classList.remove('active');
-  } else {
-    els.btnEn.classList.add('active');
-    els.btnKo.classList.remove('active');
-  }
+// =====================================================
+// ■ 구글 시트 데이터 로딩 (JSONP 방식 - CORS 문제 없음)
+// =====================================================
+function loadSheetData(callback) {
+    // JSONP 콜백 함수를 전역으로 등록
+    window._sheetCallback = function(json) {
+        try {
+            const rows = json.table.rows;
+            if (!rows || rows.length < 2) throw new Error("데이터가 없습니다.");
 
-  // 제품명
-  els.productName.textContent = db.product_info.product_name[lang];
-  
-  // 라벨 업데이트
-  els.lblVolume.textContent = labels.volume[lang];
-  els.lblHowToUse.textContent = labels.howToUse[lang];
-  els.lblManufacturer.textContent = labels.manufacturer[lang];
-  els.lblIngredients.textContent = labels.ingredients[lang];
-  els.lblCautions.textContent = labels.cautions[lang];
-  els.lblCustomer.textContent = labels.customer[lang];
-  
-  // 값 업데이트
-  els.valVolume.textContent = db.product_info.volume_functional[lang];
-  els.valManufacturer.textContent = db.product_info.manufacturer_distributor[lang];
-  els.valIngredients.textContent = db.product_info.ingredients[lang];
-  els.valCautions.textContent = db.product_info.cautions[lang];
-  els.valCustomer.textContent = db.product_info.customer_service[lang];
-  
-  // 구매버튼 업데이트
-  els.btnBuy.textContent = labels.buyBtn[lang];
+            // 첫 번째 행: 헤더 (컬럼명)
+            const headers = rows[0].c.map(cell => (cell && cell.v) ? String(cell.v).trim() : '');
 
-  // 사용방법 (경고 하이라이트 박스 처리)
-  const howToUseText = db.product_info.how_to_use[lang];
-  
-  // 주의사항 텍스트가 포함되어 있으면 분리하여 강조 처리
-  let formattedHowToUse = "";
-  const warningSplitKo = "* 주의사항 :";
-  const warningSplitEn = "* Caution:";
-  const splitKeyword = lang === 'ko' ? warningSplitKo : warningSplitEn;
-  
-  if (howToUseText.includes(splitKeyword)) {
-    const parts = howToUseText.split(splitKeyword);
-    const mainText = parts[0].trim();
-    const warningText = splitKeyword + parts[1];
-    
-    // 이스케이프 처리를 위해 textContent로 생성
-    const mainDiv = document.createElement('div');
-    mainDiv.textContent = mainText;
-    
-    const warningBox = document.createElement('div');
-    warningBox.className = 'warning-box';
-    warningBox.innerHTML = `<span class="material-icons">warning</span> <span>${warningText}</span>`;
-    
-    els.valHowToUse.innerHTML = '';
-    els.valHowToUse.appendChild(mainDiv);
-    els.valHowToUse.appendChild(warningBox);
-  } else {
-    els.valHowToUse.textContent = howToUseText;
-  }
+            // 두 번째 행부터: 실제 데이터
+            productsData = [];
+            for (let i = 1; i < rows.length; i++) {
+                const rowCells = rows[i].c;
+                const item = {};
+                for (let j = 0; j < headers.length; j++) {
+                    // 값이 있으면 문자열로 변환, 없으면 빈 문자열
+                    item[headers[j]] = (rowCells && rowCells[j] && rowCells[j].v != null)
+                        ? String(rowCells[j].v).trim()
+                        : '';
+                }
+                // 제품명이 비어있는 행은 건너뜀
+                const firstColKey = headers[0];
+                if (item[firstColKey]) {
+                    productsData.push(item);
+                }
+            }
+
+            callback(null, productsData);
+        } catch (err) {
+            callback(err, null);
+        }
+    };
+
+    // JSONP 스크립트 태그 삽입
+    const script = document.createElement('script');
+    script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:_sheetCallback`;
+    script.onerror = () => callback(new Error("네트워크 연결 오류"), null);
+    document.head.appendChild(script);
 }
 
-// 이벤트 리스너 등록
-els.btnKo.addEventListener('click', () => updateUI('ko'));
-els.btnEn.addEventListener('click', () => updateUI('en'));
+// 제품명(첫 번째 컬럼)의 국문 이름만 추출 (영문 포함된 경우 첫 줄만)
+function getProductDisplayName(item) {
+    const headers = Object.keys(item);
+    const rawName = item[headers[0]] || '';
+    // 개행이 있으면 첫 줄만
+    return rawName.split('\n')[0].trim();
+}
 
-els.btnBuy.addEventListener('click', () => {
-  window.open(storeLinks[currentLang], '_blank');
-});
+// 컬럼명 키를 순서로 가져오는 헬퍼
+function getColValue(item, colIndex) {
+    const keys = Object.keys(item);
+    return keys[colIndex] ? (item[keys[colIndex]] || '') : '';
+}
 
-// 음성 안내(TTS) 기능 구현 (토글: 재생/중지)
-els.btnTts.addEventListener('click', () => {
-  if (!window.speechSynthesis) {
-    alert(currentLang === 'ko' ? "이 브라우저는 음성 안내를 지원하지 않습니다." : "This browser does not support text-to-speech.");
-    return;
-  }
-  
-  // 현재 음성이 재생 중이라면 중지하고 함수 종료
-  if (window.speechSynthesis.speaking) {
-    window.speechSynthesis.cancel();
-    return; // 중지 후 다시 읽지 않도록 리턴
-  }
-  
-  // 메인 콘텐츠 영역의 텍스트를 수집
-  const textToRead = `
-    ${db.product_info.product_name[currentLang]}.
-    ${labels.volume[currentLang]}, ${db.product_info.volume_functional[currentLang]}.
-    ${labels.howToUse[currentLang]}, ${db.product_info.how_to_use[currentLang]}.
-    ${labels.manufacturer[currentLang]}, ${db.product_info.manufacturer_distributor[currentLang]}.
-    ${labels.cautions[currentLang]}, ${db.product_info.cautions[currentLang]}.
-  `;
-  
-  const utterance = new SpeechSynthesisUtterance(textToRead);
-  utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
-  utterance.rate = 0.9; // 약간 천천히 읽어주어 이해를 돕습니다
-  
-  window.speechSynthesis.speak(utterance);
-});
+// =====================================================
+// ■ 뷰어 모드 (index.html) - 소비자가 QR 스캔 시 보는 화면
+// =====================================================
+function initViewer() {
+    const loadingEl = document.getElementById('loading-screen');
+    const errorEl   = document.getElementById('error-screen');
+    const mainEl    = document.getElementById('main-content');
+    const footerEl  = document.getElementById('bottom-footer');
 
-// 초기화
-updateUI('ko');
+    // URL 파라미터에서 제품명 추출
+    const urlParams = new URLSearchParams(window.location.search);
+    const productParam = urlParams.get('product');
+
+    loadSheetData(function(err, data) {
+        if (err || !data || data.length === 0) {
+            loadingEl.style.display = 'none';
+            document.getElementById('error-msg').textContent = '시트 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+            errorEl.style.display = 'flex';
+            return;
+        }
+
+        // 파라미터로 제품 찾기 (이름의 일부만 포함돼도 매칭)
+        let targetIndex = 0;
+        if (productParam) {
+            const found = data.findIndex(item => {
+                const name = getProductDisplayName(item).toLowerCase();
+                return name.includes(productParam.toLowerCase());
+            });
+            if (found !== -1) targetIndex = found;
+        }
+
+        loadingEl.style.display = 'none';
+        mainEl.style.display = 'block';
+        footerEl.style.display = 'flex';
+
+        renderLabel(data[targetIndex], 'ko');
+
+        // 언어 버튼
+        document.getElementById('btn-ko').addEventListener('click', () => {
+            currentLang = 'ko';
+            document.getElementById('btn-ko').classList.add('active');
+            document.getElementById('btn-en').classList.remove('active');
+            renderLabel(data[targetIndex], 'ko');
+        });
+        document.getElementById('btn-en').addEventListener('click', () => {
+            currentLang = 'en';
+            document.getElementById('btn-en').classList.add('active');
+            document.getElementById('btn-ko').classList.remove('active');
+            renderLabel(data[targetIndex], 'en');
+        });
+
+        // 구매하기 버튼
+        document.getElementById('btn-buy').addEventListener('click', () => {
+            window.open('https://intomedipro.com/', '_blank');
+        });
+
+        // TTS 버튼
+        document.getElementById('btn-tts').addEventListener('click', () => {
+            handleTts(data[targetIndex]);
+        });
+    });
+}
+
+// =====================================================
+// ■ 라벨 데이터 화면 렌더링
+// =====================================================
+function renderLabel(item, lang) {
+    const headers = Object.keys(item);
+    // 열 순서: 0=제품명, 1=용량/기능성, 2=사용방법, 3=제조업자, 4=전성분, 5=주의사항, 6=소비자상담
+
+    // 제품명 (첫 번째 열, 첫 줄만 사용)
+    document.getElementById('product-name').textContent = getProductDisplayName(item);
+
+    // UI 라벨 (테이블 왼쪽 항목명)
+    document.getElementById('label-volume').textContent       = uiLabels.volume[lang];
+    document.getElementById('label-how-to-use').textContent  = uiLabels.howToUse[lang];
+    document.getElementById('label-manufacturer').textContent = uiLabels.manufacturer[lang];
+    document.getElementById('label-ingredients').textContent  = uiLabels.ingredients[lang];
+    document.getElementById('label-cautions').textContent    = uiLabels.cautions[lang];
+    document.getElementById('label-customer').textContent    = uiLabels.customer[lang];
+    document.getElementById('btn-buy').textContent           = uiLabels.buyBtn[lang];
+
+    // 데이터 값 채우기 (열 순서 기반)
+    document.getElementById('val-volume').textContent       = getColValue(item, 1);
+    document.getElementById('val-manufacturer').textContent = getColValue(item, 3);
+    document.getElementById('val-ingredients').textContent  = getColValue(item, 4);
+    document.getElementById('val-cautions').textContent     = getColValue(item, 5);
+    document.getElementById('val-customer').textContent     = getColValue(item, 6);
+
+    // 사용방법: 주의사항 경고 박스 분리 렌더링
+    const howToUseRaw = getColValue(item, 2);
+    const warnKeyword = "* 주의사항 :";
+    const valHowToUseEl = document.getElementById('val-how-to-use');
+    valHowToUseEl.innerHTML = '';
+
+    if (howToUseRaw.includes(warnKeyword)) {
+        const parts = howToUseRaw.split(warnKeyword);
+        const mainDiv = document.createElement('div');
+        mainDiv.style.whiteSpace = 'pre-line';
+        mainDiv.textContent = parts[0].trim();
+
+        const warnDiv = document.createElement('div');
+        warnDiv.className = 'warning-box';
+        warnDiv.innerHTML = `<span class="material-icons" style="font-size:18px;margin-top:2px;">warning</span><span>* 주의사항 : ${parts[1].trim()}</span>`;
+
+        valHowToUseEl.appendChild(mainDiv);
+        valHowToUseEl.appendChild(warnDiv);
+    } else {
+        valHowToUseEl.style.whiteSpace = 'pre-line';
+        valHowToUseEl.textContent = howToUseRaw;
+    }
+}
+
+// =====================================================
+// ■ QR 메이커 모드 (qr_maker.html) - 관리자용
+// =====================================================
+function initQrMaker() {
+    const selectEl      = document.getElementById('product-select-maker');
+    const titleDisplay  = document.getElementById('qr-product-title-display');
+    const urlPreview    = document.getElementById('qr-url-preview');
+    const downloadBtn   = document.getElementById('btn-download');
+
+    // QRious 인스턴스 초기화
+    qrInstance = new QRious({
+        element: document.getElementById('qr-canvas'),
+        size: 260,
+        level: 'H',
+        value: E_LABEL_BASE_URL
+    });
+
+    // 시트 데이터 로딩
+    loadSheetData(function(err, data) {
+        if (err || !data || data.length === 0) {
+            selectEl.innerHTML = '<option value="">데이터 로딩 실패 - 인터넷 연결 확인</option>';
+            return;
+        }
+
+        // 드롭다운 채우기
+        selectEl.innerHTML = '';
+        data.forEach((item, idx) => {
+            const option = document.createElement('option');
+            option.value = idx;
+            option.textContent = getProductDisplayName(item);
+            selectEl.appendChild(option);
+        });
+
+        // 첫 번째 제품으로 초기 QR 렌더링
+        updateQrDisplay(data[0]);
+
+        // 제품 변경 시 QR 갱신
+        selectEl.addEventListener('change', () => {
+            const idx = parseInt(selectEl.value);
+            updateQrDisplay(data[idx]);
+        });
+    });
+
+    // QR 이미지 다운로드 (제품명 + QR 합성)
+    downloadBtn.addEventListener('click', () => {
+        const idx = parseInt(selectEl.value) || 0;
+        const productName = selectEl.options[selectEl.selectedIndex]?.textContent || '제품';
+        const qrCanvas = document.getElementById('qr-canvas');
+
+        // 합성 캔버스 생성 (제품명 텍스트 + QR 이미지)
+        const compositeCanvas = document.createElement('canvas');
+        const ctx = compositeCanvas.getContext('2d');
+        const padding = 30;
+        const textHeight = 50;
+        compositeCanvas.width  = qrCanvas.width + padding * 2;
+        compositeCanvas.height = qrCanvas.height + padding * 2 + textHeight;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+
+        ctx.fillStyle = '#111827';
+        ctx.font = 'bold 20px Pretendard, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(productName, compositeCanvas.width / 2, padding + textHeight / 2);
+
+        ctx.drawImage(qrCanvas, padding, padding + textHeight);
+
+        const link = document.createElement('a');
+        const safeName = productName.replace(/[/\\?%*:|"<>]/g, '_');
+        link.download = `${safeName}_QR코드.png`;
+        link.href = compositeCanvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+}
+
+// QR 코드 화면 업데이트
+function updateQrDisplay(item) {
+    const titleDisplay  = document.getElementById('qr-product-title-display');
+    const urlPreview    = document.getElementById('qr-url-preview');
+    const name          = getProductDisplayName(item);
+    const qrUrl         = `${E_LABEL_BASE_URL}?product=${encodeURIComponent(name)}`;
+
+    titleDisplay.textContent = name;
+    urlPreview.textContent   = qrUrl;
+    qrInstance.value         = qrUrl;
+}
+
+// =====================================================
+// ■ TTS (음성 안내) 처리
+// =====================================================
+function handleTts(item) {
+    if (!window.speechSynthesis) {
+        alert('이 브라우저는 음성 안내를 지원하지 않습니다.');
+        return;
+    }
+    if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        return;
+    }
+
+    const productName = getProductDisplayName(item);
+    const volume      = getColValue(item, 1);
+    const howToUse    = getColValue(item, 2).split('* 주의사항 :')[0].trim();
+    const cautions    = getColValue(item, 5);
+
+    const text = `${productName}. ${uiLabels.volume[currentLang]}, ${volume}. ${uiLabels.howToUse[currentLang]}, ${howToUse}. ${uiLabels.cautions[currentLang]}, ${cautions}`;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+}
