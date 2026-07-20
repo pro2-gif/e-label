@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-Label</title>
+    <!-- 고급스러운 폰트 (Pretendard) 적용 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <!-- 아이콘용 구글 머티리얼 아이콘 폰트 -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 상단 컨트롤러 -->
+    <header class="top-controller">
+        <div class="lang-switcher">
+            <button id="btn-ko" class="lang-btn active">KO</button>
+            <button id="btn-en" class="lang-btn">EN</button>
+        </div>
+        <div class="barrier-free-actions">
+            <button id="btn-tts" class="icon-btn" title="음성 안내(TTS)">
+                <span class="material-icons">volume_up</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 메인 라벨 영역 -->
+    <main class="main-content">
+        <!-- 제품명 (매우 크고 볼드하게 처리될 요소) -->
+        <h1 id="product-name" class="product-name">인투메디 클리닉스 리쥬</h1>
+        
+        <div class="table-container">
+            <table class="info-table">
+                <tbody>
+                    <tr>
+                        <th id="label-volume">용량 및 기능성</th>
+                        <td id="val-volume"></td>
+                    </tr>
+                    <tr>
+                        <th id="label-how-to-use">사용방법</th>
+                        <td id="val-how-to-use"></td>
+                    </tr>
+                    <tr>
+                        <th id="label-manufacturer">제조업자 및 책임판매업자</th>
+                        <td id="val-manufacturer"></td>
+                    </tr>
+                    <tr>
+                        <th id="label-ingredients">전성분</th>
+                        <td id="val-ingredients"></td>
+                    </tr>
+                    <tr>
+                        <th id="label-cautions">사용 시 주의사항</th>
+                        <td id="val-cautions"></td>
+                    </tr>
+                    <tr>
+                        <th id="label-customer">소비자상담실</th>
+                        <td id="val-customer"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- 하단 고정 영역 -->
+    <footer class="bottom-fixed">
+        <button id="btn-buy" class="buy-btn">구매하기</button>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
