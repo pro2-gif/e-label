@@ -183,33 +183,65 @@ function initViewer() {
 
 // =====================================================
 // ■ 식약처 API: 한글 성분명 → 영문명 조회
+//   1차: 직접 호출 시도 (일부 환경에서 CORS 없이 작동)
+//   2차: allorigins.win 프록시
+//   3차: corsproxy.io 프록시
+//   최종 보완: Google Translate
 // =====================================================
+async function fetchWithTimeout(url, timeoutMs = 5000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timer);
+        return res;
+    } catch (e) {
+        clearTimeout(timer);
+        throw e;
+    }
+}
+
+async function queryMfdsApi(korName) {
+    const apiPath = `${MFDS_API_URL}?serviceKey=${MFDS_API_KEY}&IngdKorNm=${encodeURIComponent(korName)}&type=json&numOfRows=1`;
+
+    // 시도할 URL 목록 (직접 호출 → 두 가지 프록시)
+    const candidates = [
+        apiPath,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(apiPath)}`,
+        `https://corsproxy.io/?${encodeURIComponent(apiPath)}`
+    ];
+
+    for (const url of candidates) {
+        try {
+            const res  = await fetchWithTimeout(url, 5000);
+            const data = await res.json();
+            const engName = data?.body?.items?.[0]?.INGR_ENG_NAME;
+            if (engName) return engName; // 성공 시 즉시 반환
+        } catch (e) {
+            // 해당 URL 실패 → 다음 URL 시도
+        }
+    }
+    return null; // 모든 URL 실패
+}
+
 async function lookupIngredientEn(korName) {
     const trimmed = korName.trim();
     if (!trimmed) return trimmed;
     if (ingredientEnCache[trimmed]) return ingredientEnCache[trimmed]; // 캐시 확인
 
-    try {
-        // CORS 우회: allorigins 프록시를 통해 식약처 API 호출
-        const apiUrl = `${MFDS_API_URL}?serviceKey=${MFDS_API_KEY}&IngdKorNm=${encodeURIComponent(trimmed)}&type=json&numOfRows=1`;
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
-        const res = await fetch(proxyUrl);
-        const data = await res.json();
-
-        const engName = data?.body?.items?.[0]?.INGR_ENG_NAME;
-        if (engName) {
-            ingredientEnCache[trimmed] = engName;
-            return engName;
-        }
-    } catch (e) {
-        // 조회 실패 시 Google Translate로 보완
+    // 1차~3차: 식약처 API (공식 INCI 영문명)
+    const official = await queryMfdsApi(trimmed);
+    if (official) {
+        ingredientEnCache[trimmed] = official;
+        return official;
     }
 
-    // ▼ 식약처 DB에 없거나 API 실패 시 → Google Translate로 번역 (국문 그대로 반환 X)
+    // 최종 보완: Google Translate (식약처 DB에 없는 성분 처리)
     const translated = await translateText(trimmed);
     ingredientEnCache[trimmed] = translated;
     return translated;
 }
+
 
 // =====================================================
 // ■ 전성분 목록 전체 영문 변환
