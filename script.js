@@ -88,11 +88,20 @@ function loadSheetData(callback) {
     document.head.appendChild(script);
 }
 
-// 제품명 (첫 번째 열, 개행 이전 첫 줄만 표시)
-function getProductDisplayName(item) {
+// 제품명 가져오기
+// lang='ko' → 첫 번째 줄(한국어), lang='en' → 시트에 이미 있는 영문명 추출
+function getProductDisplayName(item, lang) {
     const keys = Object.keys(item);
     const rawName = item[keys[COL.name]] || '';
-    return rawName.split('\n')[0].trim();
+    const lines = rawName.split('\n').map(l => l.trim()).filter(l => l);
+
+    if (lang === 'en') {
+        // 한글 문자가 없는 줄 = 영문명 (이미 시트에 입력된 공식 영문명 사용)
+        const enLine = lines.find(line => !/[가-힣]/.test(line));
+        if (enLine) return enLine;
+    }
+    // 기본값: 첫 번째 줄 (한국어)
+    return lines[0] || '';
 }
 
 // 컬럼 인덱스로 값 가져오기
@@ -193,12 +202,13 @@ async function lookupIngredientEn(korName) {
             return engName;
         }
     } catch (e) {
-        // 조회 실패 시 원본 반환
+        // 조회 실패 시 Google Translate로 보완
     }
 
-    // 식약처 DB에 없으면 한글명 그대로 반환 (대부분 INCI명은 국제 공통)
-    ingredientEnCache[trimmed] = trimmed;
-    return trimmed;
+    // ▼ 식약처 DB에 없거나 API 실패 시 → Google Translate로 번역 (국문 그대로 반환 X)
+    const translated = await translateText(trimmed);
+    ingredientEnCache[trimmed] = translated;
+    return translated;
 }
 
 // =====================================================
@@ -274,7 +284,7 @@ async function renderLabel(item, lang) {
     document.getElementById('btn-buy').textContent           = uiLabels.buyBtn[lang];
 
     // 원본 한국어 데이터
-    let productName  = getProductDisplayName(item);
+    let productName  = getProductDisplayName(item, lang); // lang에 따라 한/영 자동 선택
     let volume       = getColValue(item, COL.volume);
     let functional   = getColValue(item, COL.functional);
     let manufacturer = getColValue(item, COL.manufacturer);
@@ -284,9 +294,8 @@ async function renderLabel(item, lang) {
 
     // ▼ 영어 모드: 각 항목 번역 수행
     if (lang === 'en') {
-        // 일반 항목은 Google Translate 번역
-        [productName, volume, functional, manufacturer, cautions, customer] = await Promise.all([
-            translateText(productName),
+        // 제품명은 이미 lang으로 선택했으므로 번역 불필요, 나머지만 번역
+        [volume, functional, manufacturer, cautions, customer] = await Promise.all([
             translateText(volume),
             translateText(functional),
             translateText(manufacturer),
@@ -294,12 +303,14 @@ async function renderLabel(item, lang) {
             translateText(customer)
         ]);
 
-        // 전성분은 식약처 API(INCI 영문명) 우선 조회 후 번역
+        // 전성분은 식약처 API(INCI 영문명) 우선 조회 후 구글 번역으로 보완
         ingredients = await translateIngredients(ingredients);
     }
 
-    // 제품명 표시
-    document.getElementById('product-name').textContent = productName;
+    // 제품명 표시 (EN이면 시트에서 직접 영문명 추출)
+    document.getElementById('product-name').textContent = lang === 'en'
+        ? getProductDisplayName(item, 'en')
+        : getProductDisplayName(item, 'ko');
 
     // 데이터 값 채우기
     document.getElementById('val-volume').textContent       = volume;
@@ -369,7 +380,7 @@ function initQrMaker() {
         data.forEach((item, idx) => {
             const option = document.createElement('option');
             option.value = idx;
-            option.textContent = getProductDisplayName(item);
+            option.textContent = getProductDisplayName(item, 'ko');
             selectEl.appendChild(option);
         });
 
@@ -417,7 +428,7 @@ function initQrMaker() {
 function updateQrDisplay(item) {
     const titleDisplay = document.getElementById('qr-product-title-display');
     const urlPreview   = document.getElementById('qr-url-preview');
-    const name         = getProductDisplayName(item);
+    const name         = getProductDisplayName(item, 'ko');
     const qrUrl        = `${E_LABEL_BASE_URL}?product=${encodeURIComponent(name)}`;
 
     titleDisplay.textContent = name;
@@ -438,7 +449,7 @@ function handleTts(item) {
         return;
     }
 
-    const productName = getProductDisplayName(item);
+    const productName = getProductDisplayName(item, 'ko');
     const volume      = getColValue(item, COL.volume);
     const functional  = getColValue(item, COL.functional);
     const howToUse    = getColValue(item, COL.howToUse).split('* 주의사항 :')[0].trim();

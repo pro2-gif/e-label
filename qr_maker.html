@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>인투메디 QR 코드 생성기 (관리자용)</title>
     <!-- Pretendard 고급 폰트 -->
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- QR 코드 생성 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
@@ -56,7 +58,7 @@
         .qr-card {
             background: #ffffff;
             border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             padding: 32px;
             display: flex;
             flex-direction: column;
@@ -143,12 +145,12 @@
             justify-content: center;
             gap: 8px;
             font-family: inherit;
-            box-shadow: 0 4px 14px rgba(37,99,235,0.4);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
         }
 
         .btn-download:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37,99,235,0.5);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
         }
 
         .btn-download:active {
@@ -161,11 +163,12 @@
         }
     </style>
 </head>
+
 <body>
     <div class="qr-maker-wrapper">
         <div class="qr-maker-header">
             <p class="brand-logo">인투메디 (INTOMEDI)</p>
-            <h1>단상자용 QR 코드 생성기</h1>
+            <h1> QR 코드 생성기</h1>
             <p>제품을 선택하면 QR 코드가 즉시 생성됩니다.</p>
         </div>
 
@@ -194,4 +197,5 @@
         initQrMaker();
     </script>
 </body>
+
 </html>
