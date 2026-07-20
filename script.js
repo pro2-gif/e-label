@@ -110,6 +110,23 @@ function getColValue(item, colIndex) {
     return keys[colIndex] ? (item[keys[colIndex]] || '') : '';
 }
 
+// 제조업자 항목: 언어에 따라 한글 줄 or 영문 줄만 추출
+// 시트에 "(주)제니트리\n\nJANYTREE INC." 형태로 입력된 것을 처리
+function getManufacturerDisplay(item, lang) {
+    const raw = getColValue(item, COL.manufacturer);
+    const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
+
+    if (lang === 'ko') {
+        // 한글이 포함된 줄만 반환
+        const koLine = lines.find(l => /[가-힣]/.test(l));
+        return koLine || lines[0] || raw;
+    } else {
+        // 한글이 없는 줄(영문) 반환
+        const enLine = lines.find(l => !/[가-힣]/.test(l));
+        return enLine || lines[lines.length - 1] || raw;
+    }
+}
+
 // =====================================================
 // ■ 뷰어 모드 (index.html) - 소비자가 QR 스캔 시 보는 화면
 // =====================================================
@@ -315,22 +332,22 @@ async function renderLabel(item, lang) {
     document.getElementById('label-customer').textContent    = uiLabels.customer[lang];
     document.getElementById('btn-buy').textContent           = uiLabels.buyBtn[lang];
 
-    // 원본 한국어 데이터
-    let productName  = getProductDisplayName(item, lang); // lang에 따라 한/영 자동 선택
+    // 원본 데이터 (언어별 처리)
+    let productName  = getProductDisplayName(item, lang);
     let volume       = getColValue(item, COL.volume);
     let functional   = getColValue(item, COL.functional);
-    let manufacturer = getColValue(item, COL.manufacturer);
+    // 제조업자: 언어별로 해당 줄만 추출 (번역 불필요)
+    let manufacturer = getManufacturerDisplay(item, lang);
     let ingredients  = getColValue(item, COL.ingredients);
     let cautions     = getColValue(item, COL.cautions);
     let customer     = getColValue(item, COL.customer);
 
     // ▼ 영어 모드: 각 항목 번역 수행
     if (lang === 'en') {
-        // 제품명은 이미 lang으로 선택했으므로 번역 불필요, 나머지만 번역
-        [volume, functional, manufacturer, cautions, customer] = await Promise.all([
+        // 제조업자는 이미 영문 추출 완료, 번역 불필요
+        [volume, functional, cautions, customer] = await Promise.all([
             translateText(volume),
             translateText(functional),
-            translateText(manufacturer),
             translateText(cautions),
             translateText(customer)
         ]);
