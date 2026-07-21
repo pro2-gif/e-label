@@ -6,8 +6,8 @@
 // 스마트폰 카메라로 스캔했을 때 이 주소로 접속되어야 합니다.
 const E_LABEL_BASE_URL = "https://pro2-gif.github.io/e-label/index.html";
 
-// 구글 시트 ID
-const SHEET_ID = "1dQOhtidzJfK3NXzzrzzPeAC10pv8wvbqnWRU-WjM3wQ";
+// 구글 시트 ID (새로 제공해주신 ID 적용)
+const SHEET_ID = "1202j3dJ_p-6_424X9v";
 
 // 식약처 화장품 성분 API 인증키
 const MFDS_API_KEY = "8438e0c9c0276651df0610f950fb14f1e6b328ad92f388072a7fdf5dfed4c8b3";
@@ -135,7 +135,8 @@ const fallbackData = [
 // =====================================================
 async function loadSheetData(callback) {
     try {
-        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+        // 수인이 요청한 pub?output=csv 방식 적용
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?output=csv`;
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) throw new Error("네트워크 응답 오류");
         
@@ -506,12 +507,25 @@ function initQrMaker() {
         value: E_LABEL_BASE_URL
     });
 
+    // 1. 임시 방어 데이터(Fallback) 드롭다운에 즉시 표시 (사용자 요청 사항)
+    selectEl.innerHTML = '';
+    fallbackData.forEach((item, idx) => {
+        const option = document.createElement('option');
+        option.value = idx;
+        option.textContent = getProductDisplayName(item, 'ko');
+        selectEl.appendChild(option);
+    });
+    // Fallback의 첫 번째 데이터로 초기 QR코드 세팅
+    updateQrDisplay(fallbackData[0]);
+
+    // 2. 실제 시트 데이터 비동기(Fetch) 로딩
     loadSheetData(function(err, data) {
         if (err || !data || data.length === 0) {
-            selectEl.innerHTML = '<option value="">데이터 로딩 실패 - 인터넷 연결 확인</option>';
+            // 실패 시 그대로 fallback 유지
             return;
         }
 
+        // 로딩 성공 시 실제 데이터로 드롭다운 전면 교체
         selectEl.innerHTML = '';
         data.forEach((item, idx) => {
             const option = document.createElement('option');
@@ -522,19 +536,18 @@ function initQrMaker() {
 
         updateQrDisplay(data[0]);
 
+        // 이벤트 리스너는 새로고침되더라도 동작하도록 한 번만 붙여줍니다
         selectEl.addEventListener('change', () => {
             const idx = parseInt(selectEl.value);
             updateQrDisplay(data[idx]);
         });
         
-        // QR 영역 클릭 시 즉시 해당 제품 뷰어로 이동 (화면 깜빡임 없이)
         document.getElementById('qr-to-viewer-btn').addEventListener('click', () => {
             const idx = parseInt(selectEl.value);
             const selectedItem = data[idx];
             if (!selectedItem) return;
             
             const name = getProductDisplayName(selectedItem, 'ko');
-            // URL 파라미터를 추가하여 페이지 리로드 (공유하기 쉽도록 URL 업데이트)
             window.location.href = `?product=${encodeURIComponent(name)}`;
         });
     });
