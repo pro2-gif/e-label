@@ -34,7 +34,7 @@ const COL = {
 // 앱 상태 변수
 let currentLang = 'ko';
 let productsData = [];
-let qrInstance = null;
+let currentQrUrl = '';
 
 // 번역 캐시 (API 재호출 방지)
 const translationCache = {};
@@ -491,13 +491,6 @@ function initQrMaker() {
     const selectEl     = document.getElementById('product-select-maker');
     const downloadBtn  = document.getElementById('btn-download');
 
-    qrInstance = new QRious({
-        element: document.getElementById('qr-canvas'),
-        size: 200,
-        level: 'H',
-        value: E_LABEL_BASE_URL
-    });
-
     // 페이지 시작 시 HTML에 미리 작성해둔(하드코딩) 3개의 옵션에 맞추어 QR 코드 캔버스만 초기화
     updateQrDisplay(fallbackData[0]);
 
@@ -536,48 +529,49 @@ function initQrMaker() {
         });
     });
 
-    // QR 이미지 다운로드 (제품명 포함 합성)
+    // QR 이미지 다운로드
     downloadBtn.addEventListener('click', () => {
+        if (!currentQrUrl) return;
         const productName = selectEl.options[selectEl.selectedIndex]?.textContent || '제품';
-        const qrCanvas    = document.getElementById('qr-canvas');
-
-        const compositeCanvas = document.createElement('canvas');
-        const ctx      = compositeCanvas.getContext('2d');
-        const padding  = 30;
-        const textHeight = 50;
-        compositeCanvas.width  = qrCanvas.width + padding * 2;
-        compositeCanvas.height = qrCanvas.height + padding * 2 + textHeight;
-
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
-
-        ctx.fillStyle    = '#111827';
-        ctx.font         = 'bold 20px Pretendard, sans-serif';
-        ctx.textAlign    = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(productName, compositeCanvas.width / 2, padding + textHeight / 2);
-        ctx.drawImage(qrCanvas, padding, padding + textHeight);
-
-        const link = document.createElement('a');
         const safeName = productName.replace(/[/\\?%*:|"<>]/g, '_');
-        link.download = `${safeName}_QR코드.png`;
-        link.href = compositeCanvas.toDataURL('image/png');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+
+        fetch(currentQrUrl)
+            .then(res => res.blob())
+            .then(blob => {
+                const link = document.createElement('a');
+                link.download = `${safeName}_QR코드.png`;
+                link.href = URL.createObjectURL(blob);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            })
+            .catch(err => {
+                // Fetch(CORS) 실패 시 새 창으로 이미지 열기
+                window.open(currentQrUrl, '_blank');
+            });
     });
 }
 
 // QR 코드 화면 업데이트
 function updateQrDisplay(item) {
     const titleDisplay = document.getElementById('qr-product-title-display');
+    const container    = document.getElementById('qr-container');
     const urlPreview   = document.getElementById('qr-url-preview');
+    
     const name         = getProductDisplayName(item, 'ko');
-    const qrUrl        = `${E_LABEL_BASE_URL}?product=${encodeURIComponent(name)}`;
+    const productUrl   = `${E_LABEL_BASE_URL}?product=${encodeURIComponent(name)}`;
+    
+    // 외부 API를 이용해 고해상도 QR코드 URL 획득
+    currentQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(productUrl)}`;
 
     titleDisplay.textContent = name;
-    urlPreview.textContent   = qrUrl;
-    qrInstance.value         = qrUrl;
+    urlPreview.textContent   = productUrl;
+    
+    // img 태그로 즉시 렌더링
+    container.innerHTML = `
+        <img src="${currentQrUrl}" alt="QR Code" style="width:200px; height:200px; margin-bottom:10px; border-radius:8px;" />
+        <p style="font-size:12px; color:#2563eb; font-weight:600; margin-top:0px; margin-bottom:5px;">👉 터치하여 라벨 바로보기</p>
+    `;
 }
 
 // =====================================================

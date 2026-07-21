@@ -13,8 +13,6 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 
-    <!-- QR 코드 생성 라이브러리 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <!-- Google Visualization API JSONP (CORS 없이 시트 데이터 로딩) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
@@ -204,8 +202,8 @@
 
             <div class="qr-canvas-wrapper" id="qr-to-viewer-btn" title="클릭하여 전자라벨 바로보기">
                 <div id="qr-product-title-display" class="qr-product-title">제품을 선택해 주세요</div>
-                <div class="qr-click-hint">👉 터치하여 라벨 바로보기</div>
-                <canvas id="qr-canvas"></canvas>
+                <!-- 구글 QR API를 통해 이미지가 삽입될 컨테이너 -->
+                <div id="qr-container" style="text-align: center; margin-top: 10px;"></div>
                 <div id="qr-url-preview" class="qr-url-preview"></div>
             </div>
 
@@ -305,7 +303,7 @@
     </div>
 
     <!-- 공통 스크립트 연결 (캐시 방지를 위해 버전 추가) -->
-    <script src="script.js?v=6"></script>
+    <script src="script.js?v=7"></script>
     <script>
         // 현재 URL에 'product' 쿼리가 있는지 확인하여 모드 결정
         const urlParams = new URLSearchParams(window.location.search);
