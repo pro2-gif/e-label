@@ -1,97 +1,322 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>인투메디 전자라벨 (e-Label)</title>
     <meta name="description" content="인투메디 클리닉스 화장품 전자라벨 - 식약처 e-라벨 가이드라인 준수">
     <!-- Pretendard 고급 폰트 -->
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <!-- 구글 머티리얼 아이콘 -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 
+    <!-- QR 코드 생성 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <!-- Google Visualization API JSONP (CORS 없이 시트 데이터 로딩) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        /* QR 생성기 전용 추가 스타일 */
+        .qr-maker-wrapper {
+            max-width: 520px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .qr-maker-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .qr-maker-header .brand-logo {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: #6b7280;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .qr-maker-header h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #111827;
+            background: linear-gradient(135deg, #111827, #4b5563);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .qr-maker-header p {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .qr-card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .select-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            align-self: flex-start;
+        }
+
+        .product-select-full {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            background-color: #f9fafb;
+            color: #111827;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+        .product-select-full:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .qr-canvas-wrapper {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .qr-canvas-wrapper:hover {
+            transform: scale(1.02);
+            border-color: #2563eb;
+        }
+
+        .qr-click-hint {
+            font-size: 12px;
+            color: #2563eb;
+            font-weight: 600;
+            margin-top: -8px;
+            margin-bottom: 8px;
+        }
+
+        .qr-product-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #111827;
+            text-align: center;
+            letter-spacing: -0.01em;
+        }
+
+        #qr-canvas {
+            width: 260px;
+            height: 260px;
+            border-radius: 8px;
+        }
+
+        .qr-url-preview {
+            display: none;
+            /* 사용자 요청으로 주소 텍스트 숨김 */
+            font-size: 11px;
+            color: #9ca3af;
+            word-break: break-all;
+            text-align: center;
+            padding: 0 8px;
+        }
+
+        .btn-download {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+        }
+
+        .btn-download:active {
+            transform: translateY(0);
+        }
+
+        /* 통합 뷰어용 전체 컨테이너 감추기 */
+        #viewer-container,
+        #maker-container {
+            display: none;
+        }
+    </style>
 </head>
+
 <body>
-    <!-- 상단 컨트롤러 -->
-    <header class="top-controller">
-        <div class="lang-switcher">
-            <button id="btn-ko" class="lang-btn active">KO</button>
-            <button id="btn-en" class="lang-btn">EN</button>
+
+    <!-- ========================================== -->
+    <!-- 1. 메인 화면 (QR 코드 생성기 모드)           -->
+    <!-- ========================================== -->
+    <div id="maker-container" class="qr-maker-wrapper">
+        <div class="qr-maker-header">
+            <p class="brand-logo">인투메디 (INTOMEDI)</p>
+            <h1>e-Label QR 코드 </h1>
+            <p>제품을 선택하면 QR 코드가 즉시 생성됩니다.<br>QR 코드를 클릭하면 바로 전자라벨을 확인할 수 있습니다.</p>
         </div>
-        <div class="barrier-free-actions">
-            <button id="btn-tts" class="icon-btn" title="음성 안내(TTS)">
-                <span class="material-icons">volume_up</span>
+
+        <div class="qr-card">
+            <label class="select-label" for="product-select-maker">제품 선택</label>
+            <select id="product-select-maker" class="product-select-full">
+                <option value="">-- 데이터 불러오는 중... --</option>
+            </select>
+
+            <div class="qr-canvas-wrapper" id="qr-to-viewer-btn" title="클릭하여 전자라벨 바로보기">
+                <div id="qr-product-title-display" class="qr-product-title">제품을 선택해 주세요</div>
+                <div class="qr-click-hint">👉 터치하여 라벨 바로보기</div>
+                <canvas id="qr-canvas"></canvas>
+                <div id="qr-url-preview" class="qr-url-preview"></div>
+            </div>
+
+            <button id="btn-download" class="btn-download">
+                <span class="material-icons" style="font-size:20px;">download</span>
+                QR 코드 이미지 다운로드 (.png)
             </button>
         </div>
-    </header>
-
-    <!-- 로딩 화면 -->
-    <div id="loading-screen" class="loading-screen">
-        <div class="loading-spinner"></div>
-        <p>제품 정보를 불러오는 중...</p>
     </div>
 
-    <!-- 오류 화면 -->
-    <div id="error-screen" class="error-screen" style="display:none;">
-        <span class="material-icons" style="font-size:48px;color:#dc2626;">error_outline</span>
-        <h2>제품 정보를 찾을 수 없습니다</h2>
-        <p id="error-msg">올바른 QR 코드로 다시 시도해 주세요.</p>
-    </div>
 
-    <!-- 메인 라벨 영역 (숨김 상태로 시작) -->
-    <main class="main-content" id="main-content" style="display:none;">
-        <!-- 제품명 -->
-        <h1 id="product-name" class="product-name"></h1>
+    <!-- ========================================== -->
+    <!-- 2. 전자라벨 뷰어 모드 (스캔 또는 클릭 시)    -->
+    <!-- ========================================== -->
+    <div id="viewer-container">
+        <!-- 상단 컨트롤러 -->
+        <header class="top-controller">
+            <div class="lang-switcher">
+                <button id="btn-ko" class="lang-btn active">KO</button>
+                <button id="btn-en" class="lang-btn">EN</button>
+            </div>
+            <div class="barrier-free-actions">
+                <button id="btn-tts" class="icon-btn" title="음성 안내(TTS)">
+                    <span class="material-icons">volume_up</span>
+                </button>
+            </div>
+        </header>
 
-        <div class="table-container">
-            <table class="info-table">
-                <tbody>
-                    <tr>
-                        <th id="label-volume">용량</th>
-                        <td id="val-volume"></td>
-                    </tr>
-                    <tr>
-                        <th id="label-functional">기능성 분류</th>
-                        <td id="val-functional"></td>
-                    </tr>
-                    <tr>
-                        <th id="label-how-to-use">사용방법</th>
-                        <td id="val-how-to-use"></td>
-                    </tr>
-                    <tr>
-                        <th id="label-manufacturer">제조 및 책임판매업자</th>
-                        <td id="val-manufacturer"></td>
-                    </tr>
-                    <tr>
-                        <th id="label-ingredients">전성분</th>
-                        <td id="val-ingredients"></td>
-                    </tr>
-                    <tr>
-                        <th id="label-cautions">사용할 때의 주의사항</th>
-                        <td id="val-cautions"></td>
-                    </tr>
-                    <tr>
-                        <th id="label-customer">소비자 상담</th>
-                        <td id="val-customer"></td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- 로딩 화면 -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-spinner"></div>
+            <p>제품 정보를 불러오는 중...</p>
         </div>
-    </main>
 
-    <!-- 하단 고정 영역 -->
-    <footer class="bottom-fixed" id="bottom-footer" style="display:none;">
-        <button id="btn-buy" class="buy-btn">구매하기</button>
-    </footer>
+        <!-- 오류 화면 -->
+        <div id="error-screen" class="error-screen" style="display:none;">
+            <span class="material-icons" style="font-size:48px;color:#dc2626;">error_outline</span>
+            <h2>제품 정보를 찾을 수 없습니다</h2>
+            <p id="error-msg">올바른 QR 코드로 다시 시도해 주세요.</p>
+        </div>
 
-    <!-- 자바스크립트: 소비자 뷰어용 -->
+        <!-- 메인 라벨 영역 (숨김 상태로 시작) -->
+        <main class="main-content" id="main-content" style="display:none;">
+            <!-- 제품명 -->
+            <h1 id="product-name" class="product-name"></h1>
+
+            <div class="table-container">
+                <table class="info-table">
+                    <tbody>
+                        <tr>
+                            <th id="label-volume">용량</th>
+                            <td id="val-volume"></td>
+                        </tr>
+                        <tr>
+                            <th id="label-functional">기능성 분류</th>
+                            <td id="val-functional"></td>
+                        </tr>
+                        <!-- 새로 추가되는 항목 -->
+                        <tr>
+                            <th id="label-batchno">제조번호</th>
+                            <td id="val-batchno"></td>
+                        </tr>
+                        <tr>
+                            <th id="label-expiration">사용기한</th>
+                            <td id="val-expiration"></td>
+                        </tr>
+                        <tr>
+                            <th id="label-how-to-use">사용방법</th>
+                            <td id="val-how-to-use"></td>
+                        </tr>
+                        <tr>
+                            <th id="label-manufacturer">제조 및 책임판매업자</th>
+                            <td id="val-manufacturer"></td>
+                        </tr>
+                        <tr>
+                            <th id="label-ingredients">전성분</th>
+                            <td id="val-ingredients"></td>
+                        </tr>
+                        <tr>
+                            <th id="label-cautions">사용할 때의 주의사항</th>
+                            <td id="val-cautions"></td>
+                        </tr>
+                        <tr>
+                            <th id="label-customer">소비자 상담</th>
+                            <td id="val-customer"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <!-- 하단 고정 영역 -->
+        <footer class="bottom-fixed" id="bottom-footer" style="display:none;">
+            <button id="btn-home" class="buy-btn" style="background:#4b5563; margin-right:8px;">돌아가기</button>
+            <button id="btn-buy" class="buy-btn">구매하기</button>
+        </footer>
+    </div>
+
     <script src="script.js"></script>
     <script>
-        // index.html은 "뷰어(viewer)" 모드로 실행
-        initViewer();
+        // 현재 URL에 'product' 쿼리가 있는지 확인하여 모드 결정
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('product')) {
+            // 뷰어 모드 실행
+            document.getElementById('viewer-container').style.display = 'block';
+            document.body.style.background = '#f9fafb';
+            initViewer();
+        } else {
+            // 메이커(메인) 모드 실행
+            document.getElementById('maker-container').style.display = 'block';
+            initQrMaker();
+        }
     </script>
 </body>
+
 </html>

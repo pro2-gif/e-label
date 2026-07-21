@@ -3,6 +3,7 @@
 // =====================================================
 
 // ▼ QR 코드 스캔 시 연결될 실제 인터넷 주소 (GitHub Pages)
+// 스마트폰 카메라로 스캔했을 때 이 주소로 접속되어야 합니다.
 const E_LABEL_BASE_URL = "https://pro2-gif.github.io/e-label/index.html";
 
 // 구글 시트 ID
@@ -12,19 +13,20 @@ const SHEET_ID = "1dQOhtidzJfK3NXzzrzzPeAC10pv8wvbqnWRU-WjM3wQ";
 const MFDS_API_KEY = "8438e0c9c0276651df0610f950fb14f1e6b328ad92f388072a7fdf5dfed4c8b3";
 const MFDS_API_URL = "https://apis.data.go.kr/1471000/CsmtcsIngdCpntInfoService01/getCsmtcsIngdCpntInfoService01";
 
-// ▼ 새로운 구글 시트 컬럼 순서 (0-based)
-// 0: 제품명 | 1: 용량 | 2: 기능성분류 | 3: 사용방법
-// 4: 제조업자 | 5: 전성분 | 6: 주의사항 | 7: 소비자상담 | 8: 구매링크URL
-const COL = {
-    name:         0,
-    volume:       1,
-    functional:   2,
-    howToUse:     3,
-    manufacturer: 4,
-    ingredients:  5,
-    cautions:     6,
-    customer:     7,
-    buyUrl:       8
+// ▼ 구글 시트 헤더 검색용 키워드
+// 시트의 열 순서가 바뀌거나 아직 추가되지 않더라도 오류 없이 데이터를 찾을 수 있게 해줍니다.
+const COL_KW = {
+    name:         ['제품명', '이름', 'product'],
+    volume:       ['용량', '중량', 'volume'],
+    functional:   ['기능성', '분류', 'functional'],
+    batchno:      ['제조번호', '로트', 'batch'],
+    expiration:   ['사용기한', '유통기한', 'expiration'],
+    howToUse:     ['사용방법', '사용법', 'how'],
+    manufacturer: ['제조업자', '책임판매', '제조', 'manufacturer'],
+    ingredients:  ['전성분', '성분', 'ingredient'],
+    cautions:     ['주의사항', '주의', 'caution'],
+    customer:     ['소비자', '상담', '전화', 'customer'],
+    buyUrl:       ['구매', '링크', 'url', 'buy']
 };
 
 // 앱 상태 변수
@@ -37,10 +39,21 @@ const translationCache = {};
 // 식약처 성분 영문명 캐시
 const ingredientEnCache = {};
 
+// ▼ 영문 성분명 우선 매칭 사전 (Dictionary)
+// 식약처 API보다 먼저 이 사전을 확인하여, 자주 사용되는 성분의 번역 오류를 방지합니다.
+const ingredientDictionary = {
+    "정제수": "Water",
+    "펜틸렌글라이콜": "Pentylene Glycol",
+    "부틸렌글라이콜": "Butylene Glycol",
+    "1,2-헥산다이올": "1,2-Hexanediol"
+};
+
 // 다국어 UI 라벨
 const uiLabels = {
     volume:       { ko: "용량",                   en: "Volume" },
     functional:   { ko: "기능성 분류",             en: "Functional Classification" },
+    batchno:      { ko: "제조번호",               en: "Batch No." },      // 추가
+    expiration:   { ko: "사용기한",               en: "Expiration Date" },// 추가
     howToUse:     { ko: "사용방법",               en: "How to Use" },
     manufacturer: { ko: "제조 및 책임판매업자",   en: "Manufacturer & Distributor" },
     ingredients:  { ko: "전성분",                 en: "Ingredients" },
@@ -88,40 +101,45 @@ function loadSheetData(callback) {
     document.head.appendChild(script);
 }
 
-// 제품명 가져오기
-// lang='ko' → 첫 번째 줄(한국어), lang='en' → 시트에 이미 있는 영문명 추출
-function getProductDisplayName(item, lang) {
+// 키워드 배열로 키(헤더) 찾기
+function findKeyByKeywords(item, keywords) {
     const keys = Object.keys(item);
-    const rawName = item[keys[COL.name]] || '';
+    for (const kw of keywords) {
+        // 공백 제거 후 포함 여부 확인 (예: '사용 방법' 도 '사용방법'으로 찾음)
+        const found = keys.find(k => k.replace(/\s+/g, '').includes(kw.replace(/\s+/g, '')));
+        if (found) return found;
+    }
+    return null;
+}
+
+// 제품명 가져오기
+function getProductDisplayName(item, lang) {
+    const key = findKeyByKeywords(item, COL_KW.name);
+    const rawName = key ? (item[key] || '') : '';
     const lines = rawName.split('\n').map(l => l.trim()).filter(l => l);
 
     if (lang === 'en') {
-        // 한글 문자가 없는 줄 = 영문명 (이미 시트에 입력된 공식 영문명 사용)
         const enLine = lines.find(line => !/[가-힣]/.test(line));
         if (enLine) return enLine;
     }
-    // 기본값: 첫 번째 줄 (한국어)
     return lines[0] || '';
 }
 
-// 컬럼 인덱스로 값 가져오기
-function getColValue(item, colIndex) {
-    const keys = Object.keys(item);
-    return keys[colIndex] ? (item[keys[colIndex]] || '') : '';
+// 키워드 기반으로 값 가져오기
+function getColValue(item, keywords) {
+    const key = findKeyByKeywords(item, keywords);
+    return key ? (item[key] || '') : '';
 }
 
 // 제조업자 항목: 언어에 따라 한글 줄 or 영문 줄만 추출
-// 시트에 "(주)제니트리\n\nJANYTREE INC." 형태로 입력된 것을 처리
 function getManufacturerDisplay(item, lang) {
-    const raw = getColValue(item, COL.manufacturer);
+    const raw = getColValue(item, COL_KW.manufacturer);
     const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
 
     if (lang === 'ko') {
-        // 한글이 포함된 줄만 반환
         const koLine = lines.find(l => /[가-힣]/.test(l));
         return koLine || lines[0] || raw;
     } else {
-        // 한글이 없는 줄(영문) 반환
         const enLine = lines.find(l => !/[가-힣]/.test(l));
         return enLine || lines[lines.length - 1] || raw;
     }
@@ -181,14 +199,24 @@ function initViewer() {
             renderLabel(target, 'en');
         });
 
-        // ▼ 구매하기 버튼: 구글 시트 8번째 열 (구매링크 URL) 사용
+        // ▼ 구매하기 버튼: 구글 시트의 구매링크 URL 사용
         document.getElementById('btn-buy').addEventListener('click', () => {
-            const buyUrl = getColValue(target, COL.buyUrl);
-            if (buyUrl && buyUrl.startsWith('http')) {
+            let buyUrl = getColValue(target, COL_KW.buyUrl).trim();
+            if (buyUrl) {
+                // http로 시작하지 않는 주소(예: www.naver.com)가 입력된 경우 http:// 추가
+                if (!buyUrl.startsWith('http')) {
+                    buyUrl = 'http://' + buyUrl;
+                }
                 window.open(buyUrl, '_blank');
             } else {
+                // 시트에 구매 링크가 비어있을 경우에만 기본 쇼핑몰로 이동
                 window.open('https://intomedipro.com/', '_blank');
             }
+        });
+
+        // 돌아가기(홈) 버튼
+        document.getElementById('btn-home').addEventListener('click', () => {
+            window.location.href = window.location.pathname; // 쿼리 제거하고 새로고침
         });
 
         // TTS 버튼
@@ -244,6 +272,10 @@ async function queryMfdsApi(korName) {
 async function lookupIngredientEn(korName) {
     const trimmed = korName.trim();
     if (!trimmed) return trimmed;
+    
+    // 0차: 사전(Dictionary) 예외 처리 우선 확인
+    if (ingredientDictionary[trimmed]) return ingredientDictionary[trimmed];
+    
     if (ingredientEnCache[trimmed]) return ingredientEnCache[trimmed]; // 캐시 확인
 
     // 1차~3차: 식약처 API (공식 INCI 영문명)
@@ -325,6 +357,8 @@ async function renderLabel(item, lang) {
     // UI 라벨 (테이블 왼쪽 항목명) 업데이트
     document.getElementById('label-volume').textContent       = uiLabels.volume[lang];
     document.getElementById('label-functional').textContent  = uiLabels.functional[lang];
+    document.getElementById('label-batchno').textContent     = uiLabels.batchno[lang]; // 추가
+    document.getElementById('label-expiration').textContent  = uiLabels.expiration[lang]; // 추가
     document.getElementById('label-how-to-use').textContent  = uiLabels.howToUse[lang];
     document.getElementById('label-manufacturer').textContent = uiLabels.manufacturer[lang];
     document.getElementById('label-ingredients').textContent  = uiLabels.ingredients[lang];
@@ -334,20 +368,24 @@ async function renderLabel(item, lang) {
 
     // 원본 데이터 (언어별 처리)
     let productName  = getProductDisplayName(item, lang);
-    let volume       = getColValue(item, COL.volume);
-    let functional   = getColValue(item, COL.functional);
+    let volume       = getColValue(item, COL_KW.volume);
+    let functional   = getColValue(item, COL_KW.functional);
+    let batchno      = getColValue(item, COL_KW.batchno); // 추가
+    let expiration   = getColValue(item, COL_KW.expiration); // 추가
     // 제조업자: 언어별로 해당 줄만 추출 (번역 불필요)
     let manufacturer = getManufacturerDisplay(item, lang);
-    let ingredients  = getColValue(item, COL.ingredients);
-    let cautions     = getColValue(item, COL.cautions);
-    let customer     = getColValue(item, COL.customer);
+    let ingredients  = getColValue(item, COL_KW.ingredients);
+    let cautions     = getColValue(item, COL_KW.cautions);
+    let customer     = getColValue(item, COL_KW.customer);
 
     // ▼ 영어 모드: 각 항목 번역 수행
     if (lang === 'en') {
         // 제조업자는 이미 영문 추출 완료, 번역 불필요
-        [volume, functional, cautions, customer] = await Promise.all([
+        [volume, functional, batchno, expiration, cautions, customer] = await Promise.all([
             translateText(volume),
             translateText(functional),
+            translateText(batchno), // 제조번호도 번역(영문/숫자 혼용 처리)
+            translateText(expiration), // 사용기한도 번역
             translateText(cautions),
             translateText(customer)
         ]);
@@ -364,6 +402,8 @@ async function renderLabel(item, lang) {
     // 데이터 값 채우기
     document.getElementById('val-volume').textContent       = volume;
     document.getElementById('val-functional').textContent  = functional;
+    document.getElementById('val-batchno').textContent     = batchno; // 추가
+    document.getElementById('val-expiration').textContent  = expiration; // 추가
     document.getElementById('val-manufacturer').textContent = manufacturer;
     document.getElementById('val-ingredients').textContent  = ingredients;
     document.getElementById('val-cautions').textContent    = cautions;
@@ -371,7 +411,7 @@ async function renderLabel(item, lang) {
 
     // 사용방법: 주의사항 경고 박스 분리 렌더링
     const warnKeywordKo  = "* 주의사항 :";
-    const originalHowToUse = getColValue(item, COL.howToUse);
+    const originalHowToUse = getColValue(item, COL_KW.howToUse);
     const valHowToUseEl  = document.getElementById('val-how-to-use');
     valHowToUseEl.innerHTML = '';
 
@@ -439,6 +479,17 @@ function initQrMaker() {
             const idx = parseInt(selectEl.value);
             updateQrDisplay(data[idx]);
         });
+        
+        // QR 영역 클릭 시 즉시 해당 제품 뷰어로 이동 (화면 깜빡임 없이)
+        document.getElementById('qr-to-viewer-btn').addEventListener('click', () => {
+            const idx = parseInt(selectEl.value);
+            const selectedItem = data[idx];
+            if (!selectedItem) return;
+            
+            const name = getProductDisplayName(selectedItem, 'ko');
+            // URL 파라미터를 추가하여 페이지 리로드 (공유하기 쉽도록 URL 업데이트)
+            window.location.href = `?product=${encodeURIComponent(name)}`;
+        });
     });
 
     // QR 이미지 다운로드 (제품명 포함 합성)
@@ -499,10 +550,10 @@ function handleTts(item) {
     }
 
     const productName = getProductDisplayName(item, 'ko');
-    const volume      = getColValue(item, COL.volume);
-    const functional  = getColValue(item, COL.functional);
-    const howToUse    = getColValue(item, COL.howToUse).split('* 주의사항 :')[0].trim();
-    const cautions    = getColValue(item, COL.cautions);
+    const volume      = getColValue(item, COL_KW.volume);
+    const functional  = getColValue(item, COL_KW.functional);
+    const howToUse    = getColValue(item, COL_KW.howToUse).split('* 주의사항 :')[0].trim();
+    const cautions    = getColValue(item, COL_KW.cautions);
 
     const text = `${productName}. ${uiLabels.volume[currentLang]}, ${volume}. ${uiLabels.functional[currentLang]}, ${functional}. ${uiLabels.howToUse[currentLang]}, ${howToUse}. ${uiLabels.cautions[currentLang]}, ${cautions}`;
 
