@@ -65,43 +65,100 @@ const uiLabels = {
 };
 
 // =====================================================
-// ■ 구글 시트 데이터 로딩 (JSONP 방식 - CORS 문제 없음)
+// ■ CSV 파싱 유틸리티 (따옴표 내 콤마/줄바꿈 무시)
 // =====================================================
-function loadSheetData(callback) {
-    window._sheetCallback = function(json) {
-        try {
-            const rows = json.table.rows;
-            if (!rows || rows.length < 2) throw new Error("데이터가 없습니다.");
-
-            const headers = rows[0].c.map(cell => (cell && cell.v) ? String(cell.v).trim() : '');
-
-            productsData = [];
-            for (let i = 1; i < rows.length; i++) {
-                const rowCells = rows[i].c;
-                const item = []; // 객체가 아닌 배열로 변경하여 순서 완벽 보장
-                // 헤더 개수 혹은 최대 열 개수(11개)만큼 반복
-                const maxCols = Math.max(headers.length, 11);
-                for (let j = 0; j < maxCols; j++) {
-                    item.push((rowCells && rowCells[j] && rowCells[j].v != null)
-                        ? String(rowCells[j].v).trim()
-                        : '');
-                }
-                // 제품명(첫 번째 열)이 비어있는 행은 건너뜀
-                if (item[0]) {
-                    productsData.push(item);
-                }
+function parseCSV(text) {
+    const result = [];
+    let row = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+        
+        if (inQuotes) {
+            if (char === '"' && nextChar === '"') {
+                current += '"';
+                i++;
+            } else if (char === '"') {
+                inQuotes = false;
+            } else {
+                current += char;
             }
-
-            callback(null, productsData);
-        } catch (err) {
-            callback(err, null);
+        } else {
+            if (char === '"') {
+                inQuotes = true;
+            } else if (char === ',') {
+                row.push(current);
+                current = '';
+            } else if (char === '\n' || char === '\r') {
+                if (char === '\r' && nextChar === '\n') i++;
+                row.push(current);
+                result.push(row);
+                row = [];
+                current = '';
+            } else {
+                current += char;
+            }
         }
-    };
+    }
+    if (current || row.length > 0) {
+        row.push(current);
+        if (row.length > 0) result.push(row);
+    }
+    return result;
+}
 
-    const script = document.createElement('script');
-    script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:_sheetCallback`;
-    script.onerror = () => callback(new Error("네트워크 연결 오류"), null);
-    document.head.appendChild(script);
+// =====================================================
+// ■ 예비 데이터 (Fallback Data)
+// 인터넷 오류나 시트 차단 시 화면 멈춤을 방지하기 위한 안전망
+// =====================================================
+const fallbackData = [
+    [
+        "인투메디 클리닉스 리쥬\nINTOMEDI CLINIX REJUE", 
+        "4ml x 5ea", 
+        "주름개선 기능성\n(질병의 예방 및 치료를 위한 의약품이 아님)", 
+        "B25112701", 
+        "2028.11.27", 
+        "(주)제니트리 / 서울시 금천구 가산디지털2로 67, 2001호, 1403호, B105호\nJANYTREE INC. / #2001, #1403, #B105, 67, Gasan digital 2-ro, Geumcheon-gu, Seoul, Republic of Korea",
+        "적당량을 덜어 피부에 골고루 펴 바른 후 흡수시켜 줍니다.\n* 주의사항 : 바이알 개봉 시 오픈 부분이 날카로울 수 있으니 사용에 주의하시기 바랍니다.",
+        "정제수, 펜틸렌글라이콜, 트라넥사믹애씨드, 락토바실러스/하이드롤라이즈드완두콩추출발효여과물, 부틸렌글라이콜, 다이메틸설폰, 하이드록시프로필사이클로덱스트린, 덱스판테놀, 병풀추출물, 소듐하이알루로네이트, 하이드롤라이즈드콜라겐, 알란토인, 아데노신, 호장근뿌리추출물, 황금추출물, 알지닌, 녹차추출물, 스페인감초뿌리추출물, 소듐하이알루로네이트크로스폴리머, 로즈마리잎추출물, 마트리카리아꽃추출물, 소듐디엔에이, 페퍼민트추출물, 카퍼트라이펩타이드-1, 아세틸헥사펩타이드-8, 1,2-헥산다이올, 포스파티딜콜린, 폴리솔베이트20, 레시틴, 에스에이치-올리고펩타이드-1",
+        "1. 화장품 사용 시 또는 사용 후 직사광선에 의하여 사용부위가 붉은 반점, 부어오름 또는 가려움증 등의 이상 증상이나 부작용이 있는 경우 전문의 등과 상담할 것\n2. 상처가 있는 부위 등에는 사용을 자제할 것\n3. 보관 및 취급 시의 주의사항\n  가) 어린이의 손이 닿지 않는 곳에 보관할 것\n  나) 직사광선을 피해서 보관할 것",
+        "02-6296-8484",
+        "https://intomedipro.com/"
+    ]
+];
+
+// =====================================================
+// ■ 구글 시트 데이터 로딩 (CSV Fetch 방식)
+// =====================================================
+async function loadSheetData(callback) {
+    try {
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error("네트워크 응답 오류");
+        
+        const text = await res.text();
+        const rows = parseCSV(text);
+        
+        if (!rows || rows.length < 2) throw new Error("데이터 부족");
+        
+        productsData = [];
+        // 첫 줄은 헤더이므로 인덱스 1부터 시작
+        for (let i = 1; i < rows.length; i++) {
+            const item = rows[i].map(val => val ? val.trim() : '');
+            // 11개 열 미만이면 빈 문자열로 채움
+            while (item.length < 11) item.push('');
+            
+            if (item[0]) productsData.push(item);
+        }
+        callback(null, productsData);
+    } catch (err) {
+        console.warn("시트 로딩 실패, Fallback 데이터를 사용합니다:", err);
+        productsData = fallbackData;
+        callback(null, productsData); // 에러가 나도 fallback 데이터로 렌더링 속행
+    }
 }
 
 // 제품명 가져오기
