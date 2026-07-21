@@ -65,49 +65,40 @@ const uiLabels = {
 };
 
 // =====================================================
-// ■ CSV 파싱 유틸리티 (따옴표 내 콤마/줄바꿈 무시)
+// ■ CSV 파싱 유틸리티 (정규식 기반 - 아주 안전함)
 // =====================================================
 function parseCSV(text) {
-    const result = [];
+    if (!text) return [];
+    const rows = [];
+    // CSV 파싱 정규식 (콤마, 따옴표, 줄바꿈 완벽 처리)
+    const pattern = new RegExp(
+        "(\\,|\\r?\\n|\\r|^)" +
+        "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
+        "([^\"\\,\\r\\n]*))",
+        "gi"
+    );
     let row = [];
-    let current = '';
-    let inQuotes = false;
-    
-    for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const nextChar = text[i + 1];
-        
-        if (inQuotes) {
-            if (char === '"' && nextChar === '"') {
-                current += '"';
-                i++;
-            } else if (char === '"') {
-                inQuotes = false;
-            } else {
-                current += char;
-            }
-        } else {
-            if (char === '"') {
-                inQuotes = true;
-            } else if (char === ',') {
-                row.push(current);
-                current = '';
-            } else if (char === '\n' || char === '\r') {
-                if (char === '\r' && nextChar === '\n') i++;
-                row.push(current);
-                result.push(row);
-                row = [];
-                current = '';
-            } else {
-                current += char;
-            }
+    let matches = null;
+    while (matches = pattern.exec(text)) {
+        let matchedDelimiter = matches[1];
+        // 콤마가 아닌 줄바꿈을 만났다면 다음 행으로 이동
+        if (matchedDelimiter.length && matchedDelimiter !== ",") {
+            rows.push(row);
+            row = [];
         }
+        let matchedValue;
+        if (matches[2]) {
+            // 따옴표로 감싸진 값의 이중 따옴표("")를 단일 따옴표(")로 변환
+            matchedValue = matches[2].replace(new RegExp("\"\"", "g"), "\"");
+        } else {
+            // 일반 값
+            matchedValue = matches[3];
+        }
+        row.push(matchedValue);
     }
-    if (current || row.length > 0) {
-        row.push(current);
-        if (row.length > 0) result.push(row);
-    }
-    return result;
+    // 마지막 행 추가
+    if (row.length > 0) rows.push(row);
+    return rows;
 }
 
 // =====================================================
@@ -500,6 +491,17 @@ function initQrMaker() {
     const selectEl     = document.getElementById('product-select-maker');
     const downloadBtn  = document.getElementById('btn-download');
 
+    // [강제 조치] HTML에 있는 '-- 데이터 불러오는 중... --' 메시지를 즉시 삭제합니다.
+    selectEl.innerHTML = '';
+
+    // 1. 페이지 개시 직후 시트 응답 대기 없이 임시 방어 데이터(Fallback)부터 즉시 렌더링
+    fallbackData.forEach((item, idx) => {
+        const option = document.createElement('option');
+        option.value = idx;
+        option.textContent = getProductDisplayName(item, 'ko');
+        selectEl.appendChild(option);
+    });
+
     qrInstance = new QRious({
         element: document.getElementById('qr-canvas'),
         size: 260,
@@ -507,15 +509,7 @@ function initQrMaker() {
         value: E_LABEL_BASE_URL
     });
 
-    // 1. 임시 방어 데이터(Fallback) 드롭다운에 즉시 표시 (사용자 요청 사항)
-    selectEl.innerHTML = '';
-    fallbackData.forEach((item, idx) => {
-        const option = document.createElement('option');
-        option.value = idx;
-        option.textContent = getProductDisplayName(item, 'ko');
-        selectEl.appendChild(option);
-    });
-    // Fallback의 첫 번째 데이터로 초기 QR코드 세팅
+    // Fallback의 첫 번째 데이터로 초기 QR코드 강제 세팅
     updateQrDisplay(fallbackData[0]);
 
     // 2. 실제 시트 데이터 비동기(Fetch) 로딩
