@@ -2,9 +2,9 @@
 // 인투메디 전자라벨 공용 스크립트 (script.js)
 // =====================================================
 
-// ▼ QR 코드 스캔 시 연결될 실제 인터넷 주소 (GitHub Pages)
+// ▼ QR 코드 스캔 시 연결될 실제 인터넷 주소 (Vercel)
 // 스마트폰 카메라로 스캔했을 때 이 주소로 접속되어야 합니다.
-const E_LABEL_BASE_URL = "https://pro2-gif.github.io/e-label/index.html";
+const E_LABEL_BASE_URL = "https://e-label-lyart.vercel.app/";
 
 // 구글 시트 ID (새로 제공해주신 ID 적용)
 const SHEET_ID = "1202j3dJ_p-6_424X9v";
@@ -493,7 +493,7 @@ function initQrMaker() {
 
     qrInstance = new QRious({
         element: document.getElementById('qr-canvas'),
-        size: 260,
+        size: 200,
         level: 'H',
         value: E_LABEL_BASE_URL
     });
