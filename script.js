@@ -23,8 +23,8 @@ const COL = {
     functional:   2,
     batchno:      3,
     expiration:   4,
-    howToUse:     5,
-    manufacturer: 6,
+    manufacturer: 5, // 구글 시트 실제 순서: 제조업자
+    howToUse:     6, // 구글 시트 실제 순서: 사용방법
     ingredients:  7,
     cautions:     8,
     customer:     9,
