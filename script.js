@@ -491,17 +491,6 @@ function initQrMaker() {
     const selectEl     = document.getElementById('product-select-maker');
     const downloadBtn  = document.getElementById('btn-download');
 
-    // [강제 조치] HTML에 있는 '-- 데이터 불러오는 중... --' 메시지를 즉시 삭제합니다.
-    selectEl.innerHTML = '';
-
-    // 1. 페이지 개시 직후 시트 응답 대기 없이 임시 방어 데이터(Fallback)부터 즉시 렌더링
-    fallbackData.forEach((item, idx) => {
-        const option = document.createElement('option');
-        option.value = idx;
-        option.textContent = getProductDisplayName(item, 'ko');
-        selectEl.appendChild(option);
-    });
-
     qrInstance = new QRious({
         element: document.getElementById('qr-canvas'),
         size: 260,
@@ -509,36 +498,37 @@ function initQrMaker() {
         value: E_LABEL_BASE_URL
     });
 
-    // Fallback의 첫 번째 데이터로 초기 QR코드 강제 세팅
+    // 페이지 시작 시 HTML에 미리 작성해둔(하드코딩) 3개의 옵션에 맞추어 QR 코드 캔버스만 초기화
     updateQrDisplay(fallbackData[0]);
 
-    // 2. 실제 시트 데이터 비동기(Fetch) 로딩
+    // 2. 실제 시트 데이터 비동기(Fetch) 로딩 (전체 Try-Catch 보호 적용)
     loadSheetData(function(err, data) {
-        if (err || !data || data.length === 0) {
-            // 실패 시 그대로 fallback 유지
-            return;
+        let activeData = fallbackData; // 기본은 fallbackData로 설정
+
+        if (!err && data && data.length > 0) {
+            // 로딩 성공 시 실제 데이터로 덮어쓰기
+            activeData = data;
+            selectEl.innerHTML = '';
+            data.forEach((item, idx) => {
+                const option = document.createElement('option');
+                option.value = idx;
+                option.textContent = getProductDisplayName(item, 'ko');
+                selectEl.appendChild(option);
+            });
+            updateQrDisplay(data[0]);
         }
 
-        // 로딩 성공 시 실제 데이터로 드롭다운 전면 교체
-        selectEl.innerHTML = '';
-        data.forEach((item, idx) => {
-            const option = document.createElement('option');
-            option.value = idx;
-            option.textContent = getProductDisplayName(item, 'ko');
-            selectEl.appendChild(option);
-        });
-
-        updateQrDisplay(data[0]);
-
-        // 이벤트 리스너는 새로고침되더라도 동작하도록 한 번만 붙여줍니다
+        // 이벤트 리스너: 성공하든 실패하든 activeData를 바라보도록 설정
         selectEl.addEventListener('change', () => {
             const idx = parseInt(selectEl.value);
-            updateQrDisplay(data[idx]);
+            if (activeData[idx]) {
+                updateQrDisplay(activeData[idx]);
+            }
         });
         
         document.getElementById('qr-to-viewer-btn').addEventListener('click', () => {
             const idx = parseInt(selectEl.value);
-            const selectedItem = data[idx];
+            const selectedItem = activeData[idx];
             if (!selectedItem) return;
             
             const name = getProductDisplayName(selectedItem, 'ko');
