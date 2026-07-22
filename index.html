@@ -921,13 +921,29 @@ function handleTts(item) {
         return;
     }
 
-    const productName = getProductDisplayName(item, 'ko');
-    const volume      = getColValue(item, COL.volume);
-    const functional  = getColValue(item, COL.functional);
-    const howToUse    = getColValue(item, COL.howToUse).split('* 주의사항 :')[0].trim();
-    const cautions    = getColValue(item, COL.cautions);
+    // 화면에 렌더링되어 있는 텍스트들을 그대로 읽어옵니다. (번역 오차 차단)
+    const productName = document.getElementById('product-name').textContent || '';
+    const volume      = document.getElementById('val-volume').textContent || '';
+    const functional  = document.getElementById('val-functional').textContent || '';
+    
+    // 사용방법에서 주의사항 문구가 포함되어 있다면 본문만 추출
+    let howToUse = document.getElementById('val-how-to-use').textContent || '';
+    howToUse = howToUse.split('* 주의사항 :')[0].split('* Precautions :')[0].trim();
+    
+    const cautions = document.getElementById('val-cautions').textContent || '';
 
-    const text = `${productName}. ${uiLabels.volume[currentLang]}, ${volume}. ${uiLabels.functional[currentLang]}, ${functional}. ${uiLabels.howToUse[currentLang]}, ${howToUse}. ${uiLabels.cautions[currentLang]}, ${cautions}`;
+    // 음성 발화용 문장 조립
+    let text = `${productName}. ${uiLabels.volume[currentLang]}, ${volume}. ${uiLabels.functional[currentLang]}, ${functional}. ${uiLabels.howToUse[currentLang]}, ${howToUse}. ${uiLabels.cautions[currentLang]}, ${cautions}`;
+
+    // 영어 모드일 때 대문자 브랜드명이 약어로 취급되어 한 글자씩 끊어 읽히는(I-N-T-O...) 현상 해결
+    if (currentLang === 'en') {
+        text = text
+            .replace(/INTOMEDI/g, 'Intomedi')
+            .replace(/CLINIX/g, 'Clinix')
+            .replace(/REJUE/g, 'Rejue')
+            .replace(/WHITE/g, 'White')
+            .replace(/HYDRO/g, 'Hydro');
+    }
 
     const utterance  = new SpeechSynthesisUtterance(text);
     utterance.lang   = currentLang === 'ko' ? 'ko-KR' : 'en-US';
