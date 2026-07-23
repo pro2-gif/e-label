@@ -457,54 +457,7 @@
             return rows;
         }
 
-        // =====================================================
-        // ■ 예비 데이터 (Fallback Data)
-        // 인터넷 오류나 시트 차단 시 화면 멈춤을 방지하기 위한 안전망
-        // =====================================================
-        const fallbackData = [
-            [
-                "인투메디 클리닉스 리쥬\nINTOMEDI CLINIX REJUE",
-                "4ml x 5ea",
-                "주름개선 기능성\n(질병의 예방 및 치료를 위한 의약품이 아님)",
-                "B25112701",
-                "2028.11.27",
-                "(주)제니트리 / 서울시 금천구 가산디지털2로 67, 2001호, 1403호, B105호\nJANYTREE INC. / #2001, #1403, #B105, 67, Gasan digital 2-ro, Geumcheon-gu, Seoul, Republic of Korea",
-                "적당량을 덜어 피부에 골고루 펴 바른 후 흡수시켜 줍니다.\n[바이알 오픈 방법]\n바이알의 캡을 화살표 방향으로 힘을 주어 연 다음 테두리의 알루미늄을 제거 후 고무마개를 열어줍니다. 이후 드로퍼를 끼워 사용해 주세요.\n * 주의사항 : 바이알 개봉 시 오픈 부분이 날카로울 수 있으니 사용에 주의하시기 바랍니다.",
-                "정제수, 펜틸렌글라이콜, 트라넥사믹애씨드, 락토바실러스/하이드롤라이즈드완두콩추출발효여과물, 부틸렌글라이콜, 다이메틸설폰, 하이드록시프로필사이클로덱스트린, 덱스판테놀, 병풀추출물, 소듐하이알루로네이트, 하이드롤라이즈드콜라겐, 알란토인, 아데노신, 호장근뿌리추출물, 황금추출물, 알지닌, 녹차추출물, 스페인감초뿌리추출물, 소듐하이알루로네이트크로스폴리머, 로즈마리잎추출물, 마트리카리아꽃추출물, 소듐디엔에이, 페퍼민트추출물, 카퍼트라이펩타이드-1, 아세틸헥사펩타이드-8, 1,2-헥산다이올, 포스파티딜콜린, 폴리솔베이트20, 레시틴, 에스에이치-올리고펩타이드-1, 에스에이치-폴리펩타이드-3, 에스에이치-올리고펩타이드-2, 에스에이치-폴리펩타이드-11, 에스에이치-폴리펩타이드-16, 에스에이치-폴리펩타이드-4",
-                "Water, Pentylene Glycol, Tranexamic Acid, Lactobacillus/Hydrolyzed Pea Seed Extract Ferment Filtrate, Butylene Glycol, Dimethyl Sulfone, Hydroxypropyl Cyclodextrin, Dexpanthenol, Centella Asiatica Extract, Sodium Hyaluronate, Hydrolyzed Collagen, Allantoin, Adenosine, Polygonum Cuspidatum Root Extract, Scutellaria Baicalensis Root Extract, Arginine, Camellia Sinensis Leaf Extract, Glycyrrhiza Glabra (Licorice) Root Extract, Sodium Hyaluronate Crosspolymer, Rosmarinus Officinalis (Rosemary) Leaf Extract, Chamomilla Recutita (Matricaria) Flower Extract, Sodium DNA, Mentha Piperita (Peppermint) Extract, Copper Tripeptide-1, Acetyl Hexapeptide-8, 1,2-Hexanediol, Phosphatidylcholine, Polysorbate 20, Lecithin, sh-Oligopeptide-1, sh-Polypeptide-3, sh-Oligopeptide-2, sh-Polypeptide-11, sh-Polypeptide-16, sh-Polypeptide-4",
-                "1) 화장품 사용 시 또는 사용 후 직사광선에 의하여 사용부위가 붉은 반점, 부어오름 또는 가려움증 등의 이상 증상이나 부작용이 있는 경우에는 전문의 등과 상담할 것 2) 상처가 있는 부위 등에는 사용을 자제할 것 3) 보관 및 취급 시 주의사항 가) 어린이의 손이 닿지 않는 곳에 보관할 것 나) 직사광선을 피해서 보관할 것",
-                "1661-2383, 02-868-1921",
-                "https://intomedipro.com/shop/?idx=162"
-            ],
-            [
-                "인투메디 클리닉스 화이트\nINTOMEDI CLINIX WHITE",
-                "4ml x 5ea",
-                "미백 기능성\n(질병의 예방 및 치료를 위한 의약품이 아님)",
-                "B25112501",
-                "2028.11.25",
-                "(주)제니트리 / 서울시 금천구 가산디지털2로 67, 2001호, 1403호, B105호\nJANYTREE INC. / #2001, #1403, #B105, 67, Gasan digital 2-ro, Geumcheon-gu, Seoul, Republic of Korea",
-                "적당량을 덜어 피부에 골고루 펴 바른 후 흡수시켜 줍니다.\n[바이알 오픈 방법]\n바이알의 캡을 화살표 방향으로 힘을 주어 연 다음 테두리의 알루미늄을 제거 후 고무마개를 열어줍니다. 이후 드로퍼를 끼워 사용해 주세요.\n * 주의사항 : 바이알 개봉 시 오픈 부분이 날카로울 수 있으니 사용에 주의하시기 바랍니다.",
-                "정제수, 펜틸렌글라이콜, 트라넥사믹애씨드, 알부틴, 락토바실러스/하이드롤라이즈드완두콩추출발효여과물, 나이아신아마이드, 부틸렌글라이콜, 다이메틸설폰, 하이드록시프로필사이클로덱스트린, 덱스판테놀, 소듐하이알루로네이트, 병풀추출물, 알지닌, 알란토인, 글루타티온, 하이드롤라이즈드콜라겐, 황금추출물, 호장근뿌리추출물, 스페인감초뿌리추출물, 녹차추출물, 소듐하이알루로네이트크로스폴리머, 로즈마리잎추출물, 마트리카리아꽃추출물, 페퍼민트추출물, 아세틸시스테인",
-                "Water, Pentylene Glycol, Tranexamic Acid, Arbutin, Lactobacillus/Hydrolyzed Pea Seed Extract Ferment Filtrate, Niacinamide, Butylene Glycol, Dimethyl Sulfone, Hydroxypropyl Cyclodextrin, Dexpanthenol, Sodium Hyaluronate, Centella Asiatica Extract, Arginine, Allantoin, Glutathione, Hydrolyzed Collagen, Scutellaria Baicalensis Root Extract, Polygonum Cuspidatum Root Extract, Glycyrrhiza Glabra (Licorice) Root Extract, Camellia Sinensis Leaf Extract, Sodium Hyaluronate Crosspolymer, Rosmarinus Officinalis (Rosemary) Leaf Extract, Chamomilla Recutita (Matricaria) Flower Extract, Mentha Piperita (Peppermint) Extract, Acetylcysteine",
-                "1) 화장품 사용 시 또는 사용 후 직사광선에 의하여 사용부위가 붉은 반점, 부어오름 또는 가려움증 등의 이상 증상이나 부작용이 있는 경우에는 전문의 등과 상담할 것 2) 상처가 있는 부위 등에는 사용을 자제할 것 3) 보관 및 취급 시 주의사항 가) 어린이의 손이 닿지 않는 곳에 보관할 것 나) 직사광선을 피해서 보관할 것 4) 알부틴은 「인체적용시험자료」에서 구진과 경미한 가려움이 보고된 예가 있음",
-                "1661-2383, 02-868-1921",
-                "https://intomedipro.com/shop/?idx=168"
-            ],
-            [
-                "인투메디 클리닉스 하이드로\nINTOMEDI CLINIX HYDRO",
-                "4ml x 5ea",
-                "-",
-                "B25112601",
-                "2028.11.27",
-                "(주)제니트리 / 서울시 금천구 가산디지털2로 67, 2001호, 1403호, B105호\nJANYTREE INC. / #2001, #1403, #B105, 67, Gasan digital 2-ro, Geumcheon-gu, Seoul, Republic of Korea",
-                "적당량을 덜어 피부에 골고루 펴 바른 후 흡수시켜 줍니다.\n[바이알 오픈 방법]\n바이알의 캡을 화살표 방향으로 힘을 주어 연 다음 테두리의 알루미늄을 제거 후 고무마개를 열어줍니다. 이후 드로퍼를 끼워 사용해 주세요.\n * 주의사항 : 바이알 개봉 시 오픈 부분이 날카로울 수 있으니 사용에 주의하시기 바랍니다.",
-                "정제수, 펜틸렌글라이콜, 트라넥사믹애씨드, 락토바실러스/하이드롤라이즈드완두콩추출발효여과물, 부틸렌글라이콜, 다이메틸설폰, 하이드록시프로필사이클로덱스트린, 덱스판테놀, 병풀추출물, 하이드롤라이즈드하이알루로닉애씨드, 소듐하이알루로네이트, 하이드롤라이즈드콜라겐, 알란토인, 호장근뿌리추출물, 황금추출물, 알지닌, 녹차추출물, 스페인감초뿌리추출물, 소듐하이알루로네이트크로스폴리머, 마트리카리아꽃추출물, 로즈마리잎추출물, 페퍼민트추출물, 1,2-헥산다이올, 포스파티딜콜린, 폴리솔베이트20, 레시틴, 에스에이치-올리고펩타이드-1, 에스에이치-올리고펩타이드-33, 에스에이치-폴리펩타이드-9, 에스에이치-폴리펩타이드-64, 에스에이치-폴리펩타이드-60, 에스에이치-폴리펩타이드-7",
-                "Water, Pentylene Glycol, Tranexamic Acid, Lactobacillus/Hydrolyzed Pea Seed Extract Ferment Filtrate, Butylene Glycol, Dimethyl Sulfone, Hydroxypropyl Cyclodextrin, Dexpanthenol, Centella Asiatica Extract, Hydrolyzed Hyaluronic Acid, Sodium Hyaluronate, Hydrolyzed Collagen, Allantoin, Polygonum Cuspidatum Root Extract, Scutellaria Baicalensis Root Extract, Arginine, Camellia Sinensis Leaf Extract, Glycyrrhiza Glabra (Licorice) Root Extract, Sodium Hyaluronate Crosspolymer, Chamomilla Recutita (Matricaria) Flower Extract, Rosmarinus Officinalis (Rosemary) Leaf Extract, Mentha Piperita (Peppermint) Extract, 1,2-Hexanediol, Phosphatidylcholine, Polysorbate 20, Lecithin, sh-Oligopeptide-1, sh-Oligopeptide-33, sh-Polypeptide-9, sh-Polypeptide-64, sh-Polypeptide-60, sh-Polypeptide-7",
-                "1) 화장품 사용 시 또는 사용 후 직사광선에 의하여 사용부위가 붉은 반점, 부어오름 또는 가려움증 등의 이상 증상이나 부작용이 있는 경우에는 전문의 등과 상담할 것 2) 상처가 있는 부위 등에는 사용을 자제할 것 3) 보관 및 취급 시 주의사항 가) 어린이의 손이 닿지 않는 곳에 보관할 것 나) 직사광선을 피해서 보관할 것",
-                "1661-2383, 02-868-1921",
-                "https://intomedipro.com/shop/?idx=167"
-            ]
-        ];
+        // (임시 제품 목록 fallbackData 삭제 완료 - 구글 시트 100% 연동)
 
         // =====================================================
         // ■ 구글 시트 데이터 로딩 (CSV Fetch 방식)
@@ -532,9 +485,8 @@
                 }
                 callback(null, productsData);
             } catch (err) {
-                console.warn("시트 로딩 실패, Fallback 데이터를 사용합니다:", err);
-                productsData = fallbackData;
-                callback(null, productsData); // 에러가 나도 fallback 데이터로 렌더링 속행
+                console.error("시트 로딩 실패:", err);
+                callback(err, null);
             }
         }
 
@@ -874,27 +826,28 @@
             const selectEl = document.getElementById('product-select-maker');
             const downloadBtn = document.getElementById('btn-download');
 
-            // 페이지 시작 시 HTML에 미리 작성해둔(하드코딩) 3개의 옵션에 맞추어 QR 코드 캔버스만 초기화
-            updateQrDisplay(fallbackData[0]);
+            // 페이지 시작 시 "데이터 로딩 중" 표시를 위해 옵션을 리셋합니다.
+            selectEl.innerHTML = '<option value="">데이터 로딩 중...</option>';
 
             // 2. 실제 시트 데이터 비동기(Fetch) 로딩 (전체 Try-Catch 보호 적용)
             loadSheetData(function (err, data) {
-                let activeData = fallbackData; // 기본은 fallbackData로 설정
-
-                if (!err && data && data.length > 0) {
-                    // 로딩 성공 시 실제 데이터로 덮어쓰기
-                    activeData = data;
-                    selectEl.innerHTML = '';
-                    data.forEach((item, idx) => {
-                        const option = document.createElement('option');
-                        option.value = idx;
-                        option.textContent = getProductDisplayName(item, 'ko');
-                        selectEl.appendChild(option);
-                    });
-                    updateQrDisplay(data[0]);
+                if (err || !data || data.length === 0) {
+                    alert("구글 시트 데이터를 불러오는데 실패했습니다. 인터넷 연결이나 시트 권한을 확인해주세요.");
+                    selectEl.innerHTML = '<option value="">로딩 실패</option>';
+                    return;
                 }
 
-                // 이벤트 리스너: 성공하든 실패하든 activeData를 바라보도록 설정
+                let activeData = data;
+                selectEl.innerHTML = '';
+                activeData.forEach((item, idx) => {
+                    const option = document.createElement('option');
+                    option.value = idx;
+                    option.textContent = getProductDisplayName(item, 'ko');
+                    selectEl.appendChild(option);
+                });
+                updateQrDisplay(activeData[0]);
+
+                // 이벤트 리스너
                 selectEl.addEventListener('change', () => {
                     const idx = parseInt(selectEl.value);
                     if (activeData[idx]) {
