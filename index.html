@@ -337,10 +337,11 @@
             expiration: 4,
             manufacturer: 5, // 구글 시트 실제 순서: 제조업자
             howToUse: 6, // 구글 시트 실제 순서: 사용방법
-            ingredients: 7,
-            cautions: 8,
-            customer: 9,
-            buyUrl: 10
+            ingredientsKo: 7, // 국문 전성분
+            ingredientsEn: 8, // 영문 전성분 (수인이 추가한 열)
+            cautions: 9,
+            customer: 10,
+            buyUrl: 11
         };
 
         // 앱 상태 변수
@@ -359,7 +360,48 @@
             "정제수": "Water",
             "펜틸렌글라이콜": "Pentylene Glycol",
             "부틸렌글라이콜": "Butylene Glycol",
-            "1,2-헥산다이올": "1,2-Hexanediol"
+            "1,2-헥산다이올": "1,2-Hexanediol",
+            "트라넥사믹애씨드": "Tranexamic Acid",
+            "락토바실러스/하이드롤라이즈드완두콩추출발효여과물": "Lactobacillus/Hydrolyzed Pea Extract Ferment Filtrate",
+            "다이메틸설폰": "Dimethyl Sulfone",
+            "하이드록시프로필사이클로덱스트린": "Hydroxypropyl Cyclodextrin",
+            "덱스판테놀": "Dexpanthenol",
+            "병풀추출물": "Centella Asiatica Extract",
+            "소듐하이알루로네이트": "Sodium Hyaluronate",
+            "하이드롤라이즈드콜라겐": "Hydrolyzed Collagen",
+            "알란토인": "Allantoin",
+            "아데노신": "Adenosine",
+            "호장근뿌리추출물": "Polygonum Cuspidatum Root Extract",
+            "황금추출물": "Scutellaria Baicalensis Root Extract",
+            "알지닌": "Arginine",
+            "녹차추출물": "Camellia Sinensis Leaf Extract",
+            "스페인감초뿌리추출물": "Glycyrrhiza Glabra (Licorice) Root Extract",
+            "소듐하이알루로네이트크로스폴리머": "Sodium Hyaluronate Crosspolymer",
+            "로즈마리잎추출물": "Rosmarinus Officinalis (Rosemary) Leaf Extract",
+            "마트리카리아꽃추출물": "Chamomilla Recutita (Matricaria) Flower Extract",
+            "소듐디엔에이": "Sodium DNA",
+            "페퍼민트추출물": "Mentha Piperita (Peppermint) Extract",
+            "카퍼트라이펩타이드-1": "Copper Tripeptide-1",
+            "아세틸헥사펩타이드-8": "Acetyl Hexapeptide-8",
+            "포스파티딜콜린": "Phosphatidylcholine",
+            "폴리솔베이트20": "Polysorbate 20",
+            "레시틴": "Lecithin",
+            "에스에이치-올리고펩타이드-1": "sh-Oligopeptide-1",
+            "에스에이치-폴리펩타이드-3": "sh-Polypeptide-3",
+            "에스에이치-올리고펩타이드-2": "sh-Oligopeptide-2",
+            "에스에이치-폴리펩타이드-11": "sh-Polypeptide-11",
+            "에스에이치-폴리펩타이드-16": "sh-Polypeptide-16",
+            "에스에이치-폴리펩타이드-4": "sh-Polypeptide-4",
+            "알부틴": "Arbutin",
+            "나이아신아마이드": "Niacinamide",
+            "글루타티온": "Glutathione",
+            "아세틸시스테인": "Acetylcysteine",
+            "하이드롤라이즈드하이알루로닉애씨드": "Hydrolyzed Hyaluronic Acid",
+            "에스에이치-올리고펩타이드-33": "sh-Oligopeptide-33",
+            "에스에이치-폴리펩타이드-9": "sh-Polypeptide-9",
+            "에스에이치-폴리펩타이드-64": "sh-Polypeptide-64",
+            "에스에이치-폴리펩타이드-60": "sh-Polypeptide-60",
+            "에스에이치-폴리펩타이드-7": "sh-Polypeptide-7"
         };
 
         // 다국어 UI 라벨
@@ -428,6 +470,7 @@
                 "(주)제니트리 / 서울시 금천구 가산디지털2로 67, 2001호, 1403호, B105호\nJANYTREE INC. / #2001, #1403, #B105, 67, Gasan digital 2-ro, Geumcheon-gu, Seoul, Republic of Korea",
                 "적당량을 덜어 피부에 골고루 펴 바른 후 흡수시켜 줍니다.\n[바이알 오픈 방법]\n바이알의 캡을 화살표 방향으로 힘을 주어 연 다음 테두리의 알루미늄을 제거 후 고무마개를 열어줍니다. 이후 드로퍼를 끼워 사용해 주세요.\n * 주의사항 : 바이알 개봉 시 오픈 부분이 날카로울 수 있으니 사용에 주의하시기 바랍니다.",
                 "정제수, 펜틸렌글라이콜, 트라넥사믹애씨드, 락토바실러스/하이드롤라이즈드완두콩추출발효여과물, 부틸렌글라이콜, 다이메틸설폰, 하이드록시프로필사이클로덱스트린, 덱스판테놀, 병풀추출물, 소듐하이알루로네이트, 하이드롤라이즈드콜라겐, 알란토인, 아데노신, 호장근뿌리추출물, 황금추출물, 알지닌, 녹차추출물, 스페인감초뿌리추출물, 소듐하이알루로네이트크로스폴리머, 로즈마리잎추출물, 마트리카리아꽃추출물, 소듐디엔에이, 페퍼민트추출물, 카퍼트라이펩타이드-1, 아세틸헥사펩타이드-8, 1,2-헥산다이올, 포스파티딜콜린, 폴리솔베이트20, 레시틴, 에스에이치-올리고펩타이드-1, 에스에이치-폴리펩타이드-3, 에스에이치-올리고펩타이드-2, 에스에이치-폴리펩타이드-11, 에스에이치-폴리펩타이드-16, 에스에이치-폴리펩타이드-4",
+                "Water, Pentylene Glycol, Tranexamic Acid, Lactobacillus/Hydrolyzed Pea Seed Extract Ferment Filtrate, Butylene Glycol, Dimethyl Sulfone, Hydroxypropyl Cyclodextrin, Dexpanthenol, Centella Asiatica Extract, Sodium Hyaluronate, Hydrolyzed Collagen, Allantoin, Adenosine, Polygonum Cuspidatum Root Extract, Scutellaria Baicalensis Root Extract, Arginine, Camellia Sinensis Leaf Extract, Glycyrrhiza Glabra (Licorice) Root Extract, Sodium Hyaluronate Crosspolymer, Rosmarinus Officinalis (Rosemary) Leaf Extract, Chamomilla Recutita (Matricaria) Flower Extract, Sodium DNA, Mentha Piperita (Peppermint) Extract, Copper Tripeptide-1, Acetyl Hexapeptide-8, 1,2-Hexanediol, Phosphatidylcholine, Polysorbate 20, Lecithin, sh-Oligopeptide-1, sh-Polypeptide-3, sh-Oligopeptide-2, sh-Polypeptide-11, sh-Polypeptide-16, sh-Polypeptide-4",
                 "1) 화장품 사용 시 또는 사용 후 직사광선에 의하여 사용부위가 붉은 반점, 부어오름 또는 가려움증 등의 이상 증상이나 부작용이 있는 경우에는 전문의 등과 상담할 것 2) 상처가 있는 부위 등에는 사용을 자제할 것 3) 보관 및 취급 시 주의사항 가) 어린이의 손이 닿지 않는 곳에 보관할 것 나) 직사광선을 피해서 보관할 것",
                 "1661-2383, 02-868-1921",
                 "https://intomedipro.com/shop/?idx=162"
@@ -441,6 +484,7 @@
                 "(주)제니트리 / 서울시 금천구 가산디지털2로 67, 2001호, 1403호, B105호\nJANYTREE INC. / #2001, #1403, #B105, 67, Gasan digital 2-ro, Geumcheon-gu, Seoul, Republic of Korea",
                 "적당량을 덜어 피부에 골고루 펴 바른 후 흡수시켜 줍니다.\n[바이알 오픈 방법]\n바이알의 캡을 화살표 방향으로 힘을 주어 연 다음 테두리의 알루미늄을 제거 후 고무마개를 열어줍니다. 이후 드로퍼를 끼워 사용해 주세요.\n * 주의사항 : 바이알 개봉 시 오픈 부분이 날카로울 수 있으니 사용에 주의하시기 바랍니다.",
                 "정제수, 펜틸렌글라이콜, 트라넥사믹애씨드, 알부틴, 락토바실러스/하이드롤라이즈드완두콩추출발효여과물, 나이아신아마이드, 부틸렌글라이콜, 다이메틸설폰, 하이드록시프로필사이클로덱스트린, 덱스판테놀, 소듐하이알루로네이트, 병풀추출물, 알지닌, 알란토인, 글루타티온, 하이드롤라이즈드콜라겐, 황금추출물, 호장근뿌리추출물, 스페인감초뿌리추출물, 녹차추출물, 소듐하이알루로네이트크로스폴리머, 로즈마리잎추출물, 마트리카리아꽃추출물, 페퍼민트추출물, 아세틸시스테인",
+                "Water, Pentylene Glycol, Tranexamic Acid, Arbutin, Lactobacillus/Hydrolyzed Pea Seed Extract Ferment Filtrate, Niacinamide, Butylene Glycol, Dimethyl Sulfone, Hydroxypropyl Cyclodextrin, Dexpanthenol, Sodium Hyaluronate, Centella Asiatica Extract, Arginine, Allantoin, Glutathione, Hydrolyzed Collagen, Scutellaria Baicalensis Root Extract, Polygonum Cuspidatum Root Extract, Glycyrrhiza Glabra (Licorice) Root Extract, Camellia Sinensis Leaf Extract, Sodium Hyaluronate Crosspolymer, Rosmarinus Officinalis (Rosemary) Leaf Extract, Chamomilla Recutita (Matricaria) Flower Extract, Mentha Piperita (Peppermint) Extract, Acetylcysteine",
                 "1) 화장품 사용 시 또는 사용 후 직사광선에 의하여 사용부위가 붉은 반점, 부어오름 또는 가려움증 등의 이상 증상이나 부작용이 있는 경우에는 전문의 등과 상담할 것 2) 상처가 있는 부위 등에는 사용을 자제할 것 3) 보관 및 취급 시 주의사항 가) 어린이의 손이 닿지 않는 곳에 보관할 것 나) 직사광선을 피해서 보관할 것 4) 알부틴은 「인체적용시험자료」에서 구진과 경미한 가려움이 보고된 예가 있음",
                 "1661-2383, 02-868-1921",
                 "https://intomedipro.com/shop/?idx=168"
@@ -454,6 +498,7 @@
                 "(주)제니트리 / 서울시 금천구 가산디지털2로 67, 2001호, 1403호, B105호\nJANYTREE INC. / #2001, #1403, #B105, 67, Gasan digital 2-ro, Geumcheon-gu, Seoul, Republic of Korea",
                 "적당량을 덜어 피부에 골고루 펴 바른 후 흡수시켜 줍니다.\n[바이알 오픈 방법]\n바이알의 캡을 화살표 방향으로 힘을 주어 연 다음 테두리의 알루미늄을 제거 후 고무마개를 열어줍니다. 이후 드로퍼를 끼워 사용해 주세요.\n * 주의사항 : 바이알 개봉 시 오픈 부분이 날카로울 수 있으니 사용에 주의하시기 바랍니다.",
                 "정제수, 펜틸렌글라이콜, 트라넥사믹애씨드, 락토바실러스/하이드롤라이즈드완두콩추출발효여과물, 부틸렌글라이콜, 다이메틸설폰, 하이드록시프로필사이클로덱스트린, 덱스판테놀, 병풀추출물, 하이드롤라이즈드하이알루로닉애씨드, 소듐하이알루로네이트, 하이드롤라이즈드콜라겐, 알란토인, 호장근뿌리추출물, 황금추출물, 알지닌, 녹차추출물, 스페인감초뿌리추출물, 소듐하이알루로네이트크로스폴리머, 마트리카리아꽃추출물, 로즈마리잎추출물, 페퍼민트추출물, 1,2-헥산다이올, 포스파티딜콜린, 폴리솔베이트20, 레시틴, 에스에이치-올리고펩타이드-1, 에스에이치-올리고펩타이드-33, 에스에이치-폴리펩타이드-9, 에스에이치-폴리펩타이드-64, 에스에이치-폴리펩타이드-60, 에스에이치-폴리펩타이드-7",
+                "Water, Pentylene Glycol, Tranexamic Acid, Lactobacillus/Hydrolyzed Pea Seed Extract Ferment Filtrate, Butylene Glycol, Dimethyl Sulfone, Hydroxypropyl Cyclodextrin, Dexpanthenol, Centella Asiatica Extract, Hydrolyzed Hyaluronic Acid, Sodium Hyaluronate, Hydrolyzed Collagen, Allantoin, Polygonum Cuspidatum Root Extract, Scutellaria Baicalensis Root Extract, Arginine, Camellia Sinensis Leaf Extract, Glycyrrhiza Glabra (Licorice) Root Extract, Sodium Hyaluronate Crosspolymer, Chamomilla Recutita (Matricaria) Flower Extract, Rosmarinus Officinalis (Rosemary) Leaf Extract, Mentha Piperita (Peppermint) Extract, 1,2-Hexanediol, Phosphatidylcholine, Polysorbate 20, Lecithin, sh-Oligopeptide-1, sh-Oligopeptide-33, sh-Polypeptide-9, sh-Polypeptide-64, sh-Polypeptide-60, sh-Polypeptide-7",
                 "1) 화장품 사용 시 또는 사용 후 직사광선에 의하여 사용부위가 붉은 반점, 부어오름 또는 가려움증 등의 이상 증상이나 부작용이 있는 경우에는 전문의 등과 상담할 것 2) 상처가 있는 부위 등에는 사용을 자제할 것 3) 보관 및 취급 시 주의사항 가) 어린이의 손이 닿지 않는 곳에 보관할 것 나) 직사광선을 피해서 보관할 것",
                 "1661-2383, 02-868-1921",
                 "https://intomedipro.com/shop/?idx=167"
@@ -753,13 +798,13 @@
             let expiration = getColValue(item, COL.expiration); // 추가
             // 제조업자: 언어별로 해당 줄만 추출 (번역 불필요)
             let manufacturer = getManufacturerDisplay(item, lang);
-            let ingredients = getColValue(item, COL.ingredients);
+            let ingredients = lang === 'en' ? getColValue(item, COL.ingredientsEn) : getColValue(item, COL.ingredientsKo);
             let cautions = getColValue(item, COL.cautions);
             let customer = getColValue(item, COL.customer);
 
             // ▼ 영어 모드: 각 항목 번역 수행
             if (lang === 'en') {
-                // 제조업자는 이미 영문 추출 완료, 번역 불필요
+                // 제조업자는 이미 영문 추출 완료, 전성분도 영문 열 추출 완료. 나머지만 번역.
                 [volume, functional, batchno, expiration, cautions, customer] = await Promise.all([
                     translateText(volume),
                     translateText(functional),
@@ -768,9 +813,6 @@
                     translateText(cautions),
                     translateText(customer)
                 ]);
-
-                // 전성분은 식약처 API(INCI 영문명) 우선 조회 후 구글 번역으로 보완
-                ingredients = await translateIngredients(ingredients);
             }
 
             // 제품명 표시 (EN이면 시트에서 직접 영문명 추출)
