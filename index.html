@@ -945,6 +945,11 @@
             const productName = document.getElementById('product-name').textContent || '';
             const volume = document.getElementById('val-volume').textContent || '';
             const functional = document.getElementById('val-functional').textContent || '';
+            const batchno = document.getElementById('val-batchno').textContent || '';
+            const expiration = document.getElementById('val-expiration').textContent || '';
+            const manufacturer = document.getElementById('val-manufacturer').textContent || '';
+            const ingredients = document.getElementById('val-ingredients').textContent || '';
+            const customer = document.getElementById('val-customer').textContent || '';
 
             // 사용방법에서 주의사항 문구가 포함되어 있다면 본문만 추출
             let howToUse = document.getElementById('val-how-to-use').textContent || '';
@@ -952,8 +957,17 @@
 
             const cautions = document.getElementById('val-cautions').textContent || '';
 
-            // 음성 발화용 문장 조립
-            let text = `${productName}. ${uiLabels.volume[currentLang]}, ${volume}. ${uiLabels.functional[currentLang]}, ${functional}. ${uiLabels.howToUse[currentLang]}, ${howToUse}. ${uiLabels.cautions[currentLang]}, ${cautions}`;
+            // 음성 발화용 문장 조립 (모든 항목 포함)
+            let text = `${productName}. ` +
+                       `${uiLabels.volume[currentLang]}, ${volume}. ` +
+                       `${uiLabels.functional[currentLang]}, ${functional}. ` +
+                       `${uiLabels.batchno[currentLang]}, ${batchno}. ` +
+                       `${uiLabels.expiration[currentLang]}, ${expiration}. ` +
+                       `${uiLabels.howToUse[currentLang]}, ${howToUse}. ` +
+                       `${uiLabels.manufacturer[currentLang]}, ${manufacturer}. ` +
+                       `${uiLabels.ingredients[currentLang]}, ${ingredients}. ` +
+                       `${uiLabels.cautions[currentLang]}, ${cautions}. ` +
+                       `${uiLabels.customer[currentLang]}, ${customer}.`;
 
             // 영어 모드일 때 대문자 브랜드명이 약어로 취급되어 한 글자씩 끊어 읽히는(I-N-T-O...) 현상 해결
             if (currentLang === 'en') {
