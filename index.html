@@ -951,9 +951,8 @@
             const ingredients = document.getElementById('val-ingredients').textContent || '';
             const customer = document.getElementById('val-customer').textContent || '';
 
-            // 사용방법에서 주의사항 문구가 포함되어 있다면 본문만 추출
-            let howToUse = document.getElementById('val-how-to-use').textContent || '';
-            howToUse = howToUse.split('* 주의사항 :')[0].split('* Precautions :')[0].trim();
+            // 사용방법 전체 텍스트를 그대로 가져옵니다 (주의사항 포함)
+            const howToUse = document.getElementById('val-how-to-use').textContent || '';
 
             const cautions = document.getElementById('val-cautions').textContent || '';
 
