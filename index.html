@@ -145,20 +145,20 @@
         }
 
         .btn-download {
-            width: 100%;
-            padding: 16px;
+            flex: 1;
+            padding: 14px 8px;
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
             border: none;
-            border-radius: 14px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 13px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 4px;
             font-family: inherit;
             box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
         }
@@ -207,16 +207,17 @@
                 <div id="qr-url-preview" class="qr-url-preview"></div>
             </div>
 
-            <button id="btn-download" class="btn-download">
-                <span class="material-icons" style="font-size:20px;">download</span>
-                QR 코드 다운로드 (.png)
-            </button>
-            <!-- SVG 다운로드 버튼 (벡터 형식, 인쇄용) -->
-            <button id="btn-download-svg" class="btn-download"
-                style="margin-top:8px; background: linear-gradient(135deg, #7c3aed, #a855f7);">
-                <span class="material-icons" style="font-size:20px;">photo_size_select_large</span>
-                QR 코드 다운로드 (.svg)
-            </button>
+            <!-- 다운로드 버튼 그룹 -->
+            <div style="display: flex; flex-direction: row; gap: 8px; padding-bottom: 10px; width: 100%;">
+                <button id="btn-download" class="btn-download">
+                    <span class="material-icons" style="font-size:18px;">download</span>
+                    QR 다운로드 (.png)
+                </button>
+                <button id="btn-download-svg" class="btn-download" style="background: linear-gradient(135deg, #7c3aed, #a855f7);">
+                    <span class="material-icons" style="font-size:18px;">download</span>
+                    QR 다운로드 (.svg)
+                </button>
+            </div>
         </div>
     </div>
 
