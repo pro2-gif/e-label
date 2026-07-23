@@ -421,73 +421,60 @@
         };
 
         // =====================================================
-        // ■ CSV 파싱 유틸리티 (정규식 기반 - 아주 안전함)
+        // ■ 구글 시트 데이터 로딩 (JSONP 방식)
+        // 크롬 브라우저의 로컬 환경(file://) CORS 차단을 완벽하게 우회하여 데이터를 가져옵니다.
         // =====================================================
-        function parseCSV(text) {
-            if (!text) return [];
-            const rows = [];
-            // CSV 파싱 정규식 (콤마, 따옴표, 줄바꿈 완벽 처리)
-            const pattern = new RegExp(
-                "(\\,|\\r?\\n|\\r|^)" +
-                "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-                "([^\"\\,\\r\\n]*))",
-                "gi"
-            );
-            let row = [];
-            let matches = null;
-            while (matches = pattern.exec(text)) {
-                let matchedDelimiter = matches[1];
-                // 콤마가 아닌 줄바꿈을 만났다면 다음 행으로 이동
-                if (matchedDelimiter.length && matchedDelimiter !== ",") {
-                    rows.push(row);
-                    row = [];
+        function loadSheetData(callback) {
+            // 전역 콜백 함수 등록
+            window.handleSheetData = function (response) {
+                try {
+                    if (!response || !response.table || !response.table.rows) {
+                        throw new Error("데이터 형식이 올바르지 않습니다.");
+                    }
+
+                    productsData = [];
+                    // 구글 시트 Visualization API는 헤더를 cols에, 데이터는 rows에 분리해서 줍니다.
+                    const rows = response.table.rows;
+                    
+                    for (let i = 0; i < rows.length; i++) {
+                        const rowData = rows[i].c;
+                        const item = [];
+                        
+                        // 구글 시트 응답은 최대 11개 열(콜럼)이라고 가정 (0~10)
+                        for (let j = 0; j < 11; j++) {
+                            const cell = rowData[j];
+                            // f(포맷된 문자열)가 있으면 사용하고, 없으면 v(원시 값) 사용
+                            const val = cell ? (cell.f || cell.v || '') : '';
+                            item.push(String(val).trim());
+                        }
+
+                        // 첫 번째 열(제품명)이 비어있지 않으면 유효한 제품으로 추가
+                        if (item[0]) {
+                            productsData.push(item);
+                        }
+                    }
+                    
+                    // 스크립트 찌꺼기 정리
+                    const scriptTag = document.getElementById('gviz-script');
+                    if (scriptTag) scriptTag.remove();
+                    
+                    if (productsData.length === 0) throw new Error("데이터 부족");
+                    
+                    callback(null, productsData);
+                } catch (err) {
+                    console.error("데이터 파싱 실패:", err);
+                    callback(err, null);
                 }
-                let matchedValue;
-                if (matches[2]) {
-                    // 따옴표로 감싸진 값의 이중 따옴표("")를 단일 따옴표(")로 변환
-                    matchedValue = matches[2].replace(new RegExp("\"\"", "g"), "\"");
-                } else {
-                    // 일반 값
-                    matchedValue = matches[3];
-                }
-                row.push(matchedValue);
-            }
-            // 마지막 행 추가
-            if (row.length > 0) rows.push(row);
-            return rows;
-        }
+            };
 
-        // (임시 제품 목록 fallbackData 삭제 완료 - 구글 시트 100% 연동)
-
-        // =====================================================
-        // ■ 구글 시트 데이터 로딩 (CSV Fetch 방식)
-        // =====================================================
-        async function loadSheetData(callback) {
-            try {
-                // gviz/tq 방식을 사용하면 CORS 문제와 로컬(file://) 차단 문제를 가장 완벽하게 우회하여 데이터를 가져올 수 있습니다.
-                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
-                const res = await fetch(url, { cache: "no-store" });
-                if (!res.ok) throw new Error("네트워크 응답 오류");
-
-                const text = await res.text();
-                const rows = parseCSV(text);
-
-                if (!rows || rows.length < 2) throw new Error("데이터 부족");
-
-                productsData = [];
-                // 첫 줄은 헤더이므로 인덱스 1부터 시작
-                for (let i = 1; i < rows.length; i++) {
-                    const item = rows[i].map(val => val ? val.trim() : '');
-                    // 11개 열 미만이면 빈 문자열로 채움
-                    while (item.length < 11) item.push('');
-
-                    if (item[0]) productsData.push(item);
-                }
-                callback(null, productsData);
-            } catch (err) {
-                console.error("시트 로딩 실패:", err);
-                callback(err, null);
-            }
+            // JSONP 스크립트 생성 및 삽입 (로컬 환경에서도 무조건 작동)
+            const script = document.createElement('script');
+            script.id = 'gviz-script';
+            script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheetData`;
+            script.onerror = function() {
+                callback(new Error("네트워크 오류 또는 구글 시트 로드 실패"), null);
+            };
+            document.head.appendChild(script);
         }
 
         // 제품명 가져오기
