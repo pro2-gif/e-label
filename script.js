@@ -570,7 +570,7 @@ function updateQrDisplay(item) {
     // img 태그로 즉시 렌더링
     container.innerHTML = `
         <img src="${currentQrUrl}" alt="QR Code" style="width:200px; height:200px; margin-bottom:10px; border-radius:8px;" />
-        <p style="font-size:12px; color:#2563eb; font-weight:600; margin-top:0px; margin-bottom:5px;">👉 터치하여 라벨 정보 바로 보기</p>
+        <p style="font-size:12px; color:#2563eb; font-weight:600; margin-top:0px; margin-bottom:5px;">👉 클릭하여 라벨 정보 바로 보기</p>
     `;
 }
 

@@ -213,7 +213,8 @@
                     <span class="material-icons" style="font-size:18px;">download</span>
                     QR 다운로드 (.png)
                 </button>
-                <button id="btn-download-svg" class="btn-download" style="background: linear-gradient(135deg, #7c3aed, #a855f7);">
+                <button id="btn-download-svg" class="btn-download"
+                    style="background: linear-gradient(135deg, #7c3aed, #a855f7);">
                     <span class="material-icons" style="font-size:18px;">download</span>
                     QR 다운로드 (.svg)
                 </button>
@@ -435,11 +436,11 @@
                     productsData = [];
                     // 구글 시트 Visualization API는 헤더를 cols에, 데이터는 rows에 분리해서 줍니다.
                     const rows = response.table.rows;
-                    
+
                     for (let i = 0; i < rows.length; i++) {
                         const rowData = rows[i].c;
                         const item = [];
-                        
+
                         // 구글 시트 응답은 제품명부터 구매링크까지 총 12개 열(콜럼 0~11)
                         for (let j = 0; j < 12; j++) {
                             const cell = rowData[j];
@@ -453,13 +454,13 @@
                             productsData.push(item);
                         }
                     }
-                    
+
                     // 스크립트 찌꺼기 정리
                     const scriptTag = document.getElementById('gviz-script');
                     if (scriptTag) scriptTag.remove();
-                    
+
                     if (productsData.length === 0) throw new Error("데이터 부족");
-                    
+
                     callback(null, productsData);
                 } catch (err) {
                     console.error("데이터 파싱 실패:", err);
@@ -471,7 +472,7 @@
             const script = document.createElement('script');
             script.id = 'gviz-script';
             script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheetData`;
-            script.onerror = function() {
+            script.onerror = function () {
                 callback(new Error("네트워크 오류 또는 구글 시트 로드 실패"), null);
             };
             document.head.appendChild(script);
@@ -924,7 +925,7 @@
             // img 태그로 즉시 렌더링
             container.innerHTML = `
         <img src="${currentQrUrl}" alt="QR Code" style="width:200px; height:200px; margin-bottom:10px; border-radius:8px;" />
-        <p style="font-size:12px; color:#2563eb; font-weight:600; margin-top:0px; margin-bottom:5px;">👉 터치하여 라벨 정보 바로 보기</p>
+        <p style="font-size:12px; color:#2563eb; font-weight:600; margin-top:0px; margin-bottom:5px;">👉 클릭하여 라벨 정보 바로 보기</p>
     `;
         }
 
@@ -958,15 +959,15 @@
 
             // 음성 발화용 문장 조립 (모든 항목 포함)
             let text = `${productName}. ` +
-                       `${uiLabels.volume[currentLang]}, ${volume}. ` +
-                       `${uiLabels.functional[currentLang]}, ${functional}. ` +
-                       `${uiLabels.batchno[currentLang]}, ${batchno}. ` +
-                       `${uiLabels.expiration[currentLang]}, ${expiration}. ` +
-                       `${uiLabels.howToUse[currentLang]}, ${howToUse}. ` +
-                       `${uiLabels.manufacturer[currentLang]}, ${manufacturer}. ` +
-                       `${uiLabels.ingredients[currentLang]}, ${ingredients}. ` +
-                       `${uiLabels.cautions[currentLang]}, ${cautions}. ` +
-                       `${uiLabels.customer[currentLang]}, ${customer}.`;
+                `${uiLabels.volume[currentLang]}, ${volume}. ` +
+                `${uiLabels.functional[currentLang]}, ${functional}. ` +
+                `${uiLabels.batchno[currentLang]}, ${batchno}. ` +
+                `${uiLabels.expiration[currentLang]}, ${expiration}. ` +
+                `${uiLabels.howToUse[currentLang]}, ${howToUse}. ` +
+                `${uiLabels.manufacturer[currentLang]}, ${manufacturer}. ` +
+                `${uiLabels.ingredients[currentLang]}, ${ingredients}. ` +
+                `${uiLabels.cautions[currentLang]}, ${cautions}. ` +
+                `${uiLabels.customer[currentLang]}, ${customer}.`;
 
             // 영어 모드일 때 대문자 브랜드명이 약어로 취급되어 한 글자씩 끊어 읽히는(I-N-T-O...) 현상 해결
             if (currentLang === 'en') {
