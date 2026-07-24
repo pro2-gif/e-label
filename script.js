@@ -18,17 +18,17 @@ const MFDS_API_URL = "https://apis.data.go.kr/1471000/CsmtcsIngdCpntInfoService0
 // 0: 제품명 | 1: 용량 | 2: 기능성분류 | 3: 제조번호 | 4: 사용기한 | 5: 사용방법
 // 6: 제조업자 | 7: 전성분 | 8: 주의사항 | 9: 소비자상담 | 10: 구매링크
 const COL = {
-    name:         0,
-    volume:       1,
-    functional:   2,
-    batchno:      3,
-    expiration:   4,
+    name: 0,
+    volume: 1,
+    functional: 2,
+    batchno: 3,
+    expiration: 4,
     manufacturer: 5, // 구글 시트 실제 순서: 제조업자
-    howToUse:     6, // 구글 시트 실제 순서: 사용방법
-    ingredients:  7,
-    cautions:     8,
-    customer:     9,
-    buyUrl:       10
+    howToUse: 6, // 구글 시트 실제 순서: 사용방법
+    ingredients: 7,
+    cautions: 8,
+    customer: 9,
+    buyUrl: 10
 };
 
 // 앱 상태 변수
@@ -52,16 +52,16 @@ const ingredientDictionary = {
 
 // 다국어 UI 라벨
 const uiLabels = {
-    volume:       { ko: "용량",                   en: "Volume" },
-    functional:   { ko: "기능성 분류",             en: "Functional Classification" },
-    batchno:      { ko: "제조번호",               en: "Batch No." },      // 추가
-    expiration:   { ko: "사용기한",               en: "Expiration Date" },// 추가
-    howToUse:     { ko: "사용방법",               en: "How to Use" },
-    manufacturer: { ko: "제조 및 책임판매업자",   en: "Manufacturer & Distributor" },
-    ingredients:  { ko: "전성분",                 en: "Ingredients" },
-    cautions:     { ko: "사용할 때의 주의사항",   en: "Cautions" },
-    customer:     { ko: "소비자 상담",             en: "Customer Service" },
-    buyBtn:       { ko: "구매하기",               en: "Buy Now" }
+    volume: { ko: "용량", en: "Volume" },
+    functional: { ko: "기능성 분류", en: "Functional Classification" },
+    batchno: { ko: "제조번호", en: "Batch No." },      // 추가
+    expiration: { ko: "사용기한", en: "Expiration Date" },// 추가
+    howToUse: { ko: "사용방법", en: "How to Use" },
+    manufacturer: { ko: "제조 및 책임판매업자", en: "Manufacturer & Distributor" },
+    ingredients: { ko: "전성분", en: "Ingredients" },
+    cautions: { ko: "사용할 때의 주의사항", en: "Cautions" },
+    customer: { ko: "소비자 상담", en: "Customer Service" },
+    buyBtn: { ko: "구매하기", en: "Buy Now" }
 };
 
 // =====================================================
@@ -107,11 +107,11 @@ function parseCSV(text) {
 // =====================================================
 const fallbackData = [
     [
-        "인투메디 클리닉스 리쥬\nINTOMEDI CLINIX REJUE", 
-        "4ml x 5ea", 
-        "주름개선 기능성\n(질병의 예방 및 치료를 위한 의약품이 아님)", 
-        "B25112701", 
-        "2028.11.27", 
+        "인투메디 클리닉스 리쥬\nINTOMEDI CLINIX REJUE",
+        "4ml x 5ea",
+        "주름개선 기능성\n(질병의 예방 및 치료를 위한 의약품이 아님)",
+        "B25112701",
+        "2028.11.27",
         "(주)제니트리 / 서울시 금천구 가산디지털2로 67, 2001호, 1403호, B105호\nJANYTREE INC. / #2001, #1403, #B105, 67, Gasan digital 2-ro, Geumcheon-gu, Seoul, Republic of Korea",
         "적당량을 덜어 피부에 골고루 펴 바른 후 흡수시켜 줍니다.\n* 주의사항 : 바이알 개봉 시 오픈 부분이 날카로울 수 있으니 사용에 주의하시기 바랍니다.",
         "정제수, 펜틸렌글라이콜, 트라넥사믹애씨드, 락토바실러스/하이드롤라이즈드완두콩추출발효여과물, 부틸렌글라이콜, 다이메틸설폰, 하이드록시프로필사이클로덱스트린, 덱스판테놀, 병풀추출물, 소듐하이알루로네이트, 하이드롤라이즈드콜라겐, 알란토인, 아데노신, 호장근뿌리추출물, 황금추출물, 알지닌, 녹차추출물, 스페인감초뿌리추출물, 소듐하이알루로네이트크로스폴리머, 로즈마리잎추출물, 마트리카리아꽃추출물, 소듐디엔에이, 페퍼민트추출물, 카퍼트라이펩타이드-1, 아세틸헥사펩타이드-8, 1,2-헥산다이올, 포스파티딜콜린, 폴리솔베이트20, 레시틴, 에스에이치-올리고펩타이드-1",
@@ -130,19 +130,19 @@ async function loadSheetData(callback) {
         const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?output=csv`;
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) throw new Error("네트워크 응답 오류");
-        
+
         const text = await res.text();
         const rows = parseCSV(text);
-        
+
         if (!rows || rows.length < 2) throw new Error("데이터 부족");
-        
+
         productsData = [];
         // 첫 줄은 헤더이므로 인덱스 1부터 시작
         for (let i = 1; i < rows.length; i++) {
             const item = rows[i].map(val => val ? val.trim() : '');
             // 11개 열 미만이면 빈 문자열로 채움
             while (item.length < 11) item.push('');
-            
+
             if (item[0]) productsData.push(item);
         }
         callback(null, productsData);
@@ -189,14 +189,14 @@ function getManufacturerDisplay(item, lang) {
 // =====================================================
 function initViewer() {
     const loadingEl = document.getElementById('loading-screen');
-    const errorEl   = document.getElementById('error-screen');
-    const mainEl    = document.getElementById('main-content');
-    const footerEl  = document.getElementById('bottom-footer');
+    const errorEl = document.getElementById('error-screen');
+    const mainEl = document.getElementById('main-content');
+    const footerEl = document.getElementById('bottom-footer');
 
-    const urlParams    = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(window.location.search);
     const productParam = urlParams.get('product');
 
-    loadSheetData(function(err, data) {
+    loadSheetData(function (err, data) {
         if (err || !data || data.length === 0) {
             loadingEl.style.display = 'none';
             document.getElementById('error-msg').textContent = '시트 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
@@ -297,7 +297,7 @@ async function queryMfdsApi(korName) {
 
     for (const url of candidates) {
         try {
-            const res  = await fetchWithTimeout(url, 5000);
+            const res = await fetchWithTimeout(url, 5000);
             const data = await res.json();
             const engName = data?.body?.items?.[0]?.INGR_ENG_NAME;
             if (engName) return engName; // 성공 시 즉시 반환
@@ -311,10 +311,10 @@ async function queryMfdsApi(korName) {
 async function lookupIngredientEn(korName) {
     const trimmed = korName.trim();
     if (!trimmed) return trimmed;
-    
+
     // 0차: 사전(Dictionary) 예외 처리 우선 확인
     if (ingredientDictionary[trimmed]) return ingredientDictionary[trimmed];
-    
+
     if (ingredientEnCache[trimmed]) return ingredientEnCache[trimmed]; // 캐시 확인
 
     // 1차~3차: 식약처 API (공식 INCI 영문명)
@@ -357,7 +357,7 @@ async function translateText(text) {
 
     try {
         const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ko&tl=en&dt=t&q=${encodeURIComponent(text)}`;
-        const res  = await fetch(url);
+        const res = await fetch(url);
         const data = await res.json();
 
         let translated = '';
@@ -382,40 +382,40 @@ async function translateText(text) {
 // =====================================================
 async function renderLabel(item, lang) {
     const loadingEl = document.getElementById('loading-screen');
-    const mainEl    = document.getElementById('main-content');
-    const footerEl  = document.getElementById('bottom-footer');
+    const mainEl = document.getElementById('main-content');
+    const footerEl = document.getElementById('bottom-footer');
 
     // 영어 번역 중 로딩 화면 표시
     if (lang === 'en') {
-        mainEl.style.display   = 'none';
+        mainEl.style.display = 'none';
         footerEl.style.display = 'none';
         loadingEl.style.display = 'flex';
         loadingEl.querySelector('p').textContent = 'Translating product info...';
     }
 
     // UI 라벨 (테이블 왼쪽 항목명) 업데이트
-    document.getElementById('label-volume').textContent       = uiLabels.volume[lang];
-    document.getElementById('label-functional').textContent  = uiLabels.functional[lang];
-    document.getElementById('label-batchno').textContent     = uiLabels.batchno[lang]; // 추가
-    document.getElementById('label-expiration').textContent  = uiLabels.expiration[lang]; // 추가
-    document.getElementById('label-how-to-use').textContent  = uiLabels.howToUse[lang];
+    document.getElementById('label-volume').textContent = uiLabels.volume[lang];
+    document.getElementById('label-functional').textContent = uiLabels.functional[lang];
+    document.getElementById('label-batchno').textContent = uiLabels.batchno[lang]; // 추가
+    document.getElementById('label-expiration').textContent = uiLabels.expiration[lang]; // 추가
+    document.getElementById('label-how-to-use').textContent = uiLabels.howToUse[lang];
     document.getElementById('label-manufacturer').textContent = uiLabels.manufacturer[lang];
-    document.getElementById('label-ingredients').textContent  = uiLabels.ingredients[lang];
-    document.getElementById('label-cautions').textContent    = uiLabels.cautions[lang];
-    document.getElementById('label-customer').textContent    = uiLabels.customer[lang];
-    document.getElementById('btn-buy').textContent           = uiLabels.buyBtn[lang];
+    document.getElementById('label-ingredients').textContent = uiLabels.ingredients[lang];
+    document.getElementById('label-cautions').textContent = uiLabels.cautions[lang];
+    document.getElementById('label-customer').textContent = uiLabels.customer[lang];
+    document.getElementById('btn-buy').textContent = uiLabels.buyBtn[lang];
 
     // 원본 데이터 (언어별 처리)
-    let productName  = getProductDisplayName(item, lang);
-    let volume       = getColValue(item, COL.volume);
-    let functional   = getColValue(item, COL.functional);
-    let batchno      = getColValue(item, COL.batchno); // 추가
-    let expiration   = getColValue(item, COL.expiration); // 추가
+    let productName = getProductDisplayName(item, lang);
+    let volume = getColValue(item, COL.volume);
+    let functional = getColValue(item, COL.functional);
+    let batchno = getColValue(item, COL.batchno); // 추가
+    let expiration = getColValue(item, COL.expiration); // 추가
     // 제조업자: 언어별로 해당 줄만 추출 (번역 불필요)
     let manufacturer = getManufacturerDisplay(item, lang);
-    let ingredients  = getColValue(item, COL.ingredients);
-    let cautions     = getColValue(item, COL.cautions);
-    let customer     = getColValue(item, COL.customer);
+    let ingredients = getColValue(item, COL.ingredients);
+    let cautions = getColValue(item, COL.cautions);
+    let customer = getColValue(item, COL.customer);
 
     // ▼ 영어 모드: 각 항목 번역 수행
     if (lang === 'en') {
@@ -439,19 +439,19 @@ async function renderLabel(item, lang) {
         : getProductDisplayName(item, 'ko');
 
     // 데이터 값 채우기
-    document.getElementById('val-volume').textContent       = volume;
-    document.getElementById('val-functional').textContent  = functional;
-    document.getElementById('val-batchno').textContent     = batchno; // 추가
-    document.getElementById('val-expiration').textContent  = expiration; // 추가
+    document.getElementById('val-volume').textContent = volume;
+    document.getElementById('val-functional').textContent = functional;
+    document.getElementById('val-batchno').textContent = batchno; // 추가
+    document.getElementById('val-expiration').textContent = expiration; // 추가
     document.getElementById('val-manufacturer').textContent = manufacturer;
-    document.getElementById('val-ingredients').textContent  = ingredients;
-    document.getElementById('val-cautions').textContent    = cautions;
-    document.getElementById('val-customer').textContent    = customer;
+    document.getElementById('val-ingredients').textContent = ingredients;
+    document.getElementById('val-cautions').textContent = cautions;
+    document.getElementById('val-customer').textContent = customer;
 
     // 사용방법: 주의사항 경고 박스 분리 렌더링
-    const warnKeywordKo  = "* 주의사항 :";
+    const warnKeywordKo = "* 주의사항 :";
     const originalHowToUse = getColValue(item, COL.howToUse);
-    const valHowToUseEl  = document.getElementById('val-how-to-use');
+    const valHowToUseEl = document.getElementById('val-how-to-use');
     valHowToUseEl.innerHTML = '';
 
     if (originalHowToUse.includes(warnKeywordKo)) {
@@ -479,7 +479,7 @@ async function renderLabel(item, lang) {
     // 번역 완료 후 화면 다시 표시
     if (lang === 'en') {
         loadingEl.style.display = 'none';
-        mainEl.style.display   = 'block';
+        mainEl.style.display = 'block';
         footerEl.style.display = 'flex';
     }
 }
@@ -488,14 +488,14 @@ async function renderLabel(item, lang) {
 // ■ QR 메이커 모드 (qr_maker.html) - 관리자용
 // =====================================================
 function initQrMaker() {
-    const selectEl     = document.getElementById('product-select-maker');
-    const downloadBtn  = document.getElementById('btn-download');
+    const selectEl = document.getElementById('product-select-maker');
+    const downloadBtn = document.getElementById('btn-download');
 
     // 페이지 시작 시 HTML에 미리 작성해둔(하드코딩) 3개의 옵션에 맞추어 QR 코드 캔버스만 초기화
     updateQrDisplay(fallbackData[0]);
 
     // 2. 실제 시트 데이터 비동기(Fetch) 로딩 (전체 Try-Catch 보호 적용)
-    loadSheetData(function(err, data) {
+    loadSheetData(function (err, data) {
         let activeData = fallbackData; // 기본은 fallbackData로 설정
 
         if (!err && data && data.length > 0) {
@@ -518,12 +518,12 @@ function initQrMaker() {
                 updateQrDisplay(activeData[idx]);
             }
         });
-        
+
         document.getElementById('qr-to-viewer-btn').addEventListener('click', () => {
             const idx = parseInt(selectEl.value);
             const selectedItem = activeData[idx];
             if (!selectedItem) return;
-            
+
             const name = getProductDisplayName(selectedItem, 'ko');
             window.location.href = `?product=${encodeURIComponent(name)}`;
         });
@@ -555,22 +555,22 @@ function initQrMaker() {
 // QR 코드 화면 업데이트
 function updateQrDisplay(item) {
     const titleDisplay = document.getElementById('qr-product-title-display');
-    const container    = document.getElementById('qr-container');
-    const urlPreview   = document.getElementById('qr-url-preview');
-    
-    const name         = getProductDisplayName(item, 'ko');
-    const productUrl   = `${E_LABEL_BASE_URL}?product=${encodeURIComponent(name)}`;
-    
+    const container = document.getElementById('qr-container');
+    const urlPreview = document.getElementById('qr-url-preview');
+
+    const name = getProductDisplayName(item, 'ko');
+    const productUrl = `${E_LABEL_BASE_URL}?product=${encodeURIComponent(name)}`;
+
     // 외부 API를 이용해 고해상도 QR코드 URL 획득
     currentQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(productUrl)}`;
 
     titleDisplay.textContent = name;
-    urlPreview.textContent   = productUrl;
-    
+    urlPreview.textContent = productUrl;
+
     // img 태그로 즉시 렌더링
     container.innerHTML = `
         <img src="${currentQrUrl}" alt="QR Code" style="width:200px; height:200px; margin-bottom:10px; border-radius:8px;" />
-        <p style="font-size:12px; color:#2563eb; font-weight:600; margin-top:0px; margin-bottom:5px;">👉 터치하여 라벨 바로보기</p>
+        <p style="font-size:12px; color:#2563eb; font-weight:600; margin-top:0px; margin-bottom:5px;">👉 터치하여 라벨 정보 바로 보기</p>
     `;
 }
 
@@ -588,15 +588,15 @@ function handleTts(item) {
     }
 
     const productName = getProductDisplayName(item, 'ko');
-    const volume      = getColValue(item, COL.volume);
-    const functional  = getColValue(item, COL.functional);
-    const howToUse    = getColValue(item, COL.howToUse).split('* 주의사항 :')[0].trim();
-    const cautions    = getColValue(item, COL.cautions);
+    const volume = getColValue(item, COL.volume);
+    const functional = getColValue(item, COL.functional);
+    const howToUse = getColValue(item, COL.howToUse).split('* 주의사항 :')[0].trim();
+    const cautions = getColValue(item, COL.cautions);
 
     const text = `${productName}. ${uiLabels.volume[currentLang]}, ${volume}. ${uiLabels.functional[currentLang]}, ${functional}. ${uiLabels.howToUse[currentLang]}, ${howToUse}. ${uiLabels.cautions[currentLang]}, ${cautions}`;
 
-    const utterance  = new SpeechSynthesisUtterance(text);
-    utterance.lang   = currentLang === 'ko' ? 'ko-KR' : 'en-US';
-    utterance.rate   = 0.9;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
+    utterance.rate = 0.9;
     window.speechSynthesis.speak(utterance);
 }
