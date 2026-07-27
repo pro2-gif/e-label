@@ -549,6 +549,7 @@
 
                 // 언어 버튼
                 document.getElementById('btn-ko').addEventListener('click', () => {
+                    if (window.speechSynthesis) window.speechSynthesis.cancel();
                     if (currentLang === 'ko') return;
                     currentLang = 'ko';
                     document.getElementById('btn-ko').classList.add('active');
@@ -556,6 +557,7 @@
                     renderLabel(target, 'ko');
                 });
                 document.getElementById('btn-en').addEventListener('click', () => {
+                    if (window.speechSynthesis) window.speechSynthesis.cancel();
                     if (currentLang === 'en') return;
                     currentLang = 'en';
                     document.getElementById('btn-en').classList.add('active');
@@ -938,7 +940,11 @@
                 return;
             }
             if (window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                } else {
+                    window.speechSynthesis.pause();
+                }
                 return;
             }
 
