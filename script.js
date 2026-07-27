@@ -23,12 +23,14 @@ const COL = {
     functional: 2,
     batchno: 3,
     expiration: 4,
-    manufacturer: 5, // 구글 시트 실제 순서: 제조업자
-    howToUse: 6, // 구글 시트 실제 순서: 사용방법
-    ingredients: 7,
-    cautions: 8,
-    customer: 9,
-    buyUrl: 10
+    manufacturer: 5,
+    howToUse: 6,
+    ingredientsKo: 7,
+    ingredientsEn: 8,
+    cautions: 9,
+    customer: 10,
+    buyUrl: 11,
+    conceptDesc: 12
 };
 
 // 앱 상태 변수
@@ -40,6 +42,33 @@ let currentQrUrl = '';
 const translationCache = {};
 // 식약처 성분 영문명 캐시
 const ingredientEnCache = {};
+
+// =====================================================
+// ■ 핵심 컨셉 성분 사전 (Fallback)
+// =====================================================
+const conceptFallbackDesc = {
+    "나이아신아마이드": "#미백기능성 #피부톤개선\n칙칙한 피부를 맑고 화사하게 가꾸어 줍니다.",
+    "아데노신": "#주름개선기능성 #탄력강화\n피부의 주름을 개선하고 탄력을 부여합니다.",
+    "히알루론산": "#수분공급 #피부장벽강화\n강력한 수분 끌어당김 효과로 피부를 촉촉하게 유지합니다.",
+    "병풀추출물": "#피부진정 #장벽강화\n자극받은 피부를 편안하게 진정시켜 줍니다.",
+    "세라마이드": "#보습유지 #피부보호\n피부 장벽을 튼튼하게 하여 수분 증발을 막아줍니다.",
+    "시어버터": "#강력보습 #영양공급\n건조한 피부에 깊은 영양과 보습을 제공합니다.",
+    "에스에이치-폴리펩타이드": "#피부재생 #탄력부여\n피부 본연의 힘을 길러주고 탄탄하게 가꿔줍니다.",
+    "알부틴": "#기미완화 #색소침착개선\n기미와 주근깨 완화에 도움을 줍니다.",
+    "글루타티온": "#항산화 #브라이트닝\n강력한 항산화 작용으로 피부를 생기있게 합니다.",
+    "판테놀": "#보습진정 #장벽강화\n피부에 수분을 공급하고 자극받은 피부를 진정시킵니다."
+};
+
+// 모달 제어 함수
+window.openIngredientModal = function(name, desc) {
+    document.getElementById('modal-ing-name').textContent = name;
+    document.getElementById('modal-ing-desc').textContent = desc;
+    document.getElementById('ingredient-modal').classList.add('show');
+}
+window.closeIngredientModal = function(event) {
+    if (event && event.target.id !== 'ingredient-modal') return;
+    document.getElementById('ingredient-modal').classList.remove('show');
+}
 
 // ▼ 영문 성분명 우선 매칭 사전 (Dictionary)
 // 식약처 API보다 먼저 이 사전을 확인하여, 자주 사용되는 성분의 번역 오류를 방지합니다.
@@ -447,6 +476,62 @@ async function renderLabel(item, lang) {
     document.getElementById('val-expiration').textContent = expiration; // 추가
     document.getElementById('val-manufacturer').textContent = manufacturer;
     document.getElementById('val-ingredients').textContent = ingredients;
+
+    // ▼ 핵심 컨셉 성분 추출 및 렌더링
+    const conceptRow = document.getElementById('row-concept-ingredients');
+    const conceptContainer = document.getElementById('val-concept-ingredients');
+    if (conceptContainer) {
+        conceptContainer.innerHTML = '';
+        
+        // 시트의 13번째 열 데이터 우선 파싱
+        let sheetConceptData = {};
+        const sheetConceptRaw = getColValue(item, COL.conceptDesc);
+        if (sheetConceptRaw) {
+            sheetConceptRaw.split(',').forEach(part => {
+                const [k, ...vArr] = part.split(':');
+                if (k && vArr.length > 0) {
+                    sheetConceptData[k.trim()] = vArr.join(':').trim();
+                }
+            });
+        }
+
+        // Fallback과 시트 데이터를 병합
+        const combinedConceptDesc = { ...conceptFallbackDesc, ...sheetConceptData };
+        
+        // 한국어 원본 전성분을 기준으로 매칭 확인
+        const rawIngredientsKo = getColValue(item, COL.ingredientsKo);
+        let extractedCount = 0;
+        
+        for (const [ingName, ingDesc] of Object.entries(combinedConceptDesc)) {
+            if (rawIngredientsKo.includes(ingName)) {
+                const displayName = lang === 'en' ? (ingredientDictionary[ingName] || ingName) : ingName;
+                
+                let displayDesc = ingDesc;
+                if (lang === 'en') {
+                    displayDesc = ingDesc.replace('#수분공급', '#Hydration').replace('#피부진정', '#Soothing')
+                        .replace('#미백기능성', '#Brightening').replace('#주름개선기능성', '#Anti-aging')
+                        .replace('#장벽강화', '#BarrierStrengthening').replace('#보습유지', '#Moisturizing');
+                }
+                
+                const badge = document.createElement('span');
+                badge.className = 'concept-badge';
+                badge.textContent = displayName;
+                badge.onclick = () => window.openIngredientModal(displayName, displayDesc);
+                
+                conceptContainer.appendChild(badge);
+                extractedCount++;
+                
+                if (extractedCount >= 5) break; 
+            }
+        }
+        
+        if (extractedCount > 0) {
+            conceptRow.style.display = 'table-row';
+        } else {
+            conceptRow.style.display = 'none';
+        }
+    }
+
     document.getElementById('val-cautions').textContent = cautions;
     document.getElementById('val-customer').textContent = customer;
 
