@@ -559,10 +559,7 @@ async function renderLabel(item, lang) {
         const koNames = rawConceptKo ? rawConceptKo.split(',').map(s => s.trim()).filter(Boolean) : [];
         const enNames = rawConceptEn ? rawConceptEn.split(',').map(s => s.trim()).filter(Boolean) : [];
 
-        let extractedCount = 0;
-
         koNames.forEach((koName, idx) => {
-            if (extractedCount >= 5) return;
 
             const displayName = (lang === 'en' && enNames[idx]) ? enNames[idx] : koName;
             const ingDesc = conceptFallbackDesc[koName] || '';
@@ -590,10 +587,9 @@ async function renderLabel(item, lang) {
             );
 
             conceptContainer.appendChild(badge);
-            extractedCount++;
         });
 
-        if (extractedCount > 0) {
+        if (koNames.length > 0) {
             conceptRow.style.display = 'table-row';
         } else {
             conceptRow.style.display = 'none';
