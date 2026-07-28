@@ -200,6 +200,9 @@ const uiLabels = {
     homeBtn: { ko: "돌아가기", en: "Go Back" },
     clinicalTitle: { ko: "인체적용시험 결과", en: "Clinical Test Results" },
     clinicalClose: { ko: "닫기", en: "Close" },
+    videoTitle: { ko: "🎬 제니트리 제조 공장 & 피부과학연구소 소개", en: "🎬 Janytree Factory & Dermatology Research Institute" },
+    videoFactory: { ko: "제조 공장 소개", en: "Factory Introduction" },
+    videoLab: { ko: "피부과학연구소 소개", en: "Dermatology Research Institute" },
     concept: { 
         ko: "✨ 핵심 컨셉 성분<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 터치하여 특징 보기</span>", 
         en: "✨ Key Ingredients<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 Click for details</span>" 
@@ -572,6 +575,14 @@ async function renderLabel(item, lang) {
     document.getElementById('label-ingredients').textContent = uiLabels.ingredients[lang];
     document.getElementById('label-cautions').textContent = uiLabels.cautions[lang];
     document.getElementById('label-customer').textContent = uiLabels.customer[lang];
+    
+    // 비디오 섹션 라벨 업데이트
+    const lblVideoTitle = document.getElementById('label-video-title');
+    if(lblVideoTitle) lblVideoTitle.textContent = uiLabels.videoTitle[lang];
+    const lblVideoFactory = document.getElementById('label-video-factory');
+    if(lblVideoFactory) lblVideoFactory.textContent = uiLabels.videoFactory[lang];
+    const lblVideoLab = document.getElementById('label-video-lab');
+    if(lblVideoLab) lblVideoLab.textContent = uiLabels.videoLab[lang];
     document.getElementById('btn-buy').textContent = uiLabels.buyBtn[lang];
 
     // 원본 데이터 (언어별 처리)
