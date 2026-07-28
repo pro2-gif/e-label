@@ -239,8 +239,8 @@ async function loadSheetData(callback) {
         // 첫 줄은 헤더이므로 인덱스 1부터 시작
         for (let i = 1; i < rows.length; i++) {
             const item = rows[i].map(val => val ? val.trim() : '');
-            // 11개 열 미만이면 빈 문자열로 채움
-            while (item.length < 11) item.push('');
+            // 14개 열 미만이면 빈 문자열로 채움 (0~13: 제품명 ~ 구매하기)
+            while (item.length < 14) item.push('');
 
             if (item[0]) productsData.push(item);
         }

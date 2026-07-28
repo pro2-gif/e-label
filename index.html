@@ -622,8 +622,8 @@
                         const rowData = rows[i].c;
                         const item = [];
 
-                        // 구글 시트 응답은 제품명부터 컨셉설명까지 총 13개 열(콜럼 0~12)
-                        for (let j = 0; j < 13; j++) {
+                        // 구글 시트 응답은 제품명부터 구매하기까지 총 14개 열(콜럼 0~13)
+                        for (let j = 0; j < 14; j++) {
                             const cell = rowData[j];
                             // f(포맷된 문자열)가 있으면 사용하고, 없으면 v(원시 값) 사용
                             const val = cell ? (cell.f || cell.v || '') : '';
