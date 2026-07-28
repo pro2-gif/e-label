@@ -331,17 +331,7 @@
         <main class="main-content" id="main-content" style="display:none;">
             <!-- 제품명 영역 -->
             <div class="p-6 bg-white border-b relative">
-                <!-- 언어 토글 스위치 -->
-                <div class="lang-toggle-container">
-                    <button id="btn-ko" class="lang-btn active">KO</button>
-                    <button id="btn-en" class="lang-btn">EN</button>
-                </div>
-                <h1 id="product-name" class="text-2xl font-bold text-gray-900 text-center leading-tight mt-6" style="word-break: keep-all;"></h1>
                 
-                <!-- 인체적용시험 결과 엠블럼 컨테이너 -->
-                <div id="emblem-container" class="flex flex-wrap justify-center gap-2 mt-4" style="display: none;">
-                    <!-- 자바스크립트에서 동적으로 엠블럼 배지를 생성하여 삽입합니다 -->
-                </div>
             </div>
 
             <div class="table-container">
@@ -371,6 +361,11 @@
                         <tr id="row-concept-ingredients" style="display:none;">
                             <th id="label-concept-ingredients">✨ 핵심 컨셉 성분<br><span style="font-size:11px; font-weight:normal; color:#6b7280;">💡 터치하여 특징 보기</span></th>
                             <td id="val-concept-ingredients"></td>
+                        </tr>
+                        <!-- 인체적용시험 결과 행 -->
+                        <tr id="row-clinical" style="display:none;">
+                            <th id="label-clinical">인체적용시험 결과</th>
+                            <td id="val-clinical" class="whitespace-pre-wrap"></td>
                         </tr>
                         <tr>
                             <th id="label-ingredients">전성분</th>
@@ -1100,54 +1095,21 @@
             document.getElementById('val-manufacturer').textContent = manufacturer;
             document.getElementById('val-ingredients').textContent = ingredients;
 
-            // 인체적용시험 결과 엠블럼 렌더링
-            const emblemContainer = document.getElementById('emblem-container');
-            if (emblemContainer) {
-                emblemContainer.innerHTML = '';
-                const clinicalText = getColValue(item, COL.clinical);
-                if (clinicalText) {
-                    emblemContainer.style.display = 'flex';
-                    const tests = clinicalText.split('\n').filter(t => t.trim() !== '');
-                    
-                    tests.forEach(test => {
-                        let badgeHtml = '';
-                        let iconType = 'clinical'; // default
-                        let badgeTitle = currentLang === 'ko' ? '인체적용시험 완료' : 'Clinical Test';
-                        let bgClass = 'bg-gray-100 text-gray-800 border-gray-200';
-                        
-                        if (test.includes('비건') || test.toLowerCase().includes('vegan')) {
-                            iconType = 'vegan';
-                            badgeTitle = 'Vegan';
-                            bgClass = 'bg-green-50 text-green-700 border-green-200';
-                            badgeHtml = `<span class="mr-1">🌱</span> ${badgeTitle}`;
-                        } else if (test.includes('저자극') || test.includes('더마') || test.toLowerCase().includes('derma') || test.includes('일차자극') || test.includes('민감성')) {
-                            iconType = 'derma';
-                            badgeTitle = currentLang === 'ko' ? '저자극 테스트 완료' : 'Dermatologically Tested';
-                            bgClass = 'bg-blue-50 text-blue-700 border-blue-200';
-                            badgeHtml = `<span class="mr-1">💧</span> ${badgeTitle}`;
-                        } else {
-                            badgeHtml = `<span class="mr-1">🩺</span> ${badgeTitle}`;
-                        }
-
-                        const badgeBtn = document.createElement('button');
-                        badgeBtn.className = `px-3 py-1.5 text-xs font-bold rounded-full border shadow-sm transition-transform transform hover:scale-105 active:scale-95 ${bgClass}`;
-                        badgeBtn.innerHTML = badgeHtml;
-                        badgeBtn.onclick = async () => {
-                            const title = uiLabels.clinicalTitle[currentLang];
-                            document.getElementById('btn-clinical-close').textContent = uiLabels.clinicalClose[currentLang];
-                            
-                            if (currentLang === 'en') {
-                                const translated = await translateText(test);
-                                openClinicalModal(title, translated, iconType);
-                            } else {
-                                openClinicalModal(title, test, iconType);
-                            }
-                        };
-                        emblemContainer.appendChild(badgeBtn);
+            // 인체적용시험 결과 행 렌더링
+            const clinicalText = getColValue(item, COL.clinical);
+            const clinicalRow = document.getElementById('row-clinical');
+            if (clinicalText) {
+                clinicalRow.style.display = 'table-row';
+                // 영어 모드일 경우 번역 처리
+                if (lang === 'en') {
+                    translateText(clinicalText).then(translated => {
+                        document.getElementById('val-clinical').innerHTML = translated.replace(/\n/g, '<br>');
                     });
                 } else {
-                    emblemContainer.style.display = 'none';
+                    document.getElementById('val-clinical').innerHTML = clinicalText.replace(/\n/g, '<br>');
                 }
+            } else {
+                clinicalRow.style.display = 'none';
             }
 
             // ▼ 핵심 컨셉 성분 렌더링 (시트의 conceptKo/conceptEn 열에서 직접 읽어옴)
