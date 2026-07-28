@@ -58,15 +58,83 @@ const conceptFallbackDesc = {
     "에스에이치-폴리펩타이드": "#피부재생 #탄력부여\n피부 본연의 힘을 길러주고 탄탄하게 가꿔줍니다.",
     "알부틴": "#기미완화 #색소침착개선\n기미와 주근깨 완화에 도움을 줍니다.",
     "글루타티온": "#항산화 #브라이트닝\n강력한 항산화 작용으로 피부를 생기있게 합니다.",
-    "판테놀": "#보습진정 #장벽강화\n피부에 수분을 공급하고 자극받은 피부를 진정시킵니다."
+    "판테놀": "#보습진정 #장벽강화\n피부에 수분을 공급하고 자극받은 피부를 진정시킵니다.",
+    "락토바실러스/하이드롤라이즈드완두콩추출발효여과물": "#독자특허성분 #발효공법\n발효 공법을 통해 저분자화한 제니트리만의 독자 특허 성분입니다."
 };
 
-// 모달 제어 함수
-window.openIngredientModal = function(name, desc) {
-    document.getElementById('modal-ing-name').textContent = name;
-    document.getElementById('modal-ing-desc').textContent = desc;
-    document.getElementById('ingredient-modal').classList.add('show');
-}
+// 모달 제어 함수 (위키피디아 API로 실시간 성분 정보 제공)
+window.openIngredientModal = async function(koName, enName) {
+    const modalEl = document.getElementById('ingredient-modal');
+    const nameEl  = document.getElementById('modal-ing-name');
+    const descEl  = document.getElementById('modal-ing-desc');
+
+    const displayName = enName || koName;
+    nameEl.textContent = displayName;
+    descEl.innerHTML   = '<span style="color:#9ca3af;">정보를 불러오는 중입니다...</span>';
+    modalEl.classList.add('show');
+
+    // 1단계: Fallback 사전 즉시 표시
+    const fallback = conceptFallbackDesc[koName];
+    if (fallback) {
+        let fb = fallback;
+        if (enName) {
+            fb = fb.replace('#수분공급','#Hydration').replace('#피부진정','#Soothing')
+                .replace('#미백기능성','#Brightening').replace('#주름개선기능성','#Anti-aging')
+                .replace('#장벽강화','#BarrierStrengthening').replace('#보습유지','#Moisturizing')
+                .replace('#피부장벽강화','#BarrierStrengthening').replace('#피부보호','#SkinProtection')
+                .replace('#강력보습','#IntenseHydration').replace('#영양공급','#Nourishment')
+                .replace('#피부재생','#CellRenewal').replace('#탄력부여','#Firmness')
+                .replace('#탄력강화','#Firmness').replace('#기미완화','#SpotCare')
+                .replace('#항산화','#Antioxidant').replace('#브라이트닝','#Brightening')
+                .replace('#보습진정','#MoisturizingSoothing').replace('#피부톤개선','#ToneUp')
+                .replace('#독자특허성분','#PatentIngredient').replace('#발효공법','#FermentationTech');
+        }
+        descEl.textContent = fb;
+    }
+
+    // 2단계: 위키피디아 API에서 실제 정보 가져오기 (비동기)
+    try {
+        let summary = null;
+
+        // 한국어 위키피디아에서 먼저 시도
+        const koRes = await fetch(
+            `https://ko.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(koName)}`,
+            { signal: AbortSignal.timeout(4000) }
+        ).catch(() => null);
+
+        if (koRes && koRes.ok) {
+            const koData = await koRes.json();
+            if (koData.type !== 'disambiguation' && koData.extract) {
+                summary = koData.extract.substring(0, 300);
+            }
+        }
+
+        // 한국어 실패 시 영어 위키피디아 재시도
+        if (!summary && enName) {
+            const enRes = await fetch(
+                `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(enName)}`,
+                { signal: AbortSignal.timeout(4000) }
+            ).catch(() => null);
+
+            if (enRes && enRes.ok) {
+                const enData = await enRes.json();
+                if (enData.type !== 'disambiguation' && enData.extract) {
+                    summary = enData.extract.substring(0, 300);
+                }
+            }
+        }
+
+        if (summary) {
+            descEl.textContent = summary;
+        } else if (!fallback) {
+            descEl.textContent = enName
+                ? 'No detailed information found.'
+                : '성분 상세 정보를 찾을 수 없습니다.';
+        }
+    } catch (e) {
+        if (!fallback) descEl.textContent = '성분 정보를 불러오는 중 오류가 발생했습니다.';
+    }
+};
 window.closeIngredientModal = function(event) {
     if (event && event.target.id !== 'ingredient-modal') return;
     document.getElementById('ingredient-modal').classList.remove('show');
