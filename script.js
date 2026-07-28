@@ -343,21 +343,39 @@ function initViewer() {
 
         // 언어 버튼
         document.getElementById('btn-ko').addEventListener('click', () => {
-        if (currentLang === 'ko') return;
-        window.speechSynthesis.cancel();
-        window.ttsChunks = [];
-        document.getElementById('btn-ko').classList.add('active');
+            if (currentLang === 'ko') return;
+            window.speechSynthesis.cancel();
+            window.ttsChunks = [];
+            const ttsBtn = document.getElementById('btn-tts');
+            if (ttsBtn) ttsBtn.classList.remove('playing');
+            currentLang = 'ko';
+            document.getElementById('btn-ko').classList.add('active');
             document.getElementById('btn-en').classList.remove('active');
             renderLabel(target, 'ko');
         });
-    document.getElementById('btn-en').addEventListener('click', () => {
-        if (currentLang === 'en') return;
-        window.speechSynthesis.cancel();
-        window.ttsChunks = [];
-        document.getElementById('btn-en').classList.add('active');
+        document.getElementById('btn-en').addEventListener('click', () => {
+            if (currentLang === 'en') return;
+            window.speechSynthesis.cancel();
+            window.ttsChunks = [];
+            const ttsBtn = document.getElementById('btn-tts');
+            if (ttsBtn) ttsBtn.classList.remove('playing');
+            currentLang = 'en';
+            document.getElementById('btn-en').classList.add('active');
             document.getElementById('btn-ko').classList.remove('active');
             renderLabel(target, 'en');
         });
+
+        // 구매하기 버튼 클릭 시 TTS 강제 정지
+        const buyBtn = document.getElementById('btn-buy');
+        if (buyBtn) {
+            buyBtn.addEventListener('click', () => {
+                window.speechSynthesis.cancel();
+                window.ttsChunks = [];
+                window.ttsLastCharIndex = 0;
+                const ttsBtn = document.getElementById('btn-tts');
+                if (ttsBtn) ttsBtn.classList.remove('playing');
+            });
+        }
 
         // ▼ 구매하기 버튼: 구글 시트의 구매링크 URL 사용
         document.getElementById('btn-buy').addEventListener('click', () => {
@@ -744,6 +762,7 @@ window.currentUtterance = null;
 window.ttsChunks = [];
 window.ttsIndex = 0;
 window.isTtsPaused = false;
+window.ttsLastCharIndex = 0; // 단어 경계 추적용
 
 function playNextTtsChunk() {
     const ttsBtn = document.getElementById('btn-tts');
@@ -757,8 +776,14 @@ function playNextTtsChunk() {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
     utterance.rate = 0.9;
+    window.ttsLastCharIndex = 0; // 초기화
 
     utterance.onstart = () => { if (ttsBtn) ttsBtn.classList.add('playing'); };
+    utterance.onboundary = (e) => {
+        if (e.name === 'word') {
+            window.ttsLastCharIndex = e.charIndex;
+        }
+    };
     utterance.onend = () => {
         if (window.isTtsPaused) return; 
         window.ttsIndex++;
@@ -788,6 +813,9 @@ function handleTts(item) {
         } else {
             window.isTtsPaused = true;
             window.speechSynthesis.cancel();
+            if (window.ttsLastCharIndex > 0 && window.ttsChunks[window.ttsIndex]) {
+                window.ttsChunks[window.ttsIndex] = window.ttsChunks[window.ttsIndex].substring(window.ttsLastCharIndex);
+            }
             if (ttsBtn) ttsBtn.classList.remove('playing');
         }
         return;

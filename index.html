@@ -1197,6 +1197,7 @@
         window.ttsChunks = [];
         window.ttsIndex = 0;
         window.isTtsPaused = false;
+        window.ttsLastCharIndex = 0; // 단어 경계 추적용
 
         function playNextTtsChunk() {
             const ttsBtn = document.getElementById('btn-tts');
@@ -1210,8 +1211,14 @@
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
             utterance.rate = 0.9;
+            window.ttsLastCharIndex = 0; // 초기화
 
             utterance.onstart = () => { if (ttsBtn) ttsBtn.classList.add('playing'); };
+            utterance.onboundary = (e) => {
+                if (e.name === 'word') {
+                    window.ttsLastCharIndex = e.charIndex;
+                }
+            };
             utterance.onend = () => {
                 if (window.isTtsPaused) return; // 정지 상태면 다음으로 안 넘어감
                 window.ttsIndex++;
@@ -1244,6 +1251,10 @@
                     // 재생 -> 일시정지 (현재 발화 취소하여 즉각 멈춤)
                     window.isTtsPaused = true;
                     window.speechSynthesis.cancel();
+                    if (window.ttsLastCharIndex > 0 && window.ttsChunks[window.ttsIndex]) {
+                        // 방금 재생하던 문장에서 읽은 부분까지 잘라내고 남은 부분만 저장해둠
+                        window.ttsChunks[window.ttsIndex] = window.ttsChunks[window.ttsIndex].substring(window.ttsLastCharIndex);
+                    }
                     if (ttsBtn) ttsBtn.classList.remove('playing');
                 }
                 return;
@@ -1314,6 +1325,18 @@
             // 뷰어 모드 실행
             document.getElementById('viewer-container').style.display = 'block';
             document.body.style.background = '#f9fafb';
+            
+            // 구매하기 버튼 클릭 시 TTS 강제 정지
+            const buyBtn = document.getElementById('btn-buy');
+            if (buyBtn) {
+                buyBtn.addEventListener('click', () => {
+                    window.speechSynthesis.cancel();
+                    window.ttsChunks = [];
+                    const ttsBtn = document.getElementById('btn-tts');
+                    if (ttsBtn) ttsBtn.classList.remove('playing');
+                });
+            }
+
             initViewer();
         } else {
             // 메이커(메인) 모드 실행
