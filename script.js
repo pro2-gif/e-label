@@ -13,10 +13,11 @@ const SHEET_ID = "1202j3dJ_p-6_424X9v";
 const MFDS_API_KEY = "8438e0c9c0276651df0610f950fb14f1e6b328ad92f388072a7fdf5dfed4c8b3";
 const MFDS_API_URL = "https://apis.data.go.kr/1471000/CsmtcsIngdCpntInfoService01/getCsmtcsIngdCpntInfoService01";
 
-// ▼ 새로운 구글 시트 컬럼 순서 (0-based)
-// 수인이 시트 중간에 열을 삽입했으므로 헤더 이름이 아닌 무조건 순서(인덱스)로 찾도록 고정합니다.
-// 0: 제품명 | 1: 용량 | 2: 기능성분류 | 3: 제조번호 | 4: 사용기한 | 5: 사용방법
-// 6: 제조업자 | 7: 전성분 | 8: 주의사항 | 9: 소비자상담 | 10: 구매링크
+// ▼ 실제 구글 시트 콜럼 순서 (0-based) — 시트 기준으로 항상 최신 상태 유지
+// 0: 제품명 | 1: 용량 | 2: 기능성분류 | 3: 제조번호 | 4: 사용기한
+// 5: 제조업자 | 6: 핵심컨셉성분(국문) | 7: 핵심컨셉성분(영문)
+// 8: 전성분(국문) | 9: 전성분(영문) | 10: 사용방법
+// 11: 주의사항 | 12: 소비자상담 | 13: 구매하기
 const COL = {
     name: 0,
     volume: 1,
@@ -24,13 +25,14 @@ const COL = {
     batchno: 3,
     expiration: 4,
     manufacturer: 5,
-    howToUse: 6,
-    ingredientsKo: 7,
-    ingredientsEn: 8,
-    cautions: 9,
-    customer: 10,
-    buyUrl: 11,
-    conceptDesc: 12
+    conceptKo: 6,      // 핵심 컨셉 성분 (국문)
+    conceptEn: 7,      // 핵심 컨셉 성분 (영문)
+    ingredientsKo: 8,  // 국문 전성분
+    ingredientsEn: 9,  // 영문 전성분
+    howToUse: 10,
+    cautions: 11,
+    customer: 12,
+    buyUrl: 13
 };
 
 // 앱 상태 변수
@@ -477,54 +479,52 @@ async function renderLabel(item, lang) {
     document.getElementById('val-manufacturer').textContent = manufacturer;
     document.getElementById('val-ingredients').textContent = ingredients;
 
-    // ▼ 핵심 컨셉 성분 추출 및 렌더링
+    // ▼ 핵심 컨셉 성분 렌더링 (시트의 conceptKo/conceptEn 열에서 직접 읽어옴)
     const conceptRow = document.getElementById('row-concept-ingredients');
     const conceptContainer = document.getElementById('val-concept-ingredients');
     if (conceptContainer) {
         conceptContainer.innerHTML = '';
-        
-        // 시트의 13번째 열 데이터 우선 파싱
-        let sheetConceptData = {};
-        const sheetConceptRaw = getColValue(item, COL.conceptDesc);
-        if (sheetConceptRaw) {
-            sheetConceptRaw.split(',').forEach(part => {
-                const [k, ...vArr] = part.split(':');
-                if (k && vArr.length > 0) {
-                    sheetConceptData[k.trim()] = vArr.join(':').trim();
-                }
-            });
-        }
 
-        // Fallback과 시트 데이터를 병합
-        const combinedConceptDesc = { ...conceptFallbackDesc, ...sheetConceptData };
-        
-        // 한국어 원본 전성분을 기준으로 매칭 확인
-        const rawIngredientsKo = getColValue(item, COL.ingredientsKo);
+        const rawConceptKo = getColValue(item, COL.conceptKo).trim();
+        const rawConceptEn = getColValue(item, COL.conceptEn).trim();
+
+        const koNames = rawConceptKo ? rawConceptKo.split(',').map(s => s.trim()).filter(Boolean) : [];
+        const enNames = rawConceptEn ? rawConceptEn.split(',').map(s => s.trim()).filter(Boolean) : [];
+
         let extractedCount = 0;
-        
-        for (const [ingName, ingDesc] of Object.entries(combinedConceptDesc)) {
-            if (rawIngredientsKo.includes(ingName)) {
-                const displayName = lang === 'en' ? (ingredientDictionary[ingName] || ingName) : ingName;
-                
-                let displayDesc = ingDesc;
-                if (lang === 'en') {
-                    displayDesc = ingDesc.replace('#수분공급', '#Hydration').replace('#피부진정', '#Soothing')
-                        .replace('#미백기능성', '#Brightening').replace('#주름개선기능성', '#Anti-aging')
-                        .replace('#장벽강화', '#BarrierStrengthening').replace('#보습유지', '#Moisturizing');
-                }
-                
-                const badge = document.createElement('span');
-                badge.className = 'concept-badge';
-                badge.textContent = displayName;
-                badge.onclick = () => window.openIngredientModal(displayName, displayDesc);
-                
-                conceptContainer.appendChild(badge);
-                extractedCount++;
-                
-                if (extractedCount >= 5) break; 
+
+        koNames.forEach((koName, idx) => {
+            if (extractedCount >= 5) return;
+
+            const displayName = (lang === 'en' && enNames[idx]) ? enNames[idx] : koName;
+            const ingDesc = conceptFallbackDesc[koName] || '';
+            let displayDesc = ingDesc;
+            if (lang === 'en' && ingDesc) {
+                displayDesc = ingDesc
+                    .replace('#수분공급', '#Hydration').replace('#피부진정', '#Soothing')
+                    .replace('#미백기능성', '#Brightening').replace('#주름개선기능성', '#Anti-aging')
+                    .replace('#장벽강화', '#BarrierStrengthening').replace('#보습유지', '#Moisturizing')
+                    .replace('#피부장벽강화', '#BarrierStrengthening').replace('#피부보호', '#SkinProtection')
+                    .replace('#강력보습', '#IntenseHydration').replace('#영양공급', '#Nourishment')
+                    .replace('#피부재생', '#CellRenewal').replace('#탄력부여', '#Firmness')
+                    .replace('#탄력강화', '#Firmness').replace('#기미완화', '#SpotCare')
+                    .replace('#색소침착개선', '#PigmentationCare').replace('#항산화', '#Antioxidant')
+                    .replace('#브라이트닝', '#Brightening').replace('#보습진정', '#MoisturizingSoothing')
+                    .replace('#피부톤개선', '#ToneUp');
             }
-        }
-        
+
+            const badge = document.createElement('span');
+            badge.className = 'concept-badge';
+            badge.textContent = displayName;
+            badge.onclick = () => window.openIngredientModal(
+                displayName,
+                displayDesc || (lang === 'en' ? 'Detailed information coming soon.' : '성분 상세 정보를 준비 중입니다.')
+            );
+
+            conceptContainer.appendChild(badge);
+            extractedCount++;
+        });
+
         if (extractedCount > 0) {
             conceptRow.style.display = 'table-row';
         } else {
