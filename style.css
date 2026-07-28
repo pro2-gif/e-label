@@ -1,12 +1,12 @@
 /* style.css */
 :root {
-    --bg-color: #f9fafb;
+    --bg-color: #faf5f0;
     --card-bg: #ffffff;
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --border-color: #e5e7eb;
-    --primary-color: #2563eb;
-    --primary-hover: #1d4ed8;
+    --text-primary: #3e332c;
+    --text-secondary: #6e6057;
+    --border-color: #eaddd3;
+    --primary-color: #9c8471;
+    --primary-hover: #866d5b;
     --danger-bg: #fef2f2;
     --danger-text: #dc2626;
     --danger-border: #fca5a5;
@@ -151,7 +151,7 @@ body {
 }
 
 .info-table th {
-    background-color: #fafafa;
+    background-color: #f7f0e9;
     font-weight: 600;
     width: 30%;
     color: var(--text-secondary);
