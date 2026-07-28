@@ -13,23 +13,47 @@ const SHEET_ID = "1202j3dJ_p-6_424X9v";
 const MFDS_API_KEY = "8438e0c9c0276651df0610f950fb14f1e6b328ad92f388072a7fdf5dfed4c8b3";
 const MFDS_API_URL = "https://apis.data.go.kr/1471000/CsmtcsIngdCpntInfoService01/getCsmtcsIngdCpntInfoService01";
 
-const COL = {
+let COL = {
     name: 0,
     volume: 1,
     functional: 2,
     batchno: 3,
     expiration: 4,
     manufacturer: 5,
-    conceptKo: 6,      // 핵심 컨셉 성분 (국문)
-    conceptEn: 7,      // 핵심 컨셉 성분 (영문)
-    clinical: 8,       // 인체적용시험 결과 (NEW!)
-    ingredientsKo: 9,  // 국문 전성분
-    ingredientsEn: 10, // 영문 전성분
+    conceptKo: 6,
+    conceptEn: 7,
+    clinical: 8,
+    ingredientsKo: 9,
+    ingredientsEn: 10,
     howToUse: 11,
     cautions: 12,
     customer: 13,
     buyUrl: 14
 };
+
+// 동적으로 헤더 행을 읽어 COL 인덱스를 업데이트하는 함수
+function initColumns(headerRow) {
+    if (!headerRow || headerRow.length < 5) return;
+    
+    const headers = headerRow.map(h => (h || '').replace(/\s+/g, '').toLowerCase());
+    headers.forEach((h, idx) => {
+        if (h.includes('제품명')) COL.name = idx;
+        else if (h.includes('용량')) COL.volume = idx;
+        else if (h.includes('기능성분류')) COL.functional = idx;
+        else if (h.includes('제조번호')) COL.batchno = idx;
+        else if (h.includes('사용기한')) COL.expiration = idx;
+        else if (h.includes('제조업자') || h.includes('책임판매업자')) COL.manufacturer = idx;
+        else if (h.includes('핵심컨셉성분(국문)')) COL.conceptKo = idx;
+        else if (h.includes('핵심컨셉성분(영문)')) COL.conceptEn = idx;
+        else if (h.includes('인체적용시험결과') || h.includes('인증')) COL.clinical = idx;
+        else if (h.includes('전성분(국문)')) COL.ingredientsKo = idx;
+        else if (h.includes('전성분(영문)')) COL.ingredientsEn = idx;
+        else if (h.includes('사용방법')) COL.howToUse = idx;
+        else if (h.includes('주의사항')) COL.cautions = idx;
+        else if (h.includes('소비자상담')) COL.customer = idx;
+        else if (h.includes('구매하기')) COL.buyUrl = idx;
+    });
+}
 
 // 앱 상태 변수
 let currentLang = 'ko';
@@ -253,6 +277,11 @@ async function loadSheetData(callback) {
         const rows = parseCSV(text);
 
         if (!rows || rows.length < 2) throw new Error("데이터 부족");
+
+        // 첫 번째 행(헤더)을 분석하여 열(Column) 인덱스 동적 매핑
+        if (rows.length > 0) {
+            initColumns(rows[0]);
+        }
 
         productsData = [];
         // 첫 줄은 헤더이므로 인덱스 1부터 시작
