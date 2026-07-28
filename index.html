@@ -620,7 +620,11 @@
             cautions: { ko: "사용할 때의 주의사항", en: "Cautions" },
             customer: { ko: "소비자 상담", en: "Customer Service" },
             buyBtn: { ko: "구매하기", en: "Buy Now" },
-            homeBtn: { ko: "돌아가기", en: "Go Back" }
+            homeBtn: { ko: "돌아가기", en: "Go Back" },
+            concept: { 
+                ko: "✨ 핵심 컨셉 성분<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 터치하여 특징 보기</span>", 
+                en: "✨ Key Ingredients<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 Click for details</span>" 
+            }
         };
 
         // =====================================================
@@ -751,16 +755,20 @@
 
                 // 언어 버튼
                 document.getElementById('btn-ko').addEventListener('click', () => {
-                    if (window.speechSynthesis) window.speechSynthesis.cancel();
                     if (currentLang === 'ko') return;
+                    window.speechSynthesis.cancel();
+                    const ttsBtn = document.getElementById('btn-tts');
+                    if (ttsBtn) ttsBtn.classList.remove('playing');
                     currentLang = 'ko';
                     document.getElementById('btn-ko').classList.add('active');
                     document.getElementById('btn-en').classList.remove('active');
                     renderLabel(target, 'ko');
                 });
                 document.getElementById('btn-en').addEventListener('click', () => {
-                    if (window.speechSynthesis) window.speechSynthesis.cancel();
                     if (currentLang === 'en') return;
+                    window.speechSynthesis.cancel();
+                    const ttsBtn = document.getElementById('btn-tts');
+                    if (ttsBtn) ttsBtn.classList.remove('playing');
                     currentLang = 'en';
                     document.getElementById('btn-en').classList.add('active');
                     document.getElementById('btn-ko').classList.remove('active');
@@ -925,6 +933,8 @@
             // UI 라벨 (테이블 왼쪽 항목명) 업데이트
             document.getElementById('label-volume').textContent = uiLabels.volume[lang];
             document.getElementById('label-functional').textContent = uiLabels.functional[lang];
+            const conceptHeader = document.getElementById('label-concept-ingredients');
+            if (conceptHeader) conceptHeader.innerHTML = uiLabels.concept[lang];
             document.getElementById('label-batchno').textContent = uiLabels.batchno[lang]; // 추가
             document.getElementById('label-expiration').textContent = uiLabels.expiration[lang]; // 추가
             document.getElementById('label-how-to-use').textContent = uiLabels.howToUse[lang];
@@ -1183,7 +1193,11 @@
         // =====================================================
         // ■ TTS (음성 안내) 처리
         // =====================================================
+        // 크롬 브라우저에서 영어 음성 재생 중 가비지 컬렉션으로 인해 resume()이 먹통되는 버그를 방지하기 위해 utterance를 전역에 보관합니다.
+        window.currentUtterance = null;
+
         function handleTts(item) {
+            const ttsBtn = document.getElementById('btn-tts');
             if (!window.speechSynthesis) {
                 alert('이 브라우저는 음성 안내를 지원하지 않습니다.');
                 return;
@@ -1191,8 +1205,10 @@
             if (window.speechSynthesis.speaking) {
                 if (window.speechSynthesis.paused) {
                     window.speechSynthesis.resume();
+                    if (ttsBtn) ttsBtn.classList.add('playing');
                 } else {
                     window.speechSynthesis.pause();
+                    if (ttsBtn) ttsBtn.classList.remove('playing');
                 }
                 return;
             }
@@ -1237,6 +1253,12 @@
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
             utterance.rate = 0.9;
+            
+            utterance.onstart = () => { if (ttsBtn) ttsBtn.classList.add('playing'); };
+            utterance.onend = () => { if (ttsBtn) ttsBtn.classList.remove('playing'); window.currentUtterance = null; };
+            utterance.onerror = () => { if (ttsBtn) ttsBtn.classList.remove('playing'); window.currentUtterance = null; };
+
+            window.currentUtterance = utterance; // GC 방지
             window.speechSynthesis.speak(utterance);
         }
 

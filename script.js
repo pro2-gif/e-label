@@ -98,18 +98,13 @@ window.openIngredientModal = async function(koName, enName) {
     if (fallback) {
         let fb = fallback;
         if (enName) {
-            fb = fb.replace('#수분공급','#Hydration').replace('#피부진정','#Soothing')
-                .replace('#미백기능성','#Brightening').replace('#주름개선기능성','#Anti-aging')
-                .replace('#장벽강화','#BarrierStrengthening').replace('#보습유지','#Moisturizing')
-                .replace('#피부장벽강화','#BarrierStrengthening').replace('#피부보호','#SkinProtection')
-                .replace('#강력보습','#IntenseHydration').replace('#영양공급','#Nourishment')
-                .replace('#피부재생','#CellRenewal').replace('#탄력부여','#Firmness')
-                .replace('#탄력강화','#Firmness').replace('#기미완화','#SpotCare')
-                .replace('#항산화','#Antioxidant').replace('#브라이트닝','#Brightening')
-                .replace('#보습진정','#MoisturizingSoothing').replace('#피부톤개선','#ToneUp')
-                .replace('#독자특허성분','#PatentIngredient').replace('#발효공법','#FermentationTech');
+            // 영문 모드일 경우: 구글 번역 API로 한글 문구를 통째로 번역
+            descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
+            const translatedFb = await translateText(fb);
+            descEl.textContent = translatedFb;
+        } else {
+            descEl.textContent = fb;
         }
-        descEl.textContent = fb;
         return; // Fallback(화장품 전용 사전) 정보가 있으면 여기서 즉시 종료하여 위키피디아 의학 정보가 덮어쓰지 못하게 함
     }
 
@@ -181,7 +176,11 @@ const uiLabels = {
     ingredients: { ko: "전성분", en: "Ingredients" },
     cautions: { ko: "사용할 때의 주의사항", en: "Cautions" },
     customer: { ko: "소비자 상담", en: "Customer Service" },
-    buyBtn: { ko: "구매하기", en: "Buy Now" }
+    buyBtn: { ko: "구매하기", en: "Buy Now" },
+    concept: { 
+        ko: "✨ 핵심 컨셉 성분<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 터치하여 특징 보기</span>", 
+        en: "✨ Key Ingredients<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 Click for details</span>" 
+    }
 };
 
 // =====================================================
@@ -518,6 +517,8 @@ async function renderLabel(item, lang) {
     // UI 라벨 (테이블 왼쪽 항목명) 업데이트
     document.getElementById('label-volume').textContent = uiLabels.volume[lang];
     document.getElementById('label-functional').textContent = uiLabels.functional[lang];
+    const conceptHeader = document.getElementById('label-concept-ingredients');
+    if (conceptHeader) conceptHeader.innerHTML = uiLabels.concept[lang];
     document.getElementById('label-batchno').textContent = uiLabels.batchno[lang]; // 추가
     document.getElementById('label-expiration').textContent = uiLabels.expiration[lang]; // 추가
     document.getElementById('label-how-to-use').textContent = uiLabels.howToUse[lang];
@@ -586,17 +587,7 @@ async function renderLabel(item, lang) {
             const ingDesc = conceptFallbackDesc[koName] || '';
             let displayDesc = ingDesc;
             if (lang === 'en' && ingDesc) {
-                displayDesc = ingDesc
-                    .replace('#수분공급', '#Hydration').replace('#피부진정', '#Soothing')
-                    .replace('#미백기능성', '#Brightening').replace('#주름개선기능성', '#Anti-aging')
-                    .replace('#장벽강화', '#BarrierStrengthening').replace('#보습유지', '#Moisturizing')
-                    .replace('#피부장벽강화', '#BarrierStrengthening').replace('#피부보호', '#SkinProtection')
-                    .replace('#강력보습', '#IntenseHydration').replace('#영양공급', '#Nourishment')
-                    .replace('#피부재생', '#CellRenewal').replace('#탄력부여', '#Firmness')
-                    .replace('#탄력강화', '#Firmness').replace('#기미완화', '#SpotCare')
-                    .replace('#색소침착개선', '#PigmentationCare').replace('#항산화', '#Antioxidant')
-                    .replace('#브라이트닝', '#Brightening').replace('#보습진정', '#MoisturizingSoothing')
-                    .replace('#피부톤개선', '#ToneUp');
+                displayDesc = await translateText(ingDesc);
             }
 
             const badge = document.createElement('span');
@@ -747,9 +738,11 @@ function updateQrDisplay(item) {
 }
 
 // =====================================================
-// ■ TTS (음성 안내) 처리
+// ■ TTS (음성 안내)
 // =====================================================
+window.currentUtterance = null;
 function handleTts(item) {
+    const ttsBtn = document.getElementById('btn-tts');
     if (!window.speechSynthesis) {
         alert('이 브라우저는 음성 안내를 지원하지 않습니다.');
         return;
@@ -757,8 +750,10 @@ function handleTts(item) {
     if (window.speechSynthesis.speaking) {
         if (window.speechSynthesis.paused) {
             window.speechSynthesis.resume();
+            if (ttsBtn) ttsBtn.classList.add('playing');
         } else {
             window.speechSynthesis.pause();
+            if (ttsBtn) ttsBtn.classList.remove('playing');
         }
         return;
     }
@@ -774,5 +769,11 @@ function handleTts(item) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
     utterance.rate = 0.9;
+    
+    utterance.onstart = () => { if (ttsBtn) ttsBtn.classList.add('playing'); };
+    utterance.onend = () => { if (ttsBtn) ttsBtn.classList.remove('playing'); window.currentUtterance = null; };
+    utterance.onerror = () => { if (ttsBtn) ttsBtn.classList.remove('playing'); window.currentUtterance = null; };
+
+    window.currentUtterance = utterance;
     window.speechSynthesis.speak(utterance);
 }
