@@ -417,7 +417,7 @@
 
     <!-- 인체적용시험 결과 모달 -->
     <div id="clinical-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 400px; padding-bottom: 2rem;">
+        <div class="modal-content" style="width: 95%; max-width: 800px; padding-bottom: 2rem; max-height: 90vh; overflow-y: auto;">
             <button class="modal-close" onclick="closeClinicalModal(event)">&times;</button>
             <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 mt-2 shadow-sm" id="clinical-icon-bg" style="background-color: #f3f4f6;">
                 <span id="clinical-modal-icon" style="font-size: 2rem;">🩺</span>
@@ -1120,7 +1120,7 @@
                         
                         const descElem = document.getElementById('clinical-modal-desc');
                         if (imageUrl) {
-                            descElem.innerHTML = `<div class="mb-4 font-semibold text-gray-800">${displayMsg.replace(/\n/g, '<br>')}</div><img src="${imageUrl}" class="w-full rounded-lg shadow border" alt="인체적용시험 결과 이미지" onerror="this.onerror=null; this.parentElement.innerHTML+='<br><span class=\'text-sm text-red-500\'>이미지를 불러올 수 없습니다. 링크를 확인해주세요.</span>'; this.style.display='none';">`;
+                            descElem.innerHTML = `<div class="mb-4 font-semibold text-gray-800">${displayMsg.replace(/\n/g, '<br>')}</div><img src="${imageUrl}" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; display: block; margin-top: 15px;" alt="인체적용시험 결과 이미지" onerror="this.onerror=null; this.parentElement.innerHTML+='<br><span class=\'text-sm text-red-500\'>이미지를 불러올 수 없습니다. 링크를 확인해주세요.</span>'; this.style.display='none';">`;
                         } else {
                             descElem.innerHTML = `<div class="mb-2 font-semibold text-gray-800">${displayMsg.replace(/\n/g, '<br>')}</div><div class="text-sm text-red-500 mt-4 p-3 bg-red-50 rounded-lg">구글 시트의 일반 이미지 첨부 기능은 외부에서 읽어올 수 없습니다.<br>반드시 이미지 주소(http...)를 복사해서 글자와 함께 텍스트로 붙여넣어 주세요.<br>예시: 저자극 판정 | https://...</div>`;
                         }
