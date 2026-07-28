@@ -89,8 +89,8 @@
         }
 
         .product-select-full:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            border-color: #c4b3a6;
+            box-shadow: 0 0 0 3px rgba(196, 179, 166, 0.3);
         }
 
         .qr-canvas-wrapper {
@@ -109,12 +109,12 @@
 
         .qr-canvas-wrapper:hover {
             transform: scale(1.02);
-            border-color: #2563eb;
+            border-color: #c4b3a6;
         }
 
         .qr-click-hint {
             font-size: 12px;
-            color: #2563eb;
+            color: #000000;
             font-weight: 600;
             margin-top: -8px;
             margin-bottom: 8px;
@@ -1142,7 +1142,7 @@
 
                 const valClinical = document.getElementById('val-clinical');
                 valClinical.style.cursor = 'pointer';
-                valClinical.style.color = '#2563eb'; // 클릭 가능함을 나타내는 색상
+                valClinical.style.color = '#866d5b'; // 클릭 가능함을 나타내는 색상
                 valClinical.style.textDecoration = 'underline';
                 valClinical.title = lang === 'ko' ? '클릭하여 결과 이미지 보기' : 'Click to view results image';
 
@@ -1390,7 +1390,7 @@
             // img 태그로 즉시 렌더링
             container.innerHTML = `
         <img src="${currentQrUrl}" alt="QR Code" style="width:200px; height:200px; margin-bottom:10px; border-radius:8px;" />
-        <p style="font-size:12px; color:#2563eb; font-weight:600; margin-top:0px; margin-bottom:5px;">👉 클릭하여 라벨 정보 바로 보기</p>
+        <p style="font-size:12px; color:#000000; font-weight:600; margin-top:0px; margin-bottom:5px;">👉 클릭하여 라벨 정보 바로 보기</p>
     `;
         }
 
