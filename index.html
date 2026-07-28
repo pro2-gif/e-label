@@ -1051,6 +1051,7 @@
             document.getElementById('label-expiration').textContent = uiLabels.expiration[lang]; // 추가
             document.getElementById('label-how-to-use').textContent = uiLabels.howToUse[lang];
             document.getElementById('label-manufacturer').textContent = uiLabels.manufacturer[lang];
+            document.getElementById('label-clinical').textContent = uiLabels.clinicalTitle[lang];
             document.getElementById('label-ingredients').textContent = uiLabels.ingredients[lang];
             document.getElementById('label-cautions').textContent = uiLabels.cautions[lang];
             document.getElementById('label-customer').textContent = uiLabels.customer[lang];
@@ -1101,9 +1102,17 @@
             if (clinicalText) {
                 clinicalRow.style.display = 'table-row';
                 // URL 추출 (http 또는 https로 시작하는 문자열을 이미지 주소로 간주)
-                const urlMatch = clinicalText.match(/https?:\/\/[^\s|]+/);
-                const imageUrl = urlMatch ? urlMatch[0] : null;
-                const textOnly = clinicalText.replace(/\|?\s*https?:\/\/[^\s|]+/, '').trim();
+                const urlMatches = clinicalText.match(/https?:\/\/[^\s|]+/g);
+                let imageUrl = null;
+                if (urlMatches && urlMatches.length > 0) {
+                    // 영문 모드이고 이미지가 2개 이상이면 두번째 이미지 사용
+                    if (lang === 'en' && urlMatches.length > 1) {
+                        imageUrl = urlMatches[1];
+                    } else {
+                        imageUrl = urlMatches[0];
+                    }
+                }
+                const textOnly = clinicalText.replace(/\|?\s*https?:\/\/[^\s|]+/g, '').trim();
 
                 const valClinical = document.getElementById('val-clinical');
                 valClinical.style.cursor = 'pointer';
