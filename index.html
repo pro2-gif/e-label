@@ -1100,13 +1100,41 @@
             const clinicalRow = document.getElementById('row-clinical');
             if (clinicalText) {
                 clinicalRow.style.display = 'table-row';
-                // 영어 모드일 경우 번역 처리
+                // URL 추출 (http 또는 https로 시작하는 문자열을 이미지 주소로 간주)
+                const urlMatch = clinicalText.match(/https?:\/\/[^\s|]+/);
+                const imageUrl = urlMatch ? urlMatch[0] : null;
+                const textOnly = clinicalText.replace(/\|?\s*https?:\/\/[^\s|]+/, '').trim();
+
+                const valClinical = document.getElementById('val-clinical');
+                valClinical.style.cursor = 'pointer';
+                valClinical.style.color = '#2563eb'; // 클릭 가능함을 나타내는 색상
+                valClinical.style.textDecoration = 'underline';
+                valClinical.title = lang === 'ko' ? '클릭하여 결과 이미지 보기' : 'Click to view results image';
+
+                const updateClinicalUI = (displayMsg) => {
+                    valClinical.innerHTML = displayMsg.replace(/\n/g, '<br>') + ' 🔍';
+                    
+                    valClinical.onclick = () => {
+                        document.getElementById('clinical-modal-title').textContent = uiLabels.clinicalTitle[lang];
+                        document.getElementById('btn-clinical-close').textContent = uiLabels.clinicalClose[lang];
+                        
+                        const descElem = document.getElementById('clinical-modal-desc');
+                        if (imageUrl) {
+                            descElem.innerHTML = `<div class="mb-4 font-semibold text-gray-800">${displayMsg.replace(/\n/g, '<br>')}</div><img src="${imageUrl}" class="w-full rounded-lg shadow border" alt="인체적용시험 결과 이미지" onerror="this.onerror=null; this.parentElement.innerHTML+='<br><span class=\'text-sm text-red-500\'>이미지를 불러올 수 없습니다. 링크를 확인해주세요.</span>'; this.style.display='none';">`;
+                        } else {
+                            descElem.innerHTML = `<div class="mb-2 font-semibold text-gray-800">${displayMsg.replace(/\n/g, '<br>')}</div><div class="text-sm text-red-500 mt-4 p-3 bg-red-50 rounded-lg">구글 시트의 일반 이미지 첨부 기능은 외부에서 읽어올 수 없습니다.<br>반드시 이미지 주소(http...)를 복사해서 글자와 함께 텍스트로 붙여넣어 주세요.<br>예시: 저자극 판정 | https://...</div>`;
+                        }
+                        
+                        const modal = document.getElementById('clinical-modal');
+                        modal.style.display = 'flex';
+                        setTimeout(() => modal.style.opacity = '1', 10);
+                    };
+                };
+
                 if (lang === 'en') {
-                    translateText(clinicalText).then(translated => {
-                        document.getElementById('val-clinical').innerHTML = translated.replace(/\n/g, '<br>');
-                    });
+                    translateText(textOnly).then(translated => updateClinicalUI(translated));
                 } else {
-                    document.getElementById('val-clinical').innerHTML = clinicalText.replace(/\n/g, '<br>');
+                    updateClinicalUI(textOnly);
                 }
             } else {
                 clinicalRow.style.display = 'none';
