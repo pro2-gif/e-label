@@ -392,7 +392,15 @@
                 <h3 id="label-video-title" class="video-section-title">🎬 제니트리 소개 영상</h3>
                 
                 <div class="video-wrapper" style="margin-top: 10px;">
-                    <iframe src="https://www.youtube.com/embed/OU6d0UGLrUM?rel=0&playsinline=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="responsive-video" style="width: 100%; height: 100%;"></iframe>
+                    <a href="https://www.youtube.com/watch?v=OU6d0UGLrUM" target="_blank" style="display: block; width: 100%; height: 100%; position: relative; text-decoration: none;">
+                        <img src="https://img.youtube.com/vi/OU6d0UGLrUM/hqdefault.jpg" alt="YouTube Video" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                                <svg style="width: 56px; height: 56px; color: #ff0000; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                                <span id="label-watch-youtube" style="color: white; font-weight: 700; font-size: 15px; background: rgba(0,0,0,0.7); padding: 6px 14px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">YouTube에서 동영상 보기</span>
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
         </main>
@@ -738,6 +746,7 @@
             clinicalTitle: { ko: "인체적용시험 결과", en: "Clinical Test Results" },
             clinicalClose: { ko: "닫기", en: "Close" },
             videoTitle: { ko: "🎬 제니트리 소개 영상", en: "🎬 Janytree Introduction Video" },
+            watchYoutube: { ko: "YouTube에서 동영상 보기", en: "Watch video on YouTube" },
             concept: { 
                 ko: "✨ 핵심 컨셉 성분<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 터치하여 특징 보기</span>", 
                 en: "✨ Key Ingredients<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 Click for details</span>" 
@@ -1069,6 +1078,8 @@
             // 비디오 섹션 라벨 업데이트
             const lblVideoTitle = document.getElementById('label-video-title');
             if(lblVideoTitle) lblVideoTitle.textContent = uiLabels.videoTitle[lang];
+            const lblWatchYoutube = document.getElementById('label-watch-youtube');
+            if(lblWatchYoutube) lblWatchYoutube.textContent = uiLabels.watchYoutube[lang];
             document.getElementById('btn-buy').textContent = uiLabels.buyBtn[lang];
             document.getElementById('btn-home').textContent = uiLabels.homeBtn[lang];
 

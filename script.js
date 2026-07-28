@@ -201,6 +201,7 @@ const uiLabels = {
     clinicalTitle: { ko: "인체적용시험 결과", en: "Clinical Test Results" },
     clinicalClose: { ko: "닫기", en: "Close" },
     videoTitle: { ko: "🎬 제니트리 소개 영상", en: "🎬 Janytree Introduction Video" },
+    watchYoutube: { ko: "YouTube에서 동영상 보기", en: "Watch video on YouTube" },
     concept: { 
         ko: "✨ 핵심 컨셉 성분<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 터치하여 특징 보기</span>", 
         en: "✨ Key Ingredients<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 Click for details</span>" 
@@ -577,6 +578,8 @@ async function renderLabel(item, lang) {
     // 비디오 섹션 라벨 업데이트
     const lblVideoTitle = document.getElementById('label-video-title');
     if(lblVideoTitle) lblVideoTitle.textContent = uiLabels.videoTitle[lang];
+    const lblWatchYoutube = document.getElementById('label-watch-youtube');
+    if(lblWatchYoutube) lblWatchYoutube.textContent = uiLabels.watchYoutube[lang];
     document.getElementById('btn-buy').textContent = uiLabels.buyBtn[lang];
 
     // 원본 데이터 (언어별 처리)
