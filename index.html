@@ -329,8 +329,20 @@
 
         <!-- 메인 라벨 영역 (숨김 상태로 시작) -->
         <main class="main-content" id="main-content" style="display:none;">
-            <!-- 제품명 -->
-            <h1 id="product-name" class="product-name"></h1>
+            <!-- 제품명 영역 -->
+            <div class="p-6 bg-white border-b relative">
+                <!-- 언어 토글 스위치 -->
+                <div class="lang-toggle-container">
+                    <button id="btn-ko" class="lang-btn active">KO</button>
+                    <button id="btn-en" class="lang-btn">EN</button>
+                </div>
+                <h1 id="product-name" class="text-2xl font-bold text-gray-900 text-center leading-tight mt-6" style="word-break: keep-all;"></h1>
+                
+                <!-- 인체적용시험 결과 엠블럼 컨테이너 -->
+                <div id="emblem-container" class="flex flex-wrap justify-center gap-2 mt-4" style="display: none;">
+                    <!-- 자바스크립트에서 동적으로 엠블럼 배지를 생성하여 삽입합니다 -->
+                </div>
+            </div>
 
             <div class="table-container">
                 <table class="info-table">
@@ -388,6 +400,43 @@
         </footer>
     </div>
 
+    <!-- 구매하기 모달 -->
+    <div id="buy-modal" class="modal-overlay">
+        <div class="modal-content text-center p-6" style="max-width: 320px;">
+            <button class="modal-close" onclick="closeBuyModal(event)">&times;</button>
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">구매 사이트로 이동</h3>
+            <p class="text-gray-600 mb-6 leading-relaxed">
+                해당 제품의 공식 구매처로<br>이동하시겠습니까?
+            </p>
+            <div class="flex gap-3">
+                <button onclick="closeBuyModal()" class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl active:bg-gray-200 transition-colors">취소</button>
+                <button id="btn-go-buy" class="flex-1 px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl active:bg-blue-700 transition-colors">이동하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 인체적용시험 결과 모달 -->
+    <div id="clinical-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px; padding-bottom: 2rem;">
+            <button class="modal-close" onclick="closeClinicalModal(event)">&times;</button>
+            <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 mt-2 shadow-sm" id="clinical-icon-bg" style="background-color: #f3f4f6;">
+                <span id="clinical-modal-icon" style="font-size: 2rem;">🩺</span>
+            </div>
+            <h3 id="clinical-modal-title" class="text-xl font-bold text-gray-900 mb-4 text-center">인체적용시험 결과</h3>
+            <div class="bg-gray-50 rounded-xl p-5 mx-4 border border-gray-100">
+                <p id="clinical-modal-desc" class="text-gray-700 leading-relaxed text-center whitespace-pre-wrap font-medium" style="word-break: keep-all; font-size: 15px;"></p>
+            </div>
+            <div class="flex justify-center mt-6">
+                <button onclick="closeClinicalModal()" class="px-6 py-2.5 bg-gray-900 text-white font-semibold rounded-xl shadow-md active:bg-gray-800 transition-colors" id="btn-clinical-close" style="width: 140px;">닫기</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 공통 스크립트 연결 (캐시 방지를 위해 버전 추가) -->
     <script>
         // =====================================================
@@ -436,6 +485,47 @@
         const translationCache = {};
         // 식약처 성분 영문명 캐시
         const ingredientEnCache = {};
+
+        // 구매하기 모달 함수
+        function openBuyModal(url) {
+            document.getElementById('buy-modal').classList.add('show');
+            document.getElementById('btn-go-buy').onclick = () => {
+                window.open(url, '_blank');
+                closeBuyModal();
+            };
+        }
+
+        function closeBuyModal(event) {
+            if (event && event.target.id !== 'buy-modal' && !event.target.classList.contains('modal-close')) return;
+            document.getElementById('buy-modal').classList.remove('show');
+        }
+
+        // 인체적용시험 결과 모달 함수
+        function openClinicalModal(title, desc, icon) {
+            document.getElementById('clinical-modal-title').textContent = title;
+            document.getElementById('clinical-modal-desc').textContent = desc;
+            
+            const iconEl = document.getElementById('clinical-modal-icon');
+            const iconBg = document.getElementById('clinical-icon-bg');
+            
+            if (icon === 'vegan') {
+                iconEl.textContent = '🌱';
+                iconBg.style.backgroundColor = '#dcfce7'; // 녹색 배경
+            } else if (icon === 'derma') {
+                iconEl.textContent = '💧';
+                iconBg.style.backgroundColor = '#dbeafe'; // 파란색 배경
+            } else {
+                iconEl.textContent = '🩺';
+                iconBg.style.backgroundColor = '#f3f4f6'; // 회색 배경
+            }
+
+            document.getElementById('clinical-modal').classList.add('show');
+        }
+
+        function closeClinicalModal(event) {
+            if (event && event.target.id !== 'clinical-modal' && !event.target.classList.contains('modal-close')) return;
+            document.getElementById('clinical-modal').classList.remove('show');
+        }
 
         // =====================================================
         // ■ 핵심 컨셉 성분 사전 (Fallback)
@@ -617,6 +707,8 @@
             customer: { ko: "소비자 상담", en: "Customer Service" },
             buyBtn: { ko: "구매하기", en: "Buy Now" },
             homeBtn: { ko: "돌아가기", en: "Go Back" },
+            clinicalTitle: { ko: "인체적용시험 결과", en: "Clinical Test Results" },
+            clinicalClose: { ko: "닫기", en: "Close" },
             concept: { 
                 ko: "✨ 핵심 컨셉 성분<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 터치하여 특징 보기</span>", 
                 en: "✨ Key Ingredients<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 Click for details</span>" 
@@ -1289,6 +1381,15 @@
             }
             const conceptTitle = currentLang === 'ko' ? "핵심 컨셉 성분" : "Key Ingredients";
 
+            // 인체적용시험 텍스트 추출
+            let clinical = '';
+            const emblemContainer = document.getElementById('emblem-container');
+            if (emblemContainer && emblemContainer.style.display !== 'none') {
+                clinical = Array.from(emblemContainer.querySelectorAll('button'))
+                            .map(b => b.textContent.replace(/[🌱💧🩺]/g, '').trim())
+                            .join('. ');
+            }
+
             // 음성 발화용 문장 조립 (구글시트 열 순서 완벽 일치)
             let fullText = `${productName}. ` +
                 `${uiLabels.volume[currentLang]}, ${volume}. ` +
@@ -1297,6 +1398,7 @@
                 `${uiLabels.expiration[currentLang]}, ${expiration}. ` +
                 `${uiLabels.manufacturer[currentLang]}, ${manufacturer}. ` +
                 `${conceptTitle}, ${concept}. ` +
+                (clinical ? `${uiLabels.clinicalTitle[currentLang]}, ${clinical}. ` : '') +
                 `${uiLabels.ingredients[currentLang]}, ${ingredients}. ` +
                 `${uiLabels.howToUse[currentLang]}, ${howToUse}. ` +
                 `${uiLabels.cautions[currentLang]}, ${cautions}. ` +

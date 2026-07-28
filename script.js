@@ -13,11 +13,6 @@ const SHEET_ID = "1202j3dJ_p-6_424X9v";
 const MFDS_API_KEY = "8438e0c9c0276651df0610f950fb14f1e6b328ad92f388072a7fdf5dfed4c8b3";
 const MFDS_API_URL = "https://apis.data.go.kr/1471000/CsmtcsIngdCpntInfoService01/getCsmtcsIngdCpntInfoService01";
 
-// ▼ 실제 구글 시트 콜럼 순서 (0-based) — 시트 기준으로 항상 최신 상태 유지
-// 0: 제품명 | 1: 용량 | 2: 기능성분류 | 3: 제조번호 | 4: 사용기한
-// 5: 제조업자 | 6: 핵심컨셉성분(국문) | 7: 핵심컨셉성분(영문)
-// 8: 전성분(국문) | 9: 전성분(영문) | 10: 사용방법
-// 11: 주의사항 | 12: 소비자상담 | 13: 구매하기
 const COL = {
     name: 0,
     volume: 1,
@@ -27,12 +22,13 @@ const COL = {
     manufacturer: 5,
     conceptKo: 6,      // 핵심 컨셉 성분 (국문)
     conceptEn: 7,      // 핵심 컨셉 성분 (영문)
-    ingredientsKo: 8,  // 국문 전성분
-    ingredientsEn: 9,  // 영문 전성분
-    howToUse: 10,
-    cautions: 11,
-    customer: 12,
-    buyUrl: 13
+    clinical: 8,       // 인체적용시험 결과 (NEW!)
+    ingredientsKo: 9,  // 국문 전성분
+    ingredientsEn: 10, // 영문 전성분
+    howToUse: 11,
+    cautions: 12,
+    customer: 13,
+    buyUrl: 14
 };
 
 // 앱 상태 변수
@@ -177,6 +173,9 @@ const uiLabels = {
     cautions: { ko: "사용할 때의 주의사항", en: "Cautions" },
     customer: { ko: "소비자 상담", en: "Customer Service" },
     buyBtn: { ko: "구매하기", en: "Buy Now" },
+    homeBtn: { ko: "돌아가기", en: "Go Back" },
+    clinicalTitle: { ko: "인체적용시험 결과", en: "Clinical Test Results" },
+    clinicalClose: { ko: "닫기", en: "Close" },
     concept: { 
         ko: "✨ 핵심 컨셉 성분<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 터치하여 특징 보기</span>", 
         en: "✨ Key Ingredients<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">💡 Click for details</span>" 
@@ -554,7 +553,7 @@ async function renderLabel(item, lang) {
     let expiration = getColValue(item, COL.expiration); // 추가
     // 제조업자: 언어별로 해당 줄만 추출 (번역 불필요)
     let manufacturer = getManufacturerDisplay(item, lang);
-    let ingredients = getColValue(item, COL.ingredients);
+    let ingredients = getColValue(item, COL.ingredientsKo);
     let cautions = getColValue(item, COL.cautions);
     let customer = getColValue(item, COL.customer);
 
@@ -570,8 +569,13 @@ async function renderLabel(item, lang) {
             translateText(customer)
         ]);
 
-        // 전성분은 식약처 API(INCI 영문명) 우선 조회 후 구글 번역으로 보완
-        ingredients = await translateIngredients(ingredients);
+        // 전성분은 영문 열이 있으면 가져오고 없으면 식약처 API/구글번역 사용
+        let ingredientsEn = getColValue(item, COL.ingredientsEn);
+        if (ingredientsEn) {
+            ingredients = ingredientsEn;
+        } else {
+            ingredients = await translateIngredients(ingredients);
+        }
     }
 
     // 제품명 표시 (EN이면 시트에서 직접 영문명 추출)
@@ -586,6 +590,57 @@ async function renderLabel(item, lang) {
     document.getElementById('val-expiration').textContent = expiration; // 추가
     document.getElementById('val-manufacturer').textContent = manufacturer;
     document.getElementById('val-ingredients').textContent = ingredients;
+
+    // 인체적용시험 결과 엠블럼 렌더링
+    const emblemContainer = document.getElementById('emblem-container');
+    if (emblemContainer) {
+        emblemContainer.innerHTML = '';
+        const clinicalText = getColValue(item, COL.clinical);
+        if (clinicalText) {
+            emblemContainer.style.display = 'flex';
+            // 여러 줄(엔터)로 인증이 여러 개 작성될 수 있으므로 분리
+            const tests = clinicalText.split('\n').filter(t => t.trim() !== '');
+            
+            tests.forEach(test => {
+                let badgeHtml = '';
+                let iconType = 'clinical'; // default
+                let badgeTitle = currentLang === 'ko' ? '인체적용시험 완료' : 'Clinical Test';
+                let bgClass = 'bg-gray-100 text-gray-800 border-gray-200';
+                
+                if (test.includes('비건') || test.toLowerCase().includes('vegan')) {
+                    iconType = 'vegan';
+                    badgeTitle = 'Vegan';
+                    bgClass = 'bg-green-50 text-green-700 border-green-200';
+                    badgeHtml = `<span class="mr-1">🌱</span> ${badgeTitle}`;
+                } else if (test.includes('저자극') || test.includes('더마') || test.toLowerCase().includes('derma') || test.includes('일차자극') || test.includes('민감성')) {
+                    iconType = 'derma';
+                    badgeTitle = currentLang === 'ko' ? '저자극 테스트 완료' : 'Dermatologically Tested';
+                    bgClass = 'bg-blue-50 text-blue-700 border-blue-200';
+                    badgeHtml = `<span class="mr-1">💧</span> ${badgeTitle}`;
+                } else {
+                    badgeHtml = `<span class="mr-1">🩺</span> ${badgeTitle}`;
+                }
+
+                const badgeBtn = document.createElement('button');
+                badgeBtn.className = `px-3 py-1.5 text-xs font-bold rounded-full border shadow-sm transition-transform transform hover:scale-105 active:scale-95 ${bgClass}`;
+                badgeBtn.innerHTML = badgeHtml;
+                badgeBtn.onclick = async () => {
+                    const title = uiLabels.clinicalTitle[currentLang];
+                    document.getElementById('btn-clinical-close').textContent = uiLabels.clinicalClose[currentLang];
+                    
+                    if (currentLang === 'en') {
+                        const translated = await translateText(test);
+                        openClinicalModal(title, translated, iconType);
+                    } else {
+                        openClinicalModal(title, test, iconType);
+                    }
+                };
+                emblemContainer.appendChild(badgeBtn);
+            });
+        } else {
+            emblemContainer.style.display = 'none';
+        }
+    }
 
     // ▼ 핵심 컨셉 성분 렌더링 (시트의 conceptKo/conceptEn 열에서 직접 읽어옴)
     const conceptRow = document.getElementById('row-concept-ingredients');
@@ -834,7 +889,10 @@ function handleTts(item) {
     const expiration = getColValue(item, COL.expiration);
     const howToUse = getColValue(item, COL.howToUse).split('* 주의사항 :')[0].trim();
     const manufacturer = getColValue(item, COL.manufacturer);
-    const ingredients = getColValue(item, COL.ingredients);
+    const clinical = getColValue(item, COL.clinical); // 추가
+    const ingredients = currentLang === 'en' && getColValue(item, COL.ingredientsEn) 
+                        ? getColValue(item, COL.ingredientsEn) 
+                        : getColValue(item, COL.ingredientsKo);
     const cautions = getColValue(item, COL.cautions);
     const customer = getColValue(item, COL.customer);
 
@@ -854,6 +912,7 @@ function handleTts(item) {
         `${uiLabels.expiration[currentLang]}, ${expiration}. ` + 
         `${uiLabels.manufacturer[currentLang]}, ${manufacturer}. ` + 
         `${conceptTitle}, ${concept}. ` + 
+        (clinical ? `${uiLabels.clinicalTitle[currentLang]}, ${clinical.replace(/\n/g, '. ')}. ` : '') + 
         `${uiLabels.ingredients[currentLang]}, ${ingredients}. ` + 
         `${uiLabels.howToUse[currentLang]}, ${howToUse}. ` + 
         `${uiLabels.cautions[currentLang]}, ${cautions}. ` + 
