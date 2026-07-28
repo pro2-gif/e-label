@@ -491,18 +491,15 @@
             const fallback = conceptFallbackDesc[koName];
             if (fallback) {
                 let fb = fallback;
-                if (enName) { // 영문 모드면 해시태그 영문 변환
-                    fb = fb.replace('#수분공급','#Hydration').replace('#피부진정','#Soothing')
-                        .replace('#미백기능성','#Brightening').replace('#주름개선기능성','#Anti-aging')
-                        .replace('#장벽강화','#BarrierStrengthening').replace('#보습유지','#Moisturizing')
-                        .replace('#피부장벽강화','#BarrierStrengthening').replace('#피부보호','#SkinProtection')
-                        .replace('#강력보습','#IntenseHydration').replace('#영양공급','#Nourishment')
-                        .replace('#피부재생','#CellRenewal').replace('#탄력부여','#Firmness')
-                        .replace('#탄력강화','#Firmness').replace('#기미완화','#SpotCare')
-                        .replace('#항산화','#Antioxidant').replace('#브라이트닝','#Brightening')
-                        .replace('#보습진정','#MoisturizingSoothing').replace('#피부톤개선','#ToneUp');
+                if (enName) {
+                    // 영문 모드일 경우: 구글 번역 API로 한글 문구를 통째로 번역
+                    descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
+                    const translatedFb = await translateText(fb);
+                    descEl.textContent = translatedFb;
+                } else {
+                    descEl.textContent = fb;
                 }
-                descEl.textContent = fb;
+
                 return; // Fallback(화장품 전용 사전) 정보가 있으면 여기서 즉시 종료하여 위키피디아 의학 정보가 덮어쓰지 못하게 함
             }
 
@@ -757,6 +754,7 @@
                 document.getElementById('btn-ko').addEventListener('click', () => {
                     if (currentLang === 'ko') return;
                     window.speechSynthesis.cancel();
+                    if (window.ttsTimer) clearInterval(window.ttsTimer);
                     const ttsBtn = document.getElementById('btn-tts');
                     if (ttsBtn) ttsBtn.classList.remove('playing');
                     currentLang = 'ko';
@@ -767,6 +765,7 @@
                 document.getElementById('btn-en').addEventListener('click', () => {
                     if (currentLang === 'en') return;
                     window.speechSynthesis.cancel();
+                    if (window.ttsTimer) clearInterval(window.ttsTimer);
                     const ttsBtn = document.getElementById('btn-tts');
                     if (ttsBtn) ttsBtn.classList.remove('playing');
                     currentLang = 'en';
@@ -1195,6 +1194,7 @@
         // =====================================================
         // 크롬 브라우저에서 영어 음성 재생 중 가비지 컬렉션으로 인해 resume()이 먹통되는 버그를 방지하기 위해 utterance를 전역에 보관합니다.
         window.currentUtterance = null;
+        window.ttsTimer = null; // 15초 버그 워크어라운드용 타이머
 
         function handleTts(item) {
             const ttsBtn = document.getElementById('btn-tts');
@@ -1254,9 +1254,27 @@
             utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
             utterance.rate = 0.9;
             
-            utterance.onstart = () => { if (ttsBtn) ttsBtn.classList.add('playing'); };
-            utterance.onend = () => { if (ttsBtn) ttsBtn.classList.remove('playing'); window.currentUtterance = null; };
-            utterance.onerror = () => { if (ttsBtn) ttsBtn.classList.remove('playing'); window.currentUtterance = null; };
+            utterance.onstart = () => { 
+                if (ttsBtn) ttsBtn.classList.add('playing'); 
+                // 크롬의 15초 버그 방지를 위해 14초마다 강제로 일시정지 후 즉시 재개
+                if (window.ttsTimer) clearInterval(window.ttsTimer);
+                window.ttsTimer = setInterval(() => {
+                    if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                        window.speechSynthesis.pause();
+                        window.speechSynthesis.resume();
+                    }
+                }, 14000);
+            };
+            utterance.onend = () => { 
+                if (ttsBtn) ttsBtn.classList.remove('playing'); 
+                window.currentUtterance = null; 
+                if (window.ttsTimer) clearInterval(window.ttsTimer);
+            };
+            utterance.onerror = () => { 
+                if (ttsBtn) ttsBtn.classList.remove('playing'); 
+                window.currentUtterance = null; 
+                if (window.ttsTimer) clearInterval(window.ttsTimer);
+            };
 
             window.currentUtterance = utterance; // GC 방지
             window.speechSynthesis.speak(utterance);
