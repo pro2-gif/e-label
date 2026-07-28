@@ -171,8 +171,8 @@ const uiLabels = {
     functional: { ko: "기능성 분류", en: "Functional Classification" },
     batchno: { ko: "제조번호", en: "Batch No." },      // 추가
     expiration: { ko: "사용기한", en: "Expiration Date" },// 추가
-    howToUse: { ko: "사용방법", en: "How to Use" },
-    manufacturer: { ko: "제조 및 책임판매업자", en: "Manufacturer & Distributor" },
+    howToUse: { ko: "사용방법", en: "How to use" },
+    manufacturer: { ko: "제조업자 및 책임판매업자 / 주소", en: "Manufacturer / Address" },
     ingredients: { ko: "전성분", en: "Ingredients" },
     cautions: { ko: "사용할 때의 주의사항", en: "Cautions" },
     customer: { ko: "소비자 상담", en: "Customer Service" },
@@ -809,13 +809,11 @@ function handleTts(item) {
     if (window.speechSynthesis.speaking || window.ttsChunks.length > 0) {
         if (window.isTtsPaused) {
             window.isTtsPaused = false;
-            playNextTtsChunk();
+            window.speechSynthesis.resume();
+            if (ttsBtn) ttsBtn.classList.add('playing');
         } else {
             window.isTtsPaused = true;
-            window.speechSynthesis.cancel();
-            if (window.ttsLastCharIndex > 0 && window.ttsChunks[window.ttsIndex]) {
-                window.ttsChunks[window.ttsIndex] = window.ttsChunks[window.ttsIndex].substring(window.ttsLastCharIndex);
-            }
+            window.speechSynthesis.pause();
             if (ttsBtn) ttsBtn.classList.remove('playing');
         }
         return;
@@ -846,10 +844,10 @@ function handleTts(item) {
         `${uiLabels.functional[currentLang]}, ${functional}. ` + 
         `${uiLabels.batchno[currentLang]}, ${batchno}. ` + 
         `${uiLabels.expiration[currentLang]}, ${expiration}. ` + 
-        `${conceptTitle}, ${concept}. ` + 
-        `${uiLabels.howToUse[currentLang]}, ${howToUse}. ` + 
         `${uiLabels.manufacturer[currentLang]}, ${manufacturer}. ` + 
+        `${conceptTitle}, ${concept}. ` + 
         `${uiLabels.ingredients[currentLang]}, ${ingredients}. ` + 
+        `${uiLabels.howToUse[currentLang]}, ${howToUse}. ` + 
         `${uiLabels.cautions[currentLang]}, ${cautions}. ` + 
         `${uiLabels.customer[currentLang]}, ${customer}.`;
 

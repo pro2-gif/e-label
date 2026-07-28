@@ -352,22 +352,21 @@
                             <th id="label-expiration">사용기한</th>
                             <td id="val-expiration"></td>
                         </tr>
-                        <!-- 핵심 컨셉 성분 (사용기한 다음, 사용방법 이전) -->
+                        <tr>
+                            <th id="label-manufacturer">제조업자 및 책임판매업자 / 주소</th>
+                            <td id="val-manufacturer"></td>
+                        </tr>
                         <tr id="row-concept-ingredients" style="display:none;">
                             <th id="label-concept-ingredients">✨ 핵심 컨셉 성분<br><span style="font-size:11px; font-weight:normal; color:#6b7280;">💡 터치하여 특징 보기</span></th>
                             <td id="val-concept-ingredients"></td>
                         </tr>
                         <tr>
-                            <th id="label-how-to-use">사용방법</th>
-                            <td id="val-how-to-use"></td>
-                        </tr>
-                        <tr>
-                            <th id="label-manufacturer">제조 및 책임판매업자</th>
-                            <td id="val-manufacturer"></td>
-                        </tr>
-                        <tr>
                             <th id="label-ingredients">전성분</th>
                             <td id="val-ingredients"></td>
+                        </tr>
+                        <tr>
+                            <th id="label-how-to-use">사용방법</th>
+                            <td id="val-how-to-use"></td>
                         </tr>
                         <tr>
                             <th id="label-cautions">사용할 때의 주의사항</th>
@@ -611,8 +610,8 @@
             functional: { ko: "기능성 분류", en: "Functional Classification" },
             batchno: { ko: "제조번호", en: "Batch No." },      // 추가
             expiration: { ko: "사용기한", en: "Expiration Date" },// 추가
-            howToUse: { ko: "사용방법", en: "How to Use" },
-            manufacturer: { ko: "제조 및 책임판매업자", en: "Manufacturer & Distributor" },
+            howToUse: { ko: "사용방법", en: "How to use" },
+            manufacturer: { ko: "제조업자 및 책임판매업자 / 주소", en: "Manufacturer / Address" },
             ingredients: { ko: "전성분", en: "Ingredients" },
             cautions: { ko: "사용할 때의 주의사항", en: "Cautions" },
             customer: { ko: "소비자 상담", en: "Customer Service" },
@@ -1248,13 +1247,9 @@
                     window.isTtsPaused = false;
                     playNextTtsChunk();
                 } else {
-                    // 재생 -> 일시정지 (현재 발화 취소하여 즉각 멈춤)
+                    // 재생 -> 일시정지 (Native pause 활용하여 엔진 레벨에서 즉시 멈춤)
                     window.isTtsPaused = true;
-                    window.speechSynthesis.cancel();
-                    if (window.ttsLastCharIndex > 0 && window.ttsChunks[window.ttsIndex]) {
-                        // 방금 재생하던 문장에서 읽은 부분까지 잘라내고 남은 부분만 저장해둠
-                        window.ttsChunks[window.ttsIndex] = window.ttsChunks[window.ttsIndex].substring(window.ttsLastCharIndex);
-                    }
+                    window.speechSynthesis.pause();
                     if (ttsBtn) ttsBtn.classList.remove('playing');
                 }
                 return;
@@ -1284,16 +1279,16 @@
             }
             const conceptTitle = currentLang === 'ko' ? "핵심 컨셉 성분" : "Key Ingredients";
 
-            // 음성 발화용 문장 조립 (구글시트 열 순서 일치)
+            // 음성 발화용 문장 조립 (구글시트 열 순서 완벽 일치)
             let fullText = `${productName}. ` +
                 `${uiLabels.volume[currentLang]}, ${volume}. ` +
                 `${uiLabels.functional[currentLang]}, ${functional}. ` +
                 `${uiLabels.batchno[currentLang]}, ${batchno}. ` +
                 `${uiLabels.expiration[currentLang]}, ${expiration}. ` +
-                `${conceptTitle}, ${concept}. ` +
-                `${uiLabels.howToUse[currentLang]}, ${howToUse}. ` +
                 `${uiLabels.manufacturer[currentLang]}, ${manufacturer}. ` +
+                `${conceptTitle}, ${concept}. ` +
                 `${uiLabels.ingredients[currentLang]}, ${ingredients}. ` +
+                `${uiLabels.howToUse[currentLang]}, ${howToUse}. ` +
                 `${uiLabels.cautions[currentLang]}, ${cautions}. ` +
                 `${uiLabels.customer[currentLang]}, ${customer}.`;
 
