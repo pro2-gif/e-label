@@ -459,22 +459,46 @@
         // 5: 제조업자 | 6: 핵심컨셉성분(국문) | 7: 핵심컨셉성분(영문)
         // 8: 전성분(국문) | 9: 전성분(영문) | 10: 사용방법
         // 11: 주의사항 | 12: 소비자상담 | 13: 구매하기
-        const COL = {
+        let COL = {
             name: 0,
             volume: 1,
             functional: 2,
             batchno: 3,
             expiration: 4,
             manufacturer: 5,
-            conceptKo: 6,      // 핵심 컨셉 성분 (국문) — 시트에서 직접 입력
-            conceptEn: 7,      // 핵심 컨셉 성분 (영문) — 시트에서 직접 입력
-            ingredientsKo: 8,  // 국문 전성분
-            ingredientsEn: 9,  // 영문 전성분
-            howToUse: 10,
-            cautions: 11,
-            customer: 12,
-            buyUrl: 13
+            conceptKo: 6,
+            conceptEn: 7,
+            clinical: 8,
+            ingredientsKo: 9,
+            ingredientsEn: 10,
+            howToUse: 11,
+            cautions: 12,
+            customer: 13,
+            buyUrl: 14
         };
+
+        function initColumns(headerRow) {
+            if (!headerRow || headerRow.length < 5) return;
+            
+            const headers = headerRow.map(h => (h || '').replace(/\s+/g, '').toLowerCase());
+            headers.forEach((h, idx) => {
+                if (h.includes('제품명')) COL.name = idx;
+                else if (h.includes('용량')) COL.volume = idx;
+                else if (h.includes('기능성분류')) COL.functional = idx;
+                else if (h.includes('제조번호')) COL.batchno = idx;
+                else if (h.includes('사용기한')) COL.expiration = idx;
+                else if (h.includes('제조업자') || h.includes('책임판매업자')) COL.manufacturer = idx;
+                else if (h.includes('핵심컨셉성분(국문)')) COL.conceptKo = idx;
+                else if (h.includes('핵심컨셉성분(영문)')) COL.conceptEn = idx;
+                else if (h.includes('인체적용시험결과') || h.includes('인증')) COL.clinical = idx;
+                else if (h.includes('전성분(국문)')) COL.ingredientsKo = idx;
+                else if (h.includes('전성분(영문)')) COL.ingredientsEn = idx;
+                else if (h.includes('사용방법')) COL.howToUse = idx;
+                else if (h.includes('주의사항')) COL.cautions = idx;
+                else if (h.includes('소비자상담')) COL.customer = idx;
+                else if (h.includes('구매하기')) COL.buyUrl = idx;
+            });
+        }
 
         // 앱 상태 변수
         let currentLang = 'ko';
@@ -729,14 +753,17 @@
 
                     productsData = [];
                     // 구글 시트 Visualization API는 헤더를 cols에, 데이터는 rows에 분리해서 줍니다.
+                    const cols = response.table.cols;
                     const rows = response.table.rows;
+
+                    const headerRow = cols.map(c => c.label);
+                    initColumns(headerRow);
 
                     for (let i = 0; i < rows.length; i++) {
                         const rowData = rows[i].c;
                         const item = [];
 
-                        // 구글 시트 응답은 제품명부터 구매하기까지 총 14개 열(콜럼 0~13)
-                        for (let j = 0; j < 14; j++) {
+                        for (let j = 0; j < cols.length; j++) {
                             const cell = rowData[j];
                             // f(포맷된 문자열)가 있으면 사용하고, 없으면 v(원시 값) 사용
                             const val = cell ? (cell.f || cell.v || '') : '';
@@ -1072,6 +1099,56 @@
             document.getElementById('val-expiration').textContent = expiration; // 추가
             document.getElementById('val-manufacturer').textContent = manufacturer;
             document.getElementById('val-ingredients').textContent = ingredients;
+
+            // 인체적용시험 결과 엠블럼 렌더링
+            const emblemContainer = document.getElementById('emblem-container');
+            if (emblemContainer) {
+                emblemContainer.innerHTML = '';
+                const clinicalText = getColValue(item, COL.clinical);
+                if (clinicalText) {
+                    emblemContainer.style.display = 'flex';
+                    const tests = clinicalText.split('\n').filter(t => t.trim() !== '');
+                    
+                    tests.forEach(test => {
+                        let badgeHtml = '';
+                        let iconType = 'clinical'; // default
+                        let badgeTitle = currentLang === 'ko' ? '인체적용시험 완료' : 'Clinical Test';
+                        let bgClass = 'bg-gray-100 text-gray-800 border-gray-200';
+                        
+                        if (test.includes('비건') || test.toLowerCase().includes('vegan')) {
+                            iconType = 'vegan';
+                            badgeTitle = 'Vegan';
+                            bgClass = 'bg-green-50 text-green-700 border-green-200';
+                            badgeHtml = `<span class="mr-1">🌱</span> ${badgeTitle}`;
+                        } else if (test.includes('저자극') || test.includes('더마') || test.toLowerCase().includes('derma') || test.includes('일차자극') || test.includes('민감성')) {
+                            iconType = 'derma';
+                            badgeTitle = currentLang === 'ko' ? '저자극 테스트 완료' : 'Dermatologically Tested';
+                            bgClass = 'bg-blue-50 text-blue-700 border-blue-200';
+                            badgeHtml = `<span class="mr-1">💧</span> ${badgeTitle}`;
+                        } else {
+                            badgeHtml = `<span class="mr-1">🩺</span> ${badgeTitle}`;
+                        }
+
+                        const badgeBtn = document.createElement('button');
+                        badgeBtn.className = `px-3 py-1.5 text-xs font-bold rounded-full border shadow-sm transition-transform transform hover:scale-105 active:scale-95 ${bgClass}`;
+                        badgeBtn.innerHTML = badgeHtml;
+                        badgeBtn.onclick = async () => {
+                            const title = uiLabels.clinicalTitle[currentLang];
+                            document.getElementById('btn-clinical-close').textContent = uiLabels.clinicalClose[currentLang];
+                            
+                            if (currentLang === 'en') {
+                                const translated = await translateText(test);
+                                openClinicalModal(title, translated, iconType);
+                            } else {
+                                openClinicalModal(title, test, iconType);
+                            }
+                        };
+                        emblemContainer.appendChild(badgeBtn);
+                    });
+                } else {
+                    emblemContainer.style.display = 'none';
+                }
+            }
 
             // ▼ 핵심 컨셉 성분 렌더링 (시트의 conceptKo/conceptEn 열에서 직접 읽어옴)
             const conceptRow = document.getElementById('row-concept-ingredients');
