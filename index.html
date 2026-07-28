@@ -1302,7 +1302,6 @@
                 `${uiLabels.cautions[currentLang]}, ${cautions}. ` +
                 `${uiLabels.customer[currentLang]}, ${customer}.`;
 
-            // 영어 모드일 때 대문자 브랜드명이 약어로 취급되어 한 글자씩 끊어 읽히는 현상 해결
             if (currentLang === 'en') {
                 fullText = fullText
                     .replace(/INTOMEDI/g, 'Intomedi')
@@ -1312,9 +1311,8 @@
                     .replace(/HYDRO/g, 'Hydro');
             }
 
-            // 문장 단위로 쪼개기 (온점 기준으로 분리하여 배열 생성)
-            // - 즉각적인 일시정지/재개와 긴 텍스트의 15초 버그를 모두 해결
-            window.ttsChunks = fullText.split(/(?<=\.\s)/).filter(s => s.trim().length > 0);
+            // 문장 단위로 쪼개기 (사파리 호환성을 위해 Lookbehind 정규식 제거)
+            window.ttsChunks = fullText.replace(/\.\s+/g, '.|').split('|').filter(s => s.trim().length > 0);
             window.ttsIndex = 0;
             window.isTtsPaused = false;
             

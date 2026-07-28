@@ -868,7 +868,8 @@ function handleTts(item) {
             .replace(/HYDRO/g, 'Hydro');
     }
 
-    window.ttsChunks = fullText.split(/(?<=\.\s)/).filter(s => s.trim().length > 0);
+    // 사파리 호환성을 위해 정규식(Lookbehind) 대신 replace 후 split 사용
+    window.ttsChunks = fullText.replace(/\.\s+/g, '.|').split('|').filter(s => s.trim().length > 0);
     window.ttsIndex = 0;
     window.isTtsPaused = false;
     playNextTtsChunk();
