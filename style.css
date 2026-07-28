@@ -156,7 +156,8 @@ body {
     width: 30%;
     color: var(--text-secondary);
     font-size: 14px;
-    vertical-align: top;
+    vertical-align: middle;
+    text-align: center;
 }
 
 .info-table td {
