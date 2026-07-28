@@ -1277,20 +1277,33 @@
                 }
 
                 let activeData = data;
-                selectEl.innerHTML = '';
+                
+                // 구글 시트 첫 행이 헤더("제품명")인 경우 제거
+                if (activeData.length > 0 && activeData[0][0] && activeData[0][0].includes("제품명")) {
+                    activeData.shift();
+                }
+
+                selectEl.innerHTML = '<option value="" disabled selected>제품을 선택해주세요</option>';
                 activeData.forEach((item, idx) => {
                     const option = document.createElement('option');
                     option.value = idx;
                     option.textContent = getProductDisplayName(item, 'ko');
                     selectEl.appendChild(option);
                 });
-                updateQrDisplay(activeData[0]);
+                
+                // 처음엔 QR 캔버스와 다운로드 버튼을 숨깁니다.
+                document.getElementById('qr-to-viewer-btn').style.display = 'none';
+                document.getElementById('btn-download').parentElement.style.display = 'none';
 
                 // 이벤트 리스너
                 selectEl.addEventListener('change', () => {
+                    if (selectEl.value === "") return;
                     const idx = parseInt(selectEl.value);
                     if (activeData[idx]) {
                         updateQrDisplay(activeData[idx]);
+                        // 제품 선택 시 보이게 처리
+                        document.getElementById('qr-to-viewer-btn').style.display = 'block';
+                        document.getElementById('btn-download').parentElement.style.display = 'flex';
                     }
                 });
 
