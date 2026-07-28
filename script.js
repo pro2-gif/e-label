@@ -780,7 +780,7 @@ function playNextTtsChunk() {
 
     utterance.onstart = () => { if (ttsBtn) ttsBtn.classList.add('playing'); };
     utterance.onboundary = (e) => {
-        if (e.name === 'word') {
+        if (e.charIndex) {
             window.ttsLastCharIndex = e.charIndex;
         }
     };
@@ -824,8 +824,13 @@ function handleTts(item) {
     const productName = getProductDisplayName(item, 'ko');
     const volume = getColValue(item, COL.volume);
     const functional = getColValue(item, COL.functional);
+    const batchno = getColValue(item, COL.batchno);
+    const expiration = getColValue(item, COL.expiration);
     const howToUse = getColValue(item, COL.howToUse).split('* 주의사항 :')[0].trim();
+    const manufacturer = getColValue(item, COL.manufacturer);
+    const ingredients = getColValue(item, COL.ingredients);
     const cautions = getColValue(item, COL.cautions);
+    const customer = getColValue(item, COL.customer);
 
     let concept = '';
     const conceptContainer = document.getElementById('val-concept-ingredients');
@@ -839,9 +844,14 @@ function handleTts(item) {
     let fullText = `${productName}. ` + 
         `${uiLabels.volume[currentLang]}, ${volume}. ` + 
         `${uiLabels.functional[currentLang]}, ${functional}. ` + 
+        `${uiLabels.batchno[currentLang]}, ${batchno}. ` + 
+        `${uiLabels.expiration[currentLang]}, ${expiration}. ` + 
         `${conceptTitle}, ${concept}. ` + 
         `${uiLabels.howToUse[currentLang]}, ${howToUse}. ` + 
-        `${uiLabels.cautions[currentLang]}, ${cautions}`;
+        `${uiLabels.manufacturer[currentLang]}, ${manufacturer}. ` + 
+        `${uiLabels.ingredients[currentLang]}, ${ingredients}. ` + 
+        `${uiLabels.cautions[currentLang]}, ${cautions}. ` + 
+        `${uiLabels.customer[currentLang]}, ${customer}.`;
 
     if (currentLang === 'en') {
         fullText = fullText
