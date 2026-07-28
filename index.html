@@ -482,7 +482,7 @@
             const descEl    = document.getElementById('modal-ing-desc');
 
             // 화면에 표시할 이름 결정 (현재 언어 모드 고려)
-            const displayName = enName || koName;
+            const displayName = (currentLang === 'en' && enName) ? enName : koName;
             nameEl.textContent = displayName;
             descEl.innerHTML   = '<span style="color:#9ca3af;">\ud310 정보를 불러오는 중입니다...</span>';
             modalEl.classList.add('show');
@@ -491,7 +491,7 @@
             const fallback = conceptFallbackDesc[koName];
             if (fallback) {
                 let fb = fallback;
-                if (enName) {
+                if (currentLang === 'en') {
                     // 영문 모드일 경우: 구글 번역 API로 한글 문구를 통째로 번역
                     descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
                     const translatedFb = await translateText(fb);
@@ -754,7 +754,7 @@
                 document.getElementById('btn-ko').addEventListener('click', () => {
                     if (currentLang === 'ko') return;
                     window.speechSynthesis.cancel();
-                    if (window.ttsTimer) clearInterval(window.ttsTimer);
+                    window.ttsChunks = [];
                     const ttsBtn = document.getElementById('btn-tts');
                     if (ttsBtn) ttsBtn.classList.remove('playing');
                     currentLang = 'ko';
@@ -765,7 +765,7 @@
                 document.getElementById('btn-en').addEventListener('click', () => {
                     if (currentLang === 'en') return;
                     window.speechSynthesis.cancel();
-                    if (window.ttsTimer) clearInterval(window.ttsTimer);
+                    window.ttsChunks = [];
                     const ttsBtn = document.getElementById('btn-tts');
                     if (ttsBtn) ttsBtn.classList.remove('playing');
                     currentLang = 'en';
@@ -1192,9 +1192,40 @@
         // =====================================================
         // ■ TTS (음성 안내) 처리
         // =====================================================
-        // 크롬 브라우저에서 영어 음성 재생 중 가비지 컬렉션으로 인해 resume()이 먹통되는 버그를 방지하기 위해 utterance를 전역에 보관합니다.
+        // 크롬의 15초 버그 방지 및 즉각적인 일시정지/재개를 위해 문장 단위(청크) 재생으로 구현합니다.
         window.currentUtterance = null;
-        window.ttsTimer = null; // 15초 버그 워크어라운드용 타이머
+        window.ttsChunks = [];
+        window.ttsIndex = 0;
+        window.isTtsPaused = false;
+
+        function playNextTtsChunk() {
+            const ttsBtn = document.getElementById('btn-tts');
+            if (window.ttsIndex >= window.ttsChunks.length) {
+                if (ttsBtn) ttsBtn.classList.remove('playing');
+                window.ttsChunks = [];
+                return;
+            }
+            
+            const text = window.ttsChunks[window.ttsIndex];
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
+            utterance.rate = 0.9;
+
+            utterance.onstart = () => { if (ttsBtn) ttsBtn.classList.add('playing'); };
+            utterance.onend = () => {
+                if (window.isTtsPaused) return; // 정지 상태면 다음으로 안 넘어감
+                window.ttsIndex++;
+                playNextTtsChunk();
+            };
+            utterance.onerror = (e) => {
+                if (e.error === 'interrupted' || e.error === 'canceled') return; // 취소된 경우 무시
+                if (ttsBtn) ttsBtn.classList.remove('playing');
+                window.ttsChunks = [];
+            };
+
+            window.currentUtterance = utterance;
+            window.speechSynthesis.speak(utterance);
+        }
 
         function handleTts(item) {
             const ttsBtn = document.getElementById('btn-tts');
@@ -1202,12 +1233,17 @@
                 alert('이 브라우저는 음성 안내를 지원하지 않습니다.');
                 return;
             }
-            if (window.speechSynthesis.speaking) {
-                if (window.speechSynthesis.paused) {
-                    window.speechSynthesis.resume();
-                    if (ttsBtn) ttsBtn.classList.add('playing');
+            
+            // 이미 재생 중이거나 청크가 남아있고 일시정지 상태인 경우 제어
+            if (window.speechSynthesis.speaking || window.ttsChunks.length > 0) {
+                if (window.isTtsPaused) {
+                    // 일시정지 -> 재개 (즉시 현재 청크부터 다시 시작)
+                    window.isTtsPaused = false;
+                    playNextTtsChunk();
                 } else {
-                    window.speechSynthesis.pause();
+                    // 재생 -> 일시정지 (현재 발화 취소하여 즉각 멈춤)
+                    window.isTtsPaused = true;
+                    window.speechSynthesis.cancel();
                     if (ttsBtn) ttsBtn.classList.remove('playing');
                 }
                 return;
@@ -1223,15 +1259,25 @@
             const ingredients = document.getElementById('val-ingredients').textContent || '';
             const customer = document.getElementById('val-customer').textContent || '';
 
-            // 사용방법 전체 텍스트를 그대로 가져옵니다 (주의사항 포함)
+            // 사용방법 전체 텍스트
             const howToUse = document.getElementById('val-how-to-use').textContent || '';
-
             const cautions = document.getElementById('val-cautions').textContent || '';
+            
+            // 핵심 컨셉 성분 텍스트 추출 (뱃지들)
+            let concept = '';
+            const conceptContainer = document.getElementById('val-concept-ingredients');
+            if (conceptContainer) {
+                concept = Array.from(conceptContainer.querySelectorAll('.ingredient-badge'))
+                            .map(b => b.textContent.trim())
+                            .join(', ');
+            }
+            const conceptTitle = currentLang === 'ko' ? "핵심 컨셉 성분" : "Key Ingredients";
 
             // 음성 발화용 문장 조립 (모든 항목 포함)
-            let text = `${productName}. ` +
+            let fullText = `${productName}. ` +
                 `${uiLabels.volume[currentLang]}, ${volume}. ` +
                 `${uiLabels.functional[currentLang]}, ${functional}. ` +
+                `${conceptTitle}, ${concept}. ` +
                 `${uiLabels.batchno[currentLang]}, ${batchno}. ` +
                 `${uiLabels.expiration[currentLang]}, ${expiration}. ` +
                 `${uiLabels.howToUse[currentLang]}, ${howToUse}. ` +
@@ -1240,9 +1286,9 @@
                 `${uiLabels.cautions[currentLang]}, ${cautions}. ` +
                 `${uiLabels.customer[currentLang]}, ${customer}.`;
 
-            // 영어 모드일 때 대문자 브랜드명이 약어로 취급되어 한 글자씩 끊어 읽히는(I-N-T-O...) 현상 해결
+            // 영어 모드일 때 대문자 브랜드명이 약어로 취급되어 한 글자씩 끊어 읽히는 현상 해결
             if (currentLang === 'en') {
-                text = text
+                fullText = fullText
                     .replace(/INTOMEDI/g, 'Intomedi')
                     .replace(/CLINIX/g, 'Clinix')
                     .replace(/REJUE/g, 'Rejue')
@@ -1250,34 +1296,14 @@
                     .replace(/HYDRO/g, 'Hydro');
             }
 
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
-            utterance.rate = 0.9;
+            // 문장 단위로 쪼개기 (온점 기준으로 분리하여 배열 생성)
+            // - 즉각적인 일시정지/재개와 긴 텍스트의 15초 버그를 모두 해결
+            window.ttsChunks = fullText.split(/(?<=\.\s)/).filter(s => s.trim().length > 0);
+            window.ttsIndex = 0;
+            window.isTtsPaused = false;
             
-            utterance.onstart = () => { 
-                if (ttsBtn) ttsBtn.classList.add('playing'); 
-                // 크롬의 15초 버그 방지를 위해 14초마다 강제로 일시정지 후 즉시 재개
-                if (window.ttsTimer) clearInterval(window.ttsTimer);
-                window.ttsTimer = setInterval(() => {
-                    if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
-                        window.speechSynthesis.pause();
-                        window.speechSynthesis.resume();
-                    }
-                }, 14000);
-            };
-            utterance.onend = () => { 
-                if (ttsBtn) ttsBtn.classList.remove('playing'); 
-                window.currentUtterance = null; 
-                if (window.ttsTimer) clearInterval(window.ttsTimer);
-            };
-            utterance.onerror = () => { 
-                if (ttsBtn) ttsBtn.classList.remove('playing'); 
-                window.currentUtterance = null; 
-                if (window.ttsTimer) clearInterval(window.ttsTimer);
-            };
-
-            window.currentUtterance = utterance; // GC 방지
-            window.speechSynthesis.speak(utterance);
+            // 재생 시작
+            playNextTtsChunk();
         }
 
     </script>

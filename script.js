@@ -88,7 +88,7 @@ window.openIngredientModal = async function(koName, enName) {
     const nameEl  = document.getElementById('modal-ing-name');
     const descEl  = document.getElementById('modal-ing-desc');
 
-    const displayName = enName || koName;
+    const displayName = (currentLang === 'en' && enName) ? enName : koName;
     nameEl.textContent = displayName;
     descEl.innerHTML   = '<span style="color:#9ca3af;">정보를 불러오는 중입니다...</span>';
     modalEl.classList.add('show');
@@ -97,7 +97,7 @@ window.openIngredientModal = async function(koName, enName) {
     const fallback = conceptFallbackDesc[koName];
     if (fallback) {
         let fb = fallback;
-        if (enName) {
+        if (currentLang === 'en') {
             // 영문 모드일 경우: 구글 번역 API로 한글 문구를 통째로 번역
             descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
             const translatedFb = await translateText(fb);
@@ -343,18 +343,18 @@ function initViewer() {
 
         // 언어 버튼
         document.getElementById('btn-ko').addEventListener('click', () => {
-            if (window.speechSynthesis) window.speechSynthesis.cancel();
-            if (currentLang === 'ko') return;
-            currentLang = 'ko';
-            document.getElementById('btn-ko').classList.add('active');
+        if (currentLang === 'ko') return;
+        window.speechSynthesis.cancel();
+        window.ttsChunks = [];
+        document.getElementById('btn-ko').classList.add('active');
             document.getElementById('btn-en').classList.remove('active');
             renderLabel(target, 'ko');
         });
-        document.getElementById('btn-en').addEventListener('click', () => {
-            if (window.speechSynthesis) window.speechSynthesis.cancel();
-            if (currentLang === 'en') return;
-            currentLang = 'en';
-            document.getElementById('btn-en').classList.add('active');
+    document.getElementById('btn-en').addEventListener('click', () => {
+        if (currentLang === 'en') return;
+        window.speechSynthesis.cancel();
+        window.ttsChunks = [];
+        document.getElementById('btn-en').classList.add('active');
             document.getElementById('btn-ko').classList.remove('active');
             renderLabel(target, 'en');
         });
@@ -581,8 +581,8 @@ async function renderLabel(item, lang) {
         const koNames = rawConceptKo ? rawConceptKo.split(',').map(s => s.trim()).filter(Boolean) : [];
         const enNames = rawConceptEn ? rawConceptEn.split(',').map(s => s.trim()).filter(Boolean) : [];
 
-        koNames.forEach((koName, idx) => {
-
+        for(let idx = 0; idx < koNames.length; idx++) {
+            const koName = koNames[idx];
             const displayName = (lang === 'en' && enNames[idx]) ? enNames[idx] : koName;
             const ingDesc = conceptFallbackDesc[koName] || '';
             let displayDesc = ingDesc;
@@ -591,7 +591,7 @@ async function renderLabel(item, lang) {
             }
 
             const badge = document.createElement('span');
-            badge.className = 'concept-badge';
+            badge.className = 'concept-badge ingredient-badge';
             badge.textContent = displayName;
             badge.onclick = () => window.openIngredientModal(
                 displayName,
@@ -599,7 +599,7 @@ async function renderLabel(item, lang) {
             );
 
             conceptContainer.appendChild(badge);
-        });
+        };
 
         if (koNames.length > 0) {
             conceptRow.style.display = 'table-row';
@@ -741,18 +741,53 @@ function updateQrDisplay(item) {
 // ■ TTS (음성 안내)
 // =====================================================
 window.currentUtterance = null;
+window.ttsChunks = [];
+window.ttsIndex = 0;
+window.isTtsPaused = false;
+
+function playNextTtsChunk() {
+    const ttsBtn = document.getElementById('btn-tts');
+    if (window.ttsIndex >= window.ttsChunks.length) {
+        if (ttsBtn) ttsBtn.classList.remove('playing');
+        window.ttsChunks = [];
+        return;
+    }
+    
+    const text = window.ttsChunks[window.ttsIndex];
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
+    utterance.rate = 0.9;
+
+    utterance.onstart = () => { if (ttsBtn) ttsBtn.classList.add('playing'); };
+    utterance.onend = () => {
+        if (window.isTtsPaused) return; 
+        window.ttsIndex++;
+        playNextTtsChunk();
+    };
+    utterance.onerror = (e) => {
+        if (e.error === 'interrupted' || e.error === 'canceled') return; 
+        if (ttsBtn) ttsBtn.classList.remove('playing');
+        window.ttsChunks = [];
+    };
+
+    window.currentUtterance = utterance;
+    window.speechSynthesis.speak(utterance);
+}
+
 function handleTts(item) {
     const ttsBtn = document.getElementById('btn-tts');
     if (!window.speechSynthesis) {
         alert('이 브라우저는 음성 안내를 지원하지 않습니다.');
         return;
     }
-    if (window.speechSynthesis.speaking) {
-        if (window.speechSynthesis.paused) {
-            window.speechSynthesis.resume();
-            if (ttsBtn) ttsBtn.classList.add('playing');
+    
+    if (window.speechSynthesis.speaking || window.ttsChunks.length > 0) {
+        if (window.isTtsPaused) {
+            window.isTtsPaused = false;
+            playNextTtsChunk();
         } else {
-            window.speechSynthesis.pause();
+            window.isTtsPaused = true;
+            window.speechSynthesis.cancel();
             if (ttsBtn) ttsBtn.classList.remove('playing');
         }
         return;
@@ -764,16 +799,33 @@ function handleTts(item) {
     const howToUse = getColValue(item, COL.howToUse).split('* 주의사항 :')[0].trim();
     const cautions = getColValue(item, COL.cautions);
 
-    const text = `${productName}. ${uiLabels.volume[currentLang]}, ${volume}. ${uiLabels.functional[currentLang]}, ${functional}. ${uiLabels.howToUse[currentLang]}, ${howToUse}. ${uiLabels.cautions[currentLang]}, ${cautions}`;
+    let concept = '';
+    const conceptContainer = document.getElementById('val-concept-ingredients');
+    if (conceptContainer) {
+        concept = Array.from(conceptContainer.querySelectorAll('.ingredient-badge'))
+                    .map(b => b.textContent.trim())
+                    .join(', ');
+    }
+    const conceptTitle = currentLang === 'ko' ? "핵심 컨셉 성분" : "Key Ingredients";
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
-    utterance.rate = 0.9;
-    
-    utterance.onstart = () => { if (ttsBtn) ttsBtn.classList.add('playing'); };
-    utterance.onend = () => { if (ttsBtn) ttsBtn.classList.remove('playing'); window.currentUtterance = null; };
-    utterance.onerror = () => { if (ttsBtn) ttsBtn.classList.remove('playing'); window.currentUtterance = null; };
+    let fullText = `${productName}. ` + 
+        `${uiLabels.volume[currentLang]}, ${volume}. ` + 
+        `${uiLabels.functional[currentLang]}, ${functional}. ` + 
+        `${conceptTitle}, ${concept}. ` + 
+        `${uiLabels.howToUse[currentLang]}, ${howToUse}. ` + 
+        `${uiLabels.cautions[currentLang]}, ${cautions}`;
 
-    window.currentUtterance = utterance;
-    window.speechSynthesis.speak(utterance);
+    if (currentLang === 'en') {
+        fullText = fullText
+            .replace(/INTOMEDI/g, 'Intomedi')
+            .replace(/CLINIX/g, 'Clinix')
+            .replace(/REJUE/g, 'Rejue')
+            .replace(/WHITE/g, 'White')
+            .replace(/HYDRO/g, 'Hydro');
+    }
+
+    window.ttsChunks = fullText.split(/(?<=\.\s)/).filter(s => s.trim().length > 0);
+    window.ttsIndex = 0;
+    window.isTtsPaused = false;
+    playNextTtsChunk();
 }
