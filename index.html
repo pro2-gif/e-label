@@ -1209,6 +1209,13 @@
             const text = window.ttsChunks[window.ttsIndex];
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
+            
+            // 영문일 경우 구글 음성을 우선 선택하여 onboundary 이벤트 누락 버그 방지
+            const voices = window.speechSynthesis.getVoices();
+            if (currentLang === 'en') {
+                const googleVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('en'));
+                if (googleVoice) utterance.voice = googleVoice;
+            }
             utterance.rate = 0.9;
             window.ttsLastCharIndex = 0; // 초기화
 
@@ -1247,9 +1254,12 @@
                     window.isTtsPaused = false;
                     playNextTtsChunk();
                 } else {
-                    // 재생 -> 일시정지 (Native pause 활용하여 엔진 레벨에서 즉시 멈춤)
+                    // 재생 -> 일시정지 (cancel과 substring을 통해 가장 안정적으로 정지 및 이어듣기 지원)
                     window.isTtsPaused = true;
-                    window.speechSynthesis.pause();
+                    window.speechSynthesis.cancel();
+                    if (window.ttsLastCharIndex > 0 && window.ttsChunks[window.ttsIndex]) {
+                        window.ttsChunks[window.ttsIndex] = window.ttsChunks[window.ttsIndex].substring(window.ttsLastCharIndex);
+                    }
                     if (ttsBtn) ttsBtn.classList.remove('playing');
                 }
                 return;

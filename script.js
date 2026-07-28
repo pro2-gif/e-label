@@ -775,6 +775,12 @@ function playNextTtsChunk() {
     const text = window.ttsChunks[window.ttsIndex];
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
+    
+    const voices = window.speechSynthesis.getVoices();
+    if (currentLang === 'en') {
+        const googleVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('en'));
+        if (googleVoice) utterance.voice = googleVoice;
+    }
     utterance.rate = 0.9;
     window.ttsLastCharIndex = 0; // 초기화
 
@@ -809,11 +815,13 @@ function handleTts(item) {
     if (window.speechSynthesis.speaking || window.ttsChunks.length > 0) {
         if (window.isTtsPaused) {
             window.isTtsPaused = false;
-            window.speechSynthesis.resume();
-            if (ttsBtn) ttsBtn.classList.add('playing');
+            playNextTtsChunk();
         } else {
             window.isTtsPaused = true;
-            window.speechSynthesis.pause();
+            window.speechSynthesis.cancel();
+            if (window.ttsLastCharIndex > 0 && window.ttsChunks[window.ttsIndex]) {
+                window.ttsChunks[window.ttsIndex] = window.ttsChunks[window.ttsIndex].substring(window.ttsLastCharIndex);
+            }
             if (ttsBtn) ttsBtn.classList.remove('playing');
         }
         return;
