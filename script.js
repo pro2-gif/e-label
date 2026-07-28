@@ -205,7 +205,10 @@ const uiLabels = {
     concept: { 
         ko: "핵심 컨셉 성분<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">터치하여 특징 보기</span>", 
         en: "Key Ingredients<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">Click for details</span>" 
-    }
+    },
+    socialWebsite: { ko: "홈페이지", en: "Website" },
+    socialYoutube: { ko: "유튜브", en: "YouTube" },
+    socialInstagram: { ko: "인스타그램", en: "Instagram" }
 };
 
 // =====================================================
@@ -581,6 +584,12 @@ async function renderLabel(item, lang) {
     const lblWatchYoutube = document.getElementById('label-watch-youtube');
     if(lblWatchYoutube) lblWatchYoutube.textContent = uiLabels.watchYoutube[lang];
     document.getElementById('btn-buy').textContent = uiLabels.buyBtn[lang];
+    const lblSocialWebsite = document.getElementById('label-social-website');
+    if(lblSocialWebsite) lblSocialWebsite.textContent = uiLabels.socialWebsite[lang];
+    const lblSocialYoutube = document.getElementById('label-social-youtube');
+    if(lblSocialYoutube) lblSocialYoutube.textContent = uiLabels.socialYoutube[lang];
+    const lblSocialInstagram = document.getElementById('label-social-instagram');
+    if(lblSocialInstagram) lblSocialInstagram.textContent = uiLabels.socialInstagram[lang];
 
     // 원본 데이터 (언어별 처리)
     let productName = getProductDisplayName(item, lang);
