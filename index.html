@@ -1589,6 +1589,52 @@
             document.getElementById('maker-container').style.display = 'block';
             initQrMaker();
         }
+    
+        window.currentTargetItem = null;
+
+        // 글로벌 언어 업데이트 함수
+        function updateGlobalLangUI(lang) {
+            const get = id => document.getElementById(id);
+            if(get('maker-title')) get('maker-title').innerHTML = uiLabels.makerTitle[lang];
+            if(get('maker-desc')) get('maker-desc').innerHTML = uiLabels.makerDesc[lang];
+            if(get('maker-select-label')) get('maker-select-label').innerHTML = uiLabels.makerSelect[lang];
+            if(get('maker-btn-png')) get('maker-btn-png').innerHTML = uiLabels.makerBtnPng[lang];
+            if(get('maker-btn-svg')) get('maker-btn-svg').innerHTML = uiLabels.makerBtnSvg[lang];
+            if(get('maker-click-hint')) get('maker-click-hint').innerHTML = uiLabels.makerClickHint[lang];
+            
+            // 제품 선택 안된 상태일때
+            const titleDisplay = get('qr-product-title-display');
+            if (titleDisplay && window.currentTargetItem == null) {
+                titleDisplay.innerHTML = uiLabels.makerEmptyTitle[lang];
+            }
+        }
+
+        document.getElementById('btn-ko').addEventListener('click', () => {
+            if (currentLang === 'ko') return;
+            window.speechSynthesis.cancel();
+            window.ttsChunks = [];
+            const ttsBtn = document.getElementById('btn-tts');
+            if (ttsBtn) ttsBtn.classList.remove('playing');
+            currentLang = 'ko';
+            document.getElementById('btn-ko').classList.add('active');
+            document.getElementById('btn-en').classList.remove('active');
+            updateGlobalLangUI('ko');
+            if (window.currentTargetItem) renderLabel(window.currentTargetItem, 'ko');
+        });
+
+        document.getElementById('btn-en').addEventListener('click', () => {
+            if (currentLang === 'en') return;
+            window.speechSynthesis.cancel();
+            window.ttsChunks = [];
+            const ttsBtn = document.getElementById('btn-tts');
+            if (ttsBtn) ttsBtn.classList.remove('playing');
+            currentLang = 'en';
+            document.getElementById('btn-en').classList.add('active');
+            document.getElementById('btn-ko').classList.remove('active');
+            updateGlobalLangUI('en');
+            if (window.currentTargetItem) renderLabel(window.currentTargetItem, 'en');
+        });
+
     </script>    <!-- 컨셉성분 설명 모달 팝업 -->
     <div id="ingredient-modal" class="modal-overlay" onclick="closeIngredientModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
