@@ -865,6 +865,10 @@
             if (lang === 'en') {
                 const enLine = lines.find(line => !/[가-힣]/.test(line));
                 if (enLine) return enLine;
+                
+                // 괄호 안의 영문 이름이 있는지 추출 시도
+                const match = lines[0].match(/\(([a-zA-Z\s]+)\)/);
+                if (match) return match[1].trim();
             }
             return lines[0] || '';
         }
@@ -899,6 +903,18 @@
 
             const urlParams = new URLSearchParams(window.location.search);
             const productParam = urlParams.get('product');
+            const langParam = urlParams.get('lang');
+            if (langParam === 'en' || langParam === 'ko') {
+                currentLang = langParam;
+                updateGlobalLangUI(currentLang);
+                if(currentLang === 'en') {
+                    document.getElementById('btn-en').classList.add('active');
+                    document.getElementById('btn-ko').classList.remove('active');
+                } else {
+                    document.getElementById('btn-ko').classList.add('active');
+                    document.getElementById('btn-en').classList.remove('active');
+                }
+            }
 
             loadSheetData(function (err, data) {
                 if (err || !data || data.length === 0) {
@@ -925,7 +941,7 @@
                 mainEl.style.display = 'block';
                 footerEl.style.display = 'flex';
 
-                renderLabel(target, 'ko');
+                renderLabel(target, currentLang);
 
                 // 언어 버튼 이벤트는 전역으로 이동됨
 
@@ -1343,7 +1359,7 @@
                     if (!selectedItem) return;
 
                     const name = getProductDisplayName(selectedItem, 'ko');
-                    window.location.href = `?product=${encodeURIComponent(name)}`;
+                    window.location.href = `?product=${encodeURIComponent(name)}&lang=${currentLang}`;
                 });
             });
 
@@ -1403,23 +1419,25 @@
 
         // QR 코드 화면 업데이트
         function updateQrDisplay(item) {
-            const titleDisplay = document.getElementById('qr-product-title-display');
+            window.currentTargetItem = item; // Store for lang updates
             const container = document.getElementById('qr-container');
+            const titleDisplay = document.getElementById('qr-product-title-display');
             const urlPreview = document.getElementById('qr-url-preview');
 
-            const name = getProductDisplayName(item, 'ko');
-            const productUrl = `${E_LABEL_BASE_URL}?product=${encodeURIComponent(name)}`;
+            const nameKo = getProductDisplayName(item, 'ko'); // ALWAYS KO for URL to ensure matching
+            const nameDisplay = getProductDisplayName(item, currentLang); // Display name in current lang
+            const productUrl = `${E_LABEL_BASE_URL}?product=${encodeURIComponent(nameKo)}&lang=${currentLang}`;
 
             // 외부 API를 이용해 고해상도 QR코드 URL 획득
             currentQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(productUrl)}`;
 
-            titleDisplay.textContent = name;
+            titleDisplay.textContent = nameDisplay;
             urlPreview.textContent = productUrl;
 
             // img 태그로 즉시 렌더링
             container.innerHTML = `
         <img src="${currentQrUrl}" alt="QR Code" style="width:200px; height:200px; margin-bottom:10px; border-radius:8px;" />
-        <p id="maker-click-hint" style="font-size:12px; color:#000000; font-weight:600; margin-top:0px; margin-bottom:5px;">👉 클릭하여 라벨 정보 바로 보기</p>
+        <p id="maker-click-hint" style="font-size:12px; color:#000000; font-weight:600; margin-top:0px; margin-bottom:5px;">${uiLabels.makerClickHint[currentLang]}</p>
     `;
         }
 
