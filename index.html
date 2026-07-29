@@ -257,18 +257,31 @@
 
 <body>
 
+        <!-- 상단 컨트롤러 -->
+        <header class="top-controller">
+            <div class="lang-switcher">
+                <button id="btn-ko" class="lang-btn active">KO</button>
+                <button id="btn-en" class="lang-btn">EN</button>
+            </div>
+            <div class="barrier-free-actions">
+                <button id="btn-tts" class="icon-btn" title="음성 안내(TTS)">
+                    <span class="material-icons">volume_up</span>
+                </button>
+            </div>
+        </header>
+
     <!-- ========================================== -->
     <!-- 1. 메인 화면 (QR 코드 생성기 모드)           -->
     <!-- ========================================== -->
     <div id="maker-container" class="qr-maker-wrapper">
         <div class="qr-maker-header">
             <p class="brand-logo">인투메디 (INTOMEDI)</p>
-            <h1>e-Label QR 코드 </h1>
-            <p>제품을 선택하면 QR 코드가 즉시 생성됩니다.<br>QR 코드를 클릭하면 바로 전자라벨을 확인할 수 있습니다.</p>
+            <h1 id="maker-title">e-Label QR 코드</h1>
+            <p id="maker-desc">제품을 선택하면 QR 코드가 즉시 생성됩니다.<br>QR 코드를 클릭하면 바로 전자라벨을 확인할 수 있습니다.</p>
         </div>
 
         <div class="qr-card">
-            <label class="select-label" for="product-select-maker">제품 선택</label>
+            <label id="maker-select-label" class="select-label" for="product-select-maker">제품 선택</label>
             <select id="product-select-maker" class="product-select-full">
                 <option value="0">인투메디 클리닉스 리쥬</option>
                 <option value="1">인투메디 클리닉스 화이트</option>
@@ -286,12 +299,12 @@
             <div style="display: flex; flex-direction: row; gap: 8px; padding-bottom: 10px; width: 100%;">
                 <button id="btn-download" class="btn-download">
                     <span class="material-icons" style="font-size:18px;">download</span>
-                    QR 다운로드 (.png)
+                    <span id="maker-btn-png">QR 다운로드 (.png)</span>
                 </button>
                 <button id="btn-download-svg" class="btn-download"
                     style="background: #c4b3a6; color: #ffffff;">
                     <span class="material-icons" style="font-size:18px;">download</span>
-                    QR 다운로드 (.svg)
+                    <span id="maker-btn-svg">QR 다운로드 (.svg)</span>
                 </button>
             </div>
         </div>
@@ -303,17 +316,7 @@
     <!-- ========================================== -->
     <div id="viewer-container">
         <!-- 상단 컨트롤러 -->
-        <header class="top-controller">
-            <div class="lang-switcher">
-                <button id="btn-ko" class="lang-btn active">KO</button>
-                <button id="btn-en" class="lang-btn">EN</button>
-            </div>
-            <div class="barrier-free-actions">
-                <button id="btn-tts" class="icon-btn" title="음성 안내(TTS)">
-                    <span class="material-icons">volume_up</span>
-                </button>
-            </div>
-        </header>
+        
 
         <!-- 로딩 화면 -->
         <div id="loading-screen" class="loading-screen">
@@ -783,7 +786,14 @@
             },
             socialWebsite: { ko: "홈페이지", en: "Website" },
             socialYoutube: { ko: "유튜브", en: "YouTube" },
-            socialInstagram: { ko: "인스타그램", en: "Instagram" }
+            socialInstagram: { ko: "인스타그램", en: "Instagram" },
+            makerTitle: { ko: "e-Label QR 코드", en: "e-Label QR Code" },
+            makerDesc: { ko: "제품을 선택하면 QR 코드가 즉시 생성됩니다.<br>QR 코드를 클릭하면 바로 전자라벨을 확인할 수 있습니다.", en: "Select a product to generate a QR code instantly.<br>Click the QR code to view the e-Label." },
+            makerSelect: { ko: "제품 선택", en: "Select Product" },
+            makerEmptyTitle: { ko: "제품을 선택해 주세요", en: "Please select a product" },
+            makerBtnPng: { ko: "QR 다운로드 (.png)", en: "Download QR (.png)" },
+            makerBtnSvg: { ko: "QR 다운로드 (.svg)", en: "Download QR (.svg)" },
+            makerClickHint: { ko: "👉 클릭하여 라벨 정보 바로 보기", en: "👉 Click to view label info" }
         };
 
         // =====================================================
@@ -908,6 +918,7 @@
                 }
 
                 const target = data[targetIndex];
+                window.currentTargetItem = target;
 
                 loadingEl.style.display = 'none';
                 mainEl.style.display = 'block';
@@ -915,29 +926,7 @@
 
                 renderLabel(target, 'ko');
 
-                // 언어 버튼
-                document.getElementById('btn-ko').addEventListener('click', () => {
-                    if (currentLang === 'ko') return;
-                    window.speechSynthesis.cancel();
-                    window.ttsChunks = [];
-                    const ttsBtn = document.getElementById('btn-tts');
-                    if (ttsBtn) ttsBtn.classList.remove('playing');
-                    currentLang = 'ko';
-                    document.getElementById('btn-ko').classList.add('active');
-                    document.getElementById('btn-en').classList.remove('active');
-                    renderLabel(target, 'ko');
-                });
-                document.getElementById('btn-en').addEventListener('click', () => {
-                    if (currentLang === 'en') return;
-                    window.speechSynthesis.cancel();
-                    window.ttsChunks = [];
-                    const ttsBtn = document.getElementById('btn-tts');
-                    if (ttsBtn) ttsBtn.classList.remove('playing');
-                    currentLang = 'en';
-                    document.getElementById('btn-en').classList.add('active');
-                    document.getElementById('btn-ko').classList.remove('active');
-                    renderLabel(target, 'en');
-                });
+                // 언어 버튼 이벤트는 전역으로 이동됨
 
                 // ▼ 구매하기 버튼: 구글 시트의 구매링크 URL 사용
                 document.getElementById('btn-buy').addEventListener('click', () => {
@@ -1428,7 +1417,7 @@
             // img 태그로 즉시 렌더링
             container.innerHTML = `
         <img src="${currentQrUrl}" alt="QR Code" style="width:200px; height:200px; margin-bottom:10px; border-radius:8px;" />
-        <p style="font-size:12px; color:#000000; font-weight:600; margin-top:0px; margin-bottom:5px;">👉 클릭하여 라벨 정보 바로 보기</p>
+        <p id="maker-click-hint" style="font-size:12px; color:#000000; font-weight:600; margin-top:0px; margin-bottom:5px;">👉 클릭하여 라벨 정보 바로 보기</p>
     `;
         }
 
