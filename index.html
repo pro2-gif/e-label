@@ -1183,15 +1183,10 @@
             const clinicalKoText = getColValue(item, COL.clinical);
             const clinicalEnText = getColValue(item, COL.clinicalEn);
             let clinicalText = '';
-            let isTranslatedEn = false;
             
+            // 영문 모드일 경우: 영문 셀 데이터가 있으면 그것을, 없으면 국문 셀 데이터를 사용
             if (lang === 'en') {
-                if (clinicalEnText) {
-                    clinicalText = clinicalEnText;
-                    isTranslatedEn = true;
-                } else {
-                    clinicalText = clinicalKoText;
-                }
+                clinicalText = clinicalEnText ? clinicalEnText : clinicalKoText;
             } else {
                 clinicalText = clinicalKoText;
             }
@@ -1207,7 +1202,17 @@
                 valClinical.title = '';
                 valClinical.onclick = null;
 
-                const clinicalLines = clinicalText.split('\n').map(l => l.trim()).filter(l => l);
+                // 텍스트를 줄바꿈 기준으로 나누되, URL만 있는 줄은 이전 줄과 병합
+                let rawLines = clinicalText.split('\n').map(l => l.trim()).filter(l => l);
+                let clinicalLines = [];
+                for (let i = 0; i < rawLines.length; i++) {
+                    if (clinicalLines.length > 0 && rawLines[i].match(/^https?:\/\//)) {
+                        // URL로 시작하는 줄이면 이전 줄에 병합
+                        clinicalLines[clinicalLines.length - 1] += ' ' + rawLines[i];
+                    } else {
+                        clinicalLines.push(rawLines[i]);
+                    }
+                }
                 
                 Promise.all(clinicalLines.map(async (line) => {
                     const urlMatches = line.match(/https?:\/\/[^\s|]+/g);
@@ -1215,9 +1220,12 @@
                     if (urlMatches && urlMatches.length > 0) {
                         imageUrl = urlMatches[0];
                     }
-                    const textOnly = line.replace(/\|?\s*https?:\/\/[^\s|]+/g, '').trim();
+                    // 파이프 기호와 URL 제거
+                    const textOnly = line.replace(/\|?\s*https?:\/\/[^\s|]+/g, '').replace(/\|\s*$/, '').trim();
                     let finalText = textOnly;
-                    if (lang === 'en' && !isTranslatedEn) {
+                    
+                    // 영문 모드에서는 원본 출처(국문/영문 셀)와 무관하게 항상 구글 번역을 수행하여 영어 출력을 보장
+                    if (lang === 'en') {
                         finalText = await translateText(textOnly);
                     }
                     return { text: finalText, imageUrl };
