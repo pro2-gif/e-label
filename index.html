@@ -1615,6 +1615,18 @@
                     .replace(/HYDRO/g, 'Hydro');
             }
 
+
+            // 발음 교정 (TTS 전용)
+            // 1. "sh" 독립 단어를 스펠링(에스에이치 / S H)으로 읽도록 교정
+            if (currentLang === 'en') {
+                fullText = fullText.replace(/\bsh\b/gi, 'S H');
+            } else {
+                fullText = fullText.replace(/\bsh\b/gi, '에스에이치');
+            }
+            
+            // 2. 모든 '-' 기호를 띄어쓰기로 변경하여 "마이너스"로 읽는 현상 방지
+            fullText = fullText.replace(/-/g, ' ');
+
             // 문장 단위로 쪼개기 (사파리 호환성을 위해 Lookbehind 정규식 제거)
             window.ttsChunks = fullText.replace(/\.\s+/g, '.|').split('|').filter(s => s.trim().length > 0);
             window.ttsIndex = 0;
