@@ -527,20 +527,25 @@
             
             const headers = headerRow.map(h => (h || '').replace(/\s+/g, '').toLowerCase());
             headers.forEach((h, idx) => {
+                const rawHeader = (headerRow[idx] || '').trim();
+                
                 if (h.includes('제품명')) COL.name = idx;
-                else if (h.includes('용량')) COL.volume = idx;
-                else if (h.includes('기능성분류')) COL.functional = idx;
-                else if (h.includes('제조번호')) COL.batchno = idx;
-                else if (h.includes('사용기한')) COL.expiration = idx;
-                else if (h.includes('제조업자') || h.includes('책임판매업자')) COL.manufacturer = idx;
-                else if (h.includes('핵심컨셉성분(국문)')) COL.conceptKo = idx;
+                else if (h.includes('용량')) { COL.volume = idx; uiLabels.volume.ko = rawHeader; }
+                else if (h.includes('기능성분류')) { COL.functional = idx; uiLabels.functional.ko = rawHeader; }
+                else if (h.includes('제조번호')) { COL.batchno = idx; uiLabels.batchno.ko = rawHeader; }
+                else if (h.includes('사용기한')) { COL.expiration = idx; uiLabels.expiration.ko = rawHeader; }
+                else if (h.includes('제조업자') || h.includes('책임판매업자')) { COL.manufacturer = idx; uiLabels.manufacturer.ko = rawHeader; }
+                else if (h.includes('핵심컨셉성분(국문)')) { 
+                    COL.conceptKo = idx; 
+                    uiLabels.concept.ko = rawHeader + '<br><span style="font-size:11px; font-weight:normal; color:#6b7280;">터치하여 특징 보기</span>'; 
+                }
                 else if (h.includes('핵심컨셉성분(영문)')) COL.conceptEn = idx;
-                else if (h.includes('인체적용시험결과') || h.includes('인증')) COL.clinical = idx;
-                else if (h.includes('전성분(국문)')) COL.ingredientsKo = idx;
+                else if (h.includes('인체적용시험') || h.includes('인증')) { COL.clinical = idx; uiLabels.clinicalTitle.ko = rawHeader; }
+                else if (h.includes('전성분(국문)')) { COL.ingredientsKo = idx; uiLabels.ingredients.ko = rawHeader.replace('(국문)', '').trim(); }
                 else if (h.includes('전성분(영문)')) COL.ingredientsEn = idx;
-                else if (h.includes('사용방법')) COL.howToUse = idx;
-                else if (h.includes('주의사항')) COL.cautions = idx;
-                else if (h.includes('소비자상담')) COL.customer = idx;
+                else if (h.includes('사용방법')) { COL.howToUse = idx; uiLabels.howToUse.ko = rawHeader; }
+                else if (h.includes('주의사항')) { COL.cautions = idx; uiLabels.cautions.ko = rawHeader; }
+                else if (h.includes('소비자상담')) { COL.customer = idx; uiLabels.customer.ko = rawHeader; }
                 else if (h.includes('구매하기')) COL.buyUrl = idx;
             });
         }
