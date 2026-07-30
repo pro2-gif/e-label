@@ -1575,7 +1575,7 @@
             let concept = '';
             const conceptContainer = document.getElementById('val-concept-ingredients');
             if (conceptContainer) {
-                concept = Array.from(conceptContainer.querySelectorAll('.ingredient-badge'))
+                concept = Array.from(conceptContainer.querySelectorAll('.concept-badge'))
                             .map(b => b.textContent.trim())
                             .join(', ');
             }
