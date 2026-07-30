@@ -839,6 +839,12 @@
                         }
                     }
 
+                    // 만약 cols의 label들이 제대로 파싱되지 않아서 첫 번째 행이 헤더로 들어왔다면
+                    if (productsData.length > 0 && productsData[0][0] && productsData[0][0].includes("제품명")) {
+                        initColumns(productsData[0]);
+                        productsData.shift(); // 헤더 행 데이터에서 제외
+                    }
+
                     // 스크립트 찌꺼기 정리
                     const scriptTag = document.getElementById('gviz-script');
                     if (scriptTag) scriptTag.remove();
