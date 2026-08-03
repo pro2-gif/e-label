@@ -334,8 +334,9 @@
         <!-- 메인 라벨 영역 (숨김 상태로 시작) -->
         <main class="main-content" id="main-content" style="display:none;">
             <!-- 제품명 영역 -->
-            <div class="p-6 bg-white border-b relative">
-                <h1 id="product-name" class="product-name" style="word-break: keep-all; width: 100%; display: block;"></h1>
+            <div class="p-6 bg-white border-b relative" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; padding-top: 40px; padding-bottom: 32px;">
+                <h1 id="product-name" class="product-name" style="word-break: keep-all; margin: 0; width: 100%; display: block; text-align: center; font-size: 28px; line-height: 1.4;"></h1>
+                <img id="product-image" style="display:none; width: 100%; max-width: 340px; height: auto; aspect-ratio: 1/1; object-fit: contain; border-radius: 24px; border: 1px solid #eaddd3; box-shadow: 0 10px 30px rgba(0,0,0,0.08); background-color: #ffffff; padding: 16px;" />
             </div>
 
             <div class="table-container">
@@ -549,6 +550,7 @@
                 else if (h.includes('주의사항')) { COL.cautions = idx; uiLabels.cautions.ko = rawHeader; }
                 else if (h.includes('소비자상담')) { COL.customer = idx; uiLabels.customer.ko = rawHeader; }
                 else if (h.includes('구매하기')) COL.buyUrl = idx;
+                else if (h.includes('제품이미지') || h.includes('제품 이미지')) COL.productImage = idx;
             });
         }
 
@@ -1197,6 +1199,23 @@
                 ? getProductDisplayName(item, 'en')
                 : getProductDisplayName(item, 'ko');
 
+            
+            const productImageUrl = getColValue(item, COL.productImage);
+            const productImgEl = document.getElementById('product-image');
+            if (productImgEl) {
+                if (productImageUrl) {
+                    const firstUrl = productImageUrl.split(/[\s,]+/)[0];
+                    if (firstUrl.startsWith('http')) {
+                        productImgEl.src = firstUrl;
+                        productImgEl.style.display = 'block';
+                    } else {
+                        productImgEl.style.display = 'none';
+                    }
+                } else {
+                    productImgEl.style.display = 'none';
+                }
+            }
+
             // 데이터 값 채우기
             document.getElementById('val-volume').textContent = volume;
             document.getElementById('val-functional').textContent = functional;
@@ -1567,17 +1586,38 @@
                 return;
             }
             
-            // 기존 재생 중단
+            const th = document.getElementById('label-' + itemId);
+            const btnIcon = th ? th.querySelector('.item-tts-btn span') : null;
+
+            if (window.currentItemTtsId === itemId && window.speechSynthesis.speaking) {
+                if (window.isItemTtsPaused) {
+                    window.isItemTtsPaused = false;
+                    window.speechSynthesis.resume();
+                    if (btnIcon) btnIcon.style.color = 'red';
+                } else {
+                    window.isItemTtsPaused = true;
+                    window.speechSynthesis.pause();
+                    if (btnIcon) btnIcon.style.color = '#c4b3a6';
+                }
+                return;
+            }
+
             window.speechSynthesis.cancel();
             window.ttsChunks = [];
             window.isTtsPaused = false;
+            window.currentItemTtsId = itemId;
+            window.isItemTtsPaused = false;
+            
+            document.querySelectorAll('.item-tts-btn span').forEach(icon => {
+                icon.style.color = '#c4b3a6';
+            });
+
             const mainTtsBtn = document.getElementById('btn-tts');
             if (mainTtsBtn) mainTtsBtn.classList.remove('playing');
 
             let labelText = '';
             let valText = '';
             
-            const th = document.getElementById('label-' + itemId);
             if (th) {
                 labelText = Array.from(th.childNodes)
                     .filter(n => n.nodeType === Node.TEXT_NODE)
@@ -1628,10 +1668,15 @@
             }
             utterance.rate = 0.9;
             
-            const btnIcon = th.querySelector('.item-tts-btn span');
-            utterance.onstart = () => { if (btnIcon) btnIcon.style.color = '#3e332c'; };
-            utterance.onend = () => { if (btnIcon) btnIcon.style.color = '#c4b3a6'; };
-            utterance.onerror = () => { if (btnIcon) btnIcon.style.color = '#c4b3a6'; };
+            utterance.onstart = () => { if (btnIcon) btnIcon.style.color = 'red'; };
+            utterance.onend = () => { 
+                if (btnIcon) btnIcon.style.color = '#c4b3a6'; 
+                if (window.currentItemTtsId === itemId) window.currentItemTtsId = null;
+            };
+            utterance.onerror = () => { 
+                if (btnIcon) btnIcon.style.color = '#c4b3a6'; 
+                if (window.currentItemTtsId === itemId) window.currentItemTtsId = null;
+            };
 
             window.speechSynthesis.speak(utterance);
         };
