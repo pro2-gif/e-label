@@ -894,6 +894,58 @@
                     const rows = data.table.rows;
                     window.ingredientDetails = {};
                     
+                    // 화장품 표시광고법 준수를 위한 안전한 문구 강제 적용 (수동 완벽 오버라이드)
+                    const safeOverrides = {
+                        "락토바실러스/하이드롤라이즈드완두콩추출발효여과물": {
+                            ko: "피부 미백 및 주름 개선에 도움을 줍니다. 풍부한 영양을 공급하여 외부 환경으로부터 피부를 보호하고, 맑고 탄력 있는 피부결로 가꾸는 데 도움을 주는 발효 성분입니다. (원료적 특성에 한함)",
+                            en: "Helps to brighten the skin and improve wrinkles. It provides rich nutrients to protect the skin from the external environment and helps to keep the skin clear and elastic. (Limited to raw material characteristics)"
+                        },
+                        "카퍼트라이펩타이드-1": {
+                            ko: "피부 장벽을 튼튼하게 하고 영양을 공급하여 건강하고 생기 있는 피부로 가꾸는 데 도움을 줍니다. 피부에 윤기와 탄력을 부여하여 매끄러운 피부 유지에 도움을 줍니다. (원료적 특성에 한함)",
+                            en: "Strengthens the skin barrier and supplies nutrients to help keep the skin healthy and revitalized. It imparts shine and elasticity to the skin, helping to maintain a smooth skin texture. (Limited to raw material characteristics)"
+                        },
+                        "아세틸헥사펩타이드-8": {
+                            ko: "피부 탄력 개선에 도움을 주고 매끄러운 피부결로 가꾸는 데 도움을 줍니다. 피부에 풍부한 영양을 공급하여 건강하고 생기 있는 피부 유지에 도움을 줄 수 있습니다. (원료적 특성에 한함)",
+                            en: "Helps to improve skin elasticity and makes the skin texture smooth. It supplies rich nutrients to the skin to help maintain healthy and vitalized skin. (Limited to raw material characteristics)"
+                        },
+                        "글루타티온": {
+                            ko: "칙칙한 피부 톤을 맑고 화사하게 가꾸는 데 도움을 주며, 피부에 생기를 부여하여 건강한 피부 컨디션 유지에 도움을 줍니다. (원료적 특성에 한함)",
+                            en: "Helps to brighten and clear dull skin tones, and gives vitality to the skin to help maintain a healthy skin condition. (Limited to raw material characteristics)"
+                        },
+                        "아세틸시스테인": {
+                            ko: "민감해진 피부를 진정시키고 각질을 정돈하여 매끄러운 피부로 가꾸는 데 도움을 줍니다. 수분을 공급하고 피부 장벽 기능을 보호하여 촉촉하고 건강한 피부 유지에 도움을 줍니다. (원료적 특성에 한함)",
+                            en: "Helps to soothe sensitive skin and refine dead skin cells to make the skin smooth. It supplies moisture and protects the skin barrier function to help maintain moist and healthy skin. (Limited to raw material characteristics)"
+                        },
+                        "알부틴": {
+                            ko: "맑고 깨끗한 피부 톤으로 가꾸는 데 도움을 줍니다. 외부 환경으로부터 피부를 보호하고 맑은 피부결을 유지하는 데 도움을 줄 수 있습니다. (원료적 특성에 한함)",
+                            en: "Helps to make the skin tone clear and clean. It helps protect the skin from the external environment and maintain a clear skin texture. (Limited to raw material characteristics)"
+                        },
+                        "트라넥사믹애씨드": {
+                            ko: "피부 톤을 맑고 균일하게 가꾸는 데 도움을 줍니다. 민감해진 피부를 진정시키고 깨끗하고 화사한 피부결 유지에 도움을 줍니다. (원료적 특성에 한함)",
+                            en: "Helps to make the skin tone clear and even. It soothes sensitive skin and helps maintain a clean and bright skin texture. (Limited to raw material characteristics)"
+                        },
+                        "덱스판테놀": {
+                            ko: "피부 장벽 보호 및 보습 유지에 도움을 줍니다. 민감해진 피부를 편안하게 진정시키고 풍부한 수분을 공급하여 촉촉하고 건강한 피부로 가꾸는 데 도움을 줍니다. (원료적 특성에 한함)",
+                            en: "Helps to protect the skin barrier and maintain moisture. It comfortably soothes sensitive skin and provides abundant moisture to help cultivate moist and healthy skin. (Limited to raw material characteristics)"
+                        },
+                        "에스에이치-올리고펩타이드-33": {
+                            ko: "피부에 생기와 영양을 부여하여 건강한 피부 컨디션을 유지하는 데 도움을 줄 수 있는 펩타이드 성분입니다. (원료적 특성에 한함)",
+                            en: "A peptide ingredient that can help maintain a healthy skin condition by giving vitality and nutrition to the skin. (Limited to raw material characteristics)"
+                        },
+                        "에스에이치-폴리펩타이드-60": {
+                            ko: "지친 피부에 활력을 부여하고 탄탄한 피부 바탕을 가꾸는 데 도움을 주는 펩타이드 성분입니다. (원료적 특성에 한함)",
+                            en: "A peptide ingredient that helps give vitality to tired skin and cultivate a firm skin base. (Limited to raw material characteristics)"
+                        },
+                        "에스에이치-폴리펩타이드-64": {
+                            ko: "메마른 피부에 촉촉한 수분을 공급하고 매끄러운 피부결을 가꾸는 데 도움을 주는 펩타이드 성분입니다. (원료적 특성에 한함)",
+                            en: "A peptide ingredient that helps supply moist hydration to dry skin and cultivate a smooth skin texture. (Limited to raw material characteristics)"
+                        },
+                        "에스에이치-폴리펩타이드-7": {
+                            ko: "피부 탄력 개선 및 윤기 부여에 도움을 줍니다. 푸석해진 피부에 수분과 영양을 공급하여 맑고 빛나는 피부로 가꾸는 데 도움을 줄 수 있습니다. (원료적 특성에 한함)",
+                            en: "Helps improve skin elasticity and gives it a glow. It supplies moisture and nutrition to dry skin to help cultivate clear and radiant skin. (Limited to raw material characteristics)"
+                        }
+                    };
+                    
                     // 화장품 표시광고법 자동 순화 필터 (의학적/과장 표현을 화장품법에 맞게 자동 변환)
                     function sanitizeCosmeticText(text) {
                         if (!text) return text;
@@ -935,7 +987,13 @@
                         if (cellName && cellName.v) {
                             const name = String(cellName.v).trim();
                             
-                            // 시트의 원본 텍스트를 화장품법에 맞게 자동 순화
+                            // 1. 수동으로 완벽하게 다듬어진 안전 문구가 있다면 그것을 최우선 적용
+                            if (safeOverrides[name]) {
+                                window.ingredientDetails[name] = safeOverrides[name];
+                                return; // 다음 성분으로 넘어감
+                            }
+                            
+                            // 2. 수동 오버라이드가 없는 경우, 시트의 원본 텍스트를 화장품법에 맞게 자동 순화
                             let descKo = (cellDescKo && cellDescKo.v) ? sanitizeCosmeticText(String(cellDescKo.v).trim()) : '상세 설명이 등록되지 않았습니다.';
                             let descEn = (cellDescEn && cellDescEn.v) ? String(cellDescEn.v).trim() : 'No description available.';
                             
