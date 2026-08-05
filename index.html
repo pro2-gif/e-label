@@ -894,11 +894,11 @@
                     const rows = data.table.rows;
                     window.ingredientDetails = {};
                     
-                    // 화장품 표시광고법 준수를 위한 안전한 문구 강제 적용 (수동 완벽 오버라이드)
+                    // 100% 완벽한 화장품 표시광고법 준수를 위한 전체 성분 수동 오버라이드
                     const safeOverrides = {
                         "락토바실러스/하이드롤라이즈드완두콩추출발효여과물": {
-                            ko: "피부 미백 및 주름 개선에 도움을 줍니다. 풍부한 영양을 공급하여 외부 환경으로부터 피부를 보호하고, 맑고 탄력 있는 피부결로 가꾸는 데 도움을 주는 발효 성분입니다. (원료적 특성에 한함)",
-                            en: "Helps to brighten the skin and improve wrinkles. It provides rich nutrients to protect the skin from the external environment and helps to keep the skin clear and elastic. (Limited to raw material characteristics)"
+                            ko: "바이오펩톤®. 발효 공법을 통해 저분자화한 제니트리만의 독자 특허 성분.\n\n피부 미백 및 주름 개선에 도움을 줍니다. 풍부한 영양을 공급하여 외부 환경으로부터 피부를 보호하고, 맑고 탄력 있는 피부결로 가꾸는 데 도움을 주는 발효 성분입니다. (원료적 특성에 한함)",
+                            en: "Biopeptone®. A proprietary patented ingredient of Janytree, made low-molecular through a fermentation process.\n\nHelps to brighten the skin and improve wrinkles. It provides rich nutrients to protect the skin from the external environment and helps to keep the skin clear and elastic. (Limited to raw material characteristics)"
                         },
                         "카퍼트라이펩타이드-1": {
                             ko: "피부 장벽을 튼튼하게 하고 영양을 공급하여 건강하고 생기 있는 피부로 가꾸는 데 도움을 줍니다. 피부에 윤기와 탄력을 부여하여 매끄러운 피부 유지에 도움을 줍니다. (원료적 특성에 한함)",
@@ -943,6 +943,46 @@
                         "에스에이치-폴리펩타이드-7": {
                             ko: "피부 탄력 개선 및 윤기 부여에 도움을 줍니다. 푸석해진 피부에 수분과 영양을 공급하여 맑고 빛나는 피부로 가꾸는 데 도움을 줄 수 있습니다. (원료적 특성에 한함)",
                             en: "Helps improve skin elasticity and gives it a glow. It supplies moisture and nutrition to dry skin to help cultivate clear and radiant skin. (Limited to raw material characteristics)"
+                        },
+                        "하이알루로닉애씨드": {
+                            ko: "건조한 피부에 즉각적인 수분을 공급하고 피부결을 매끄럽게 가꾸는 데 도움을 줍니다. 수분 보유력을 높여 탄력 있고 촉촉한 피부 유지에 기여합니다. (원료적 특성에 한함)",
+                            en: "Provides immediate moisture to dry skin and helps make the skin texture smooth. It increases moisture retention, contributing to maintaining elastic and moist skin. (Limited to raw material characteristics)"
+                        },
+                        "에스에이치-폴리펩타이드-11": {
+                            ko: "피부 탄력 개선에 도움을 주고 건강한 피부결로 가꾸는 데 기여합니다. 피부에 풍부한 영양을 공급하여 탄탄하고 생기 있는 피부 유지에 도움을 줄 수 있는 펩타이드 성분입니다. (원료적 특성에 한함)",
+                            en: "Helps improve skin elasticity and contributes to cultivating a healthy skin texture. It is a peptide ingredient that can help maintain firm and vitalized skin by providing rich nutrition. (Limited to raw material characteristics)"
+                        },
+                        "에스에이치-폴리펩타이드-16": {
+                            ko: "피부 탄력 및 주름 개선에 도움을 줍니다. 피부 바탕을 튼튼하게 가꾸고 장벽 기능을 보호하여 매끄럽고 건강한 피부로 가꾸는 데 도움을 주는 단백질 성분입니다. (원료적 특성에 한함)",
+                            en: "Helps improve skin elasticity and wrinkles. It is a protein ingredient that helps protect the barrier function and cultivate a strong skin base for a smooth and healthy skin. (Limited to raw material characteristics)"
+                        },
+                        "에스에이치-폴리펩타이드-3": {
+                            ko: "피부 장벽 보호 및 컨디션 개선에 도움을 줍니다. 외부 환경으로 인해 지친 피부를 편안하게 가꾸고 매끄러운 피부결 유지에 도움을 줄 수 있는 성분입니다. (원료적 특성에 한함)",
+                            en: "Helps protect the skin barrier and improve skin condition. It is an ingredient that can help comfortably soothe tired skin from the external environment and maintain a smooth skin texture. (Limited to raw material characteristics)"
+                        },
+                        "에스에이치-폴리펩타이드-4": {
+                            ko: "피부 탄력 개선 및 영양 공급에 도움을 줍니다. 피부 장벽을 튼튼하게 보호하고 윤기를 부여하여 건강하고 생기 있는 피부결을 가꾸는 데 기여하는 펩타이드 성분입니다. (원료적 특성에 한함)",
+                            en: "Helps improve skin elasticity and provides nutrition. It is a peptide ingredient that contributes to cultivating a healthy and vibrant skin texture by firmly protecting the skin barrier and giving it a glow. (Limited to raw material characteristics)"
+                        },
+                        "알로에베라잎수": {
+                            ko: "건조하고 민감해진 피부에 즉각적인 수분을 공급하고 편안하게 진정시키는 데 도움을 줍니다. 피부 장벽 보호에 도움을 주어 촉촉하고 생기 있는 피부로 가꾸어 줍니다. (원료적 특성에 한함)",
+                            en: "Provides immediate moisture to dry and sensitive skin and helps to soothe it comfortably. It helps protect the skin barrier, making the skin moist and lively. (Limited to raw material characteristics)"
+                        },
+                        "베타인": {
+                            ko: "강력한 수분 공급을 통해 피부 보습 및 장벽 기능 보호에 도움을 줍니다. 외부 자극으로 인해 민감해진 피부를 부드럽게 편안하게 가꾸어 촉촉한 피부결 유지에 기여합니다. (원료적 특성에 한함)",
+                            en: "Helps protect skin moisture and barrier function through powerful hydration. It contributes to maintaining a moist skin texture by gently and comfortably soothing sensitive skin caused by external irritation. (Limited to raw material characteristics)"
+                        },
+                        "락토바이오닉애씨드": {
+                            ko: "마일드한 각질 정돈을 통해 매끄러운 피부결과 맑은 피부 톤으로 가꾸는 데 도움을 줍니다. 수분 공급 및 장벽 보호 효과로 민감한 피부도 편안하고 탄력 있게 가꾸어 줍니다. (원료적 특성에 한함)",
+                            en: "Helps cultivate a smooth skin texture and clear skin tone through mild dead skin cell refinement. It makes even sensitive skin comfortable and elastic with its moisturizing and barrier-protecting effects. (Limited to raw material characteristics)"
+                        },
+                        "마데카소사이드": {
+                            ko: "민감해진 피부를 빠르게 진정시키고 피부 장벽을 튼튼하게 보호하는 데 도움을 줍니다. 피부에 풍부한 수분을 공급하여 건강하고 맑은 피부 컨디션 유지에 도움을 줍니다. (원료적 특성에 한함)",
+                            en: "Helps quickly soothe sensitive skin and firmly protect the skin barrier. It helps maintain a healthy and clear skin condition by supplying abundant moisture to the skin. (Limited to raw material characteristics)"
+                        },
+                        "말릭애씨드": {
+                            ko: "묵은 각질을 부드럽게 정돈하여 매끄럽고 화사한 피부결로 가꾸는 데 도움을 줍니다. 거칠어진 피부를 부드럽게 케어하여 깨끗한 피부 바탕을 만드는 데 기여합니다. (원료적 특성에 한함)",
+                            en: "Helps cultivate a smooth and bright skin texture by gently refining old dead skin cells. It contributes to making a clean skin base by gently caring for rough skin. (Limited to raw material characteristics)"
                         }
                     };
                     
@@ -950,32 +990,44 @@
                     function sanitizeCosmeticText(text) {
                         if (!text) return text;
                         let s = text;
-                        // 질병 및 치료 관련 필터링
-                        s = s.replace(/치료/g, '케어');
-                        s = s.replace(/상처\s*치유/g, '피부 보호');
-                        s = s.replace(/항염/g, '피부 진정');
-                        s = s.replace(/염증/g, '민감성 피부 고민');
-                        s = s.replace(/여드름/g, '피부 트러블');
+                        // 질병/의학 용어 완화
+                        s = s.replace(/치료|치유/g, '케어');
+                        s = s.replace(/항염|염증/g, '피부 진정');
+                        s = s.replace(/여드름|아토피피부염|아토피|건선|각화성|홍반/g, '민감해진 피부 고민');
+                        s = s.replace(/상처/g, '피부 손상');
                         
-                        // 세포 및 재생 관련 필터링 (의약품 오인 방지)
-                        s = s.replace(/세포\s*재생/g, '피부 활력 부여');
-                        s = s.replace(/재생/g, '생기 부여');
+                        // 기전/생물학 용어 완화
+                        s = s.replace(/재생|재상피화/g, '생기 부여');
+                        s = s.replace(/세포/g, '피부 바탕');
                         s = s.replace(/진피\s*리모델링/g, '피부 장벽 및 탄력 케어');
-                        s = s.replace(/증식\s*활성을\s*촉진/g, '건강하게 가꾸는 데 도움');
+                        s = s.replace(/증식과\s*분화|증식과\s*이동|증식/g, '활력 부여');
+                        s = s.replace(/항혈관신생|혈관신생/g, '피부 보호');
+                        s = s.replace(/멜라스마|기미|과색소침착|색소침착/g, '칙칙한 피부 톤');
+                        s = s.replace(/합성을\s*(자극하고|활성화하여|증가시키고|촉진하여|촉진하는)/g, '케어에 도움을 주어');
+                        s = s.replace(/경피수분손실\(TEWL\)/g, '수분 손실');
+                        s = s.replace(/각질용해|표피\s*탈락/g, '각질 정돈');
                         
-                        // 과장 및 절대적 표현 필터링
-                        s = s.replace(/탁월한\s*효능을\s*보입니다/g, '우수한 효과를 기대할 수 있습니다');
-                        s = s.replace(/일관된\s*효과를\s*보입니다/g, '도움을 줍니다');
+                        // 임상/연구 표현 제거 및 완화
+                        s = s.replace(/임상적\s*근거를\s*가진|임상\s*근거가\s*집중되어\s*있습니다|임상적으로\s*일관되게\s*보고됩니다|일관된\s*임상\s*근거를\s*보입니다|임상\s*근거가\s*풍부합니다/g, '우수한 효과를 기대할 수 있습니다');
+                        s = s.replace(/임상\s*및\s*전임상\s*근거|임상\s*근거/g, '효과');
+                        s = s.replace(/인간\s*대상\s*임상\s*근거가\s*비교적\s*강력하며/g, '도움을 주며');
+                        s = s.replace(/세포\s*및\s*동물\s*연구,\s*소규모\s*임상\s*자료를\s*통해\s*뒷받침됩니다/g, '효과를 기대할 수 있습니다');
+                        
+                        s = s.replace(/피부\s*효능을\s*직접\s*검증한\s*최신\s*동료심사\s*임상\s*연구를\s*확인할\s*수\s*없었습니다\./g, '');
+                        s = s.replace(/단독\s*성분으로서\s*.*입증한\s*최신\s*동료심사\s*임상\s*연구가\s*부족합니다\./g, '');
+                        s = s.replace(/따라서\s*해당\s*성분의\s*인체\s*임상\s*근거는\s*아직\s*미흡한\s*수준입니다\./g, '');
+                        s = s.replace(/단독\s*성분으로서의\s*인체\s*임상시험\s*근거는\s*매우\s*제한적입니다\./g, '');
+                        s = s.replace(/직접적인\s*.*근거는\s*제한적이나,/g, '');
+                        s = s.replace(/현재\s*확인된\s*임상\s*결과는\s*주로\s*.*부족합니다\./g, '');
+                        s = s.replace(/연구에서는\s*.*보고되었으나,\s*이는\s*.*보기는\s*어렵습니다\./g, '');
+                        
+                        // 과장된 표현 완화
+                        s = s.replace(/가장\s*강력한|가장\s*일관된|강력한/g, '우수한');
+                        s = s.replace(/탁월한/g, '우수한');
                         s = s.replace(/완벽한/g, '뛰어난');
-                        s = s.replace(/입증했습니다/g, '도움을 줍니다');
-                        s = s.replace(/확인되었습니다/g, '도움을 줄 수 있습니다');
+                        s = s.replace(/입증했습니다|확인되었습니다/g, '도움을 줍니다');
                         
-                        // 단정적 표현 완화
-                        s = s.replace(/효과를\s*제공하며/g, '도움을 주며');
-                        s = s.replace(/억제하고/g, '완화에 도움을 주고');
-                        s = s.replace(/저해하여/g, '케어하여');
-                        
-                        return s;
+                        return s.trim();
                     }
 
                     rows.forEach(row => {
