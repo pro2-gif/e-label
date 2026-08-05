@@ -1430,7 +1430,7 @@
                     const firstUrl = productImageUrl.split(/[\s,]+/)[0];
                     if (firstUrl.startsWith('http')) {
                         productImgEl.src = firstUrl;
-                        productImgWrapperEl.style.display = 'block';
+                        productImgWrapperEl.style.display = 'flex';
                         
                         // 특정 카머 이미지 30% 확대 로직
                         const koName = getProductDisplayName(item, 'ko');
