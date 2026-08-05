@@ -336,7 +336,9 @@
             <!-- 제품명 영역 -->
             <div class="p-6 bg-white border-b relative" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; padding-top: 40px; padding-bottom: 32px;">
                 <h1 id="product-name" class="product-name" style="word-break: keep-all; margin: 0; width: 100%; display: block; text-align: center; font-size: 28px; line-height: 1.4;"></h1>
-                <img id="product-image" style="display:none; width: 100%; max-width: 340px; height: auto; aspect-ratio: 1/1; object-fit: contain; border-radius: 24px; border: 1px solid #eaddd3; box-shadow: 0 10px 30px rgba(0,0,0,0.08); background-color: #ffffff; padding: 16px;" />
+                <div id="product-image-wrapper" style="display:none; width: 100%; max-width: 340px; margin: 0 auto; border-radius: 24px; border: 1px solid #eaddd3; box-shadow: 0 10px 30px rgba(0,0,0,0.08); background-color: #ffffff; padding: 16px; box-sizing: border-box;">
+                    <img id="product-image" style="width: 100%; height: auto; aspect-ratio: 1/1; object-fit: contain; border-radius: 12px; display: block;" />
+                </div>
             </div>
 
             <div class="table-container">
@@ -1422,25 +1424,26 @@
             
             const productImageUrl = getColValue(item, COL.productImage);
             const productImgEl = document.getElementById('product-image');
-            if (productImgEl) {
+            const productImgWrapperEl = document.getElementById('product-image-wrapper');
+            if (productImgEl && productImgWrapperEl) {
                 if (productImageUrl) {
                     const firstUrl = productImageUrl.split(/[\s,]+/)[0];
                     if (firstUrl.startsWith('http')) {
                         productImgEl.src = firstUrl;
-                        productImgEl.style.display = 'block';
+                        productImgWrapperEl.style.display = 'block';
                         
-                        // 인투메디 카머 2종 이미지 30% 확대 로직
+                        // 특정 카머 이미지 30% 확대 로직
                         const koName = getProductDisplayName(item, 'ko');
                         if (koName.includes('인투메디 딥 모이스처 카머') || koName.includes('인투메디 오일컨트롤 모이스처 카머') || koName.includes('인텐시브 베리어 카머')) {
-                            productImgEl.style.maxWidth = '442px';
+                            productImgWrapperEl.style.maxWidth = '442px';
                         } else {
-                            productImgEl.style.maxWidth = '340px';
+                            productImgWrapperEl.style.maxWidth = '340px';
                         }
                     } else {
-                        productImgEl.style.display = 'none';
+                        productImgWrapperEl.style.display = 'none';
                     }
                 } else {
-                    productImgEl.style.display = 'none';
+                    productImgWrapperEl.style.display = 'none';
                 }
             }
 
