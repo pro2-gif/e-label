@@ -691,36 +691,42 @@
             try {
                 let summary = null;
 
-                // 한국어 위키피디아에서 먼저 시도
-                const koRes = await fetch(
-                    `https://ko.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(koName)}`,
-                    { signal: AbortSignal.timeout(4000) }
-                ).catch(() => null);
-
-                if (koRes && koRes.ok) {
-                    const koData = await koRes.json();
-                    // 위키피디아가 일반 문서로 찾았으면 요약만 사용
-                    if (koData.type !== 'disambiguation' && koData.extract) {
-                        summary = koData.extract.substring(0, 300);
-                    }
-                }
-
-                // 한국어 실패 시, 영어 위키피디아로 재시도
-                if (!summary && enName) {
-                    const enRes = await fetch(
-                        `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(enName)}`,
+                if (currentLang === 'ko') {
+                    // 국문 모드: 한국어 위키피디아에서만 검색 (영문 위키피디아 결과 노출 방지)
+                    const koRes = await fetch(
+                        `https://ko.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(koName)}`,
                         { signal: AbortSignal.timeout(4000) }
                     ).catch(() => null);
 
-                    if (enRes && enRes.ok) {
-                        const enData = await enRes.json();
-                        if (enData.type !== 'disambiguation' && enData.extract) {
-                            summary = enData.extract.substring(0, 300);
+                    if (koRes && koRes.ok) {
+                        const koData = await koRes.json();
+                        if (koData.type !== 'disambiguation' && koData.extract) {
+                            summary = koData.extract.substring(0, 300);
+                        }
+                    }
+                } else {
+                    // 영문 모드: 영어 위키피디아에서 검색
+                    if (enName) {
+                        const enRes = await fetch(
+                            `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(enName)}`,
+                            { signal: AbortSignal.timeout(4000) }
+                        ).catch(() => null);
+
+                        if (enRes && enRes.ok) {
+                            const enData = await enRes.json();
+                            if (enData.type !== 'disambiguation' && enData.extract) {
+                                summary = enData.extract.substring(0, 300);
+                            }
                         }
                     }
                 }
 
                 if (summary) {
+                    // 위키 정보에도 반드시 (원료적 특성에 한함) 추가
+                    summary = summary.trim();
+                    if (!summary.includes(currentLang === 'ko' ? '(원료적 특성에 한함)' : '(Limited to raw material characteristics)')) {
+                        summary += currentLang === 'ko' ? ' (원료적 특성에 한함)' : ' (Limited to raw material characteristics)';
+                    }
                     // 위키 정보를 성공적으로 가져옴: 표시 업데이트
                     descEl.textContent = summary;
                 } else if (!fallback) {
@@ -1045,8 +1051,23 @@
                                 return; // 다음 성분으로 넘어감
                             }
                             
-                            // 2. 수동 오버라이드가 없는 경우, 시트의 원본 텍스트를 화장품법에 맞게 자동 순화
-                            let descKo = (cellDescKo && cellDescKo.v) ? sanitizeCosmeticText(String(cellDescKo.v).trim()) : '상세 설명이 등록되지 않았습니다.';
+                            // 2. 수동 오버라이드가 없는 경우, 시트의 원본 텍스트를 화장품법에 맞게 자동 순화 및 2~3문장 요약
+                            let rawKo = (cellDescKo && cellDescKo.v) ? String(cellDescKo.v).trim() : '';
+                            let descKo = '상세 설명이 등록되지 않았습니다.';
+                            
+                            if (rawKo) {
+                                // 문장 단위로 분리 (마침표, 물음표, 느낌표 기준)
+                                let sentences = rawKo.match(/[^.!?]+[.!?]+/g) || [rawKo];
+                                
+                                // 첫 1문장만 추출
+                                let shortKo = sentences[0] ? sentences[0].trim() : rawKo;
+                                
+                                // 의학적 단어 필터링
+                                shortKo = sanitizeCosmeticText(shortKo);
+                                
+                                // 뒤에 임상/연구 관련 문장이 잘렸을 수 있으므로, 부드러운 화장품 문구 1개 추가하여 2문장 완성
+                                descKo = shortKo + ' 맑고 건강한 피부 컨디션 유지에 도움을 줄 수 있습니다.';
+                            }
                             let descEn = (cellDescEn && cellDescEn.v) ? String(cellDescEn.v).trim() : 'No description available.';
                             
                             if (descKo !== '상세 설명이 등록되지 않았습니다.' && !descKo.includes('(원료적 특성에 한함)')) {
