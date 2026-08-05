@@ -1428,6 +1428,14 @@
                     if (firstUrl.startsWith('http')) {
                         productImgEl.src = firstUrl;
                         productImgEl.style.display = 'block';
+                        
+                        // 인투메디 카머 2종 이미지 30% 확대 로직
+                        const koName = getProductDisplayName(item, 'ko');
+                        if (koName.includes('인투메디 딥 모이스처 카머') || koName.includes('인투메디 오일컨트롤 모이스처 카머')) {
+                            productImgEl.style.maxWidth = '442px';
+                        } else {
+                            productImgEl.style.maxWidth = '340px';
+                        }
                     } else {
                         productImgEl.style.display = 'none';
                     }
