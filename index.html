@@ -1419,9 +1419,22 @@
             }
 
             // 제품명 표시 (EN이면 시트에서 직접 영문명 추출)
-            document.getElementById('product-name').textContent = lang === 'en'
+            const pNameEl = document.getElementById('product-name');
+            pNameEl.textContent = lang === 'en'
                 ? getProductDisplayName(item, 'en')
                 : getProductDisplayName(item, 'ko');
+            
+            pNameEl.style.fontSize = '28px'; // 초기화
+            pNameEl.style.whiteSpace = 'nowrap';
+            
+            // 렌더링이 완료된 후 너비 계산을 위해 약간 지연
+            requestAnimationFrame(() => {
+                let currentSize = 28;
+                while (pNameEl.scrollWidth > pNameEl.clientWidth && currentSize > 12) {
+                    currentSize -= 1;
+                    pNameEl.style.fontSize = currentSize + 'px';
+                }
+            });
 
             
             const productImageUrl = getColValue(item, COL.productImage);
@@ -2085,6 +2098,38 @@
             }
         }
 
+        
+        function updateMakerOptionsAndQr() {
+            const makerContainer = document.getElementById('maker-container');
+            if (makerContainer && makerContainer.style.display !== 'none') {
+                const selectEl = document.getElementById('product-select-maker');
+                const currentValue = selectEl.value; // Remember selected index
+                
+                if (window.globalSheetData && window.globalSheetData.length > 0) {
+                    selectEl.innerHTML = '<option value="" disabled selected>' + uiLabels.makerEmptyTitle[currentLang] + '</option>';
+                    let activeData = window.globalSheetData;
+                    if (activeData.length > 0 && activeData[0][0] && activeData[0][0].includes("제품명")) {
+                        activeData = activeData.slice(1);
+                    } else {
+                        activeData = activeData.slice(0);
+                    }
+                    activeData.forEach((item, idx) => {
+                        const option = document.createElement('option');
+                        option.value = idx;
+                        option.textContent = getProductDisplayName(item, currentLang);
+                        selectEl.appendChild(option);
+                    });
+                    selectEl.value = currentValue; // Restore selection
+                }
+                
+                if (window.currentTargetItem && typeof updateQrDisplay === 'function') {
+                    updateQrDisplay(window.currentTargetItem);
+                }
+            } else {
+                if (window.currentTargetItem) renderLabel(window.currentTargetItem, currentLang);
+            }
+        }
+
         document.getElementById('btn-ko').addEventListener('click', () => {
             if (currentLang === 'ko') return;
             window.speechSynthesis.cancel();
@@ -2095,7 +2140,7 @@
             document.getElementById('btn-ko').classList.add('active');
             document.getElementById('btn-en').classList.remove('active');
             updateGlobalLangUI('ko');
-            if (window.currentTargetItem) renderLabel(window.currentTargetItem, 'ko');
+            updateMakerOptionsAndQr();
         });
 
         document.getElementById('btn-en').addEventListener('click', () => {
@@ -2108,7 +2153,7 @@
             document.getElementById('btn-en').classList.add('active');
             document.getElementById('btn-ko').classList.remove('active');
             updateGlobalLangUI('en');
-            if (window.currentTargetItem) renderLabel(window.currentTargetItem, 'en');
+            updateMakerOptionsAndQr();
         });
 
     </script>    <!-- 컨셉성분 설명 모달 팝업 -->
