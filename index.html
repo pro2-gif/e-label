@@ -662,7 +662,9 @@
             if (window.ingredientDetails && window.ingredientDetails[koName]) {
                 const sheetInfo = window.ingredientDetails[koName];
                 if (currentLang === 'en') {
-                    if (sheetInfo.ko && sheetInfo.ko !== '상세 설명이 등록되지 않았습니다.') {
+                    if (sheetInfo.en) {
+                        descEl.textContent = sheetInfo.en;
+                    } else if (sheetInfo.ko && sheetInfo.ko !== '상세 설명이 등록되지 않았습니다.') {
                         descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
                         const translatedDesc = await translateText(sheetInfo.ko);
                         descEl.textContent = translatedDesc;
