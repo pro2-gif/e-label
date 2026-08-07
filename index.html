@@ -1424,19 +1424,7 @@
                 ? getProductDisplayName(item, 'en')
                 : getProductDisplayName(item, 'ko');
             
-            pNameEl.style.fontSize = '28px'; // 초기화
-            pNameEl.style.whiteSpace = 'nowrap';
-            pNameEl.style.overflow = 'hidden';
-            pNameEl.style.minWidth = '0';
-            
-            // 렌더링이 완료된 후 너비 계산을 위해 약간 지연
-            requestAnimationFrame(() => {
-                let currentSize = 28;
-                while (pNameEl.scrollWidth > pNameEl.clientWidth && currentSize > 12) {
-                    currentSize -= 1;
-                    pNameEl.style.fontSize = currentSize + 'px';
-                }
-            });
+            // JS font sizing removed in favor of CSS clamp
 
             
             const productImageUrl = getColValue(item, COL.productImage);
