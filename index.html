@@ -261,7 +261,9 @@
         <header class="top-controller">
             <div class="lang-switcher">
                 <button id="btn-ko" class="lang-btn active">KO</button>
-                <button id="btn-en" class="lang-btn">EN</button>\n                <button id="btn-jp" class="lang-btn">JP</button>\n                <button id="btn-ch" class="lang-btn">CH</button>
+                <button id="btn-en" class="lang-btn">EN</button>
+                <button id="btn-jp" class="lang-btn">JP</button>
+                <button id="btn-ch" class="lang-btn">CH</button>
             </div>
             <div class="barrier-free-actions">
                 <button id="btn-tts" class="icon-btn" title="음성 안내(TTS)">
@@ -835,7 +837,9 @@
             makerBtnPng: { ko: "QR 다운로드 (.png)", en: "Download QR (.png)", jp: "QRダウンロード (.png)", ch: "下载二维码 (.png)" },
             makerBtnSvg: { ko: "QR 다운로드 (.svg)", en: "Download QR (.svg)", jp: "QRダウンロード (.svg)", ch: "下载二维码 (.svg)" },
             makerClickHint: { ko: "👉 클릭하여 라벨 정보 바로 보기", en: "👉 Click to view label info", jp: "👉 クリックしてラベル情報を確認", ch: "👉 点击查看标签信息" }
-        };\n\n        // =====================================================
+        };
+
+        // =====================================================
         // ■ 구글 시트 데이터 로딩 (JSONP 방식)
         // 크롬 브라우저의 로컬 환경(file://) CORS 차단을 완벽하게 우회하여 데이터를 가져옵니다.
         // =====================================================
@@ -1410,24 +1414,32 @@
             let cautions = getColValue(item, COL.cautions);
             let customer = getColValue(item, COL.customer);
 
-            // ▼ 영어 모드: 각 항목 번역 수행
-            if (lang === 'en') {
-                // 제조업자는 이미 영문 추출 완료, 전성분도 영문 열 추출 완료. 나머지만 번역.
+            // ▼ 다국어 모드: 각 항목 번역 수행
+            if (lang !== 'ko') {
                 [volume, functional, batchno, expiration, cautions, customer] = await Promise.all([
                     translateText(volume, lang),
                     translateText(functional, lang),
-                    translateText(batchno, lang), // 제조번호도 번역(영문/숫자 혼용 처리)
-                    translateText(expiration, lang), // 사용기한도 번역
+                    translateText(batchno, lang),
+                    translateText(expiration, lang),
                     translateText(cautions, lang),
                     translateText(customer, lang)
                 ]);
+                
+                // 전성분 번역 (EN은 시트 우선, 없거나 다국어일 경우 API 번역)
+                if (lang === 'en' && !getColValue(item, COL.ingredientsEn)) {
+                    ingredients = await translateIngredients(ingredients);
+                } else if (lang !== 'en') {
+                    ingredients = await translateText(ingredients, lang);
+                }
             }
 
-            // 제품명 표시 (EN이면 시트에서 직접 영문명 추출)
+            // 제품명 표시
             const pNameEl = document.getElementById('product-name');
-            pNameEl.textContent = lang === 'en'
-                ? getProductDisplayName(item, 'en')
-                : getProductDisplayName(item, 'ko');
+            let pName = getProductDisplayName(item, lang === 'en' ? 'en' : 'ko');
+            if (lang !== 'ko' && lang !== 'en') {
+                pName = await translateText(pName, lang);
+            }
+            pNameEl.textContent = pName;
             
             // JS font sizing removed in favor of CSS clamp
 
@@ -1506,8 +1518,8 @@
                     const textOnly = line.replace(/\|?\s*https?:\/\/[^\s|]+/g, '').replace(/\|\s*$/, '').trim();
                     let finalText = textOnly;
                     
-                    // 영문 모드에서는 원본 출처(국문/영문 셀)와 무관하게 항상 구글 번역을 수행하여 영어 출력을 보장
-                    if (lang === 'en') {
+                    // 다국어 모드에서는 원본 출처와 무관하게 구글 번역 수행
+                    if (lang !== 'ko') {
                         finalText = await translateText(textOnly, lang);
                     }
                     return { text: finalText, imageUrl };
@@ -1557,26 +1569,24 @@
 
             let extractedCount = 0;
 
-            koNames.forEach((koName, idx) => {
-                // 표시 이름: 영문 모드면 영문 목록에서, 없으면 국문 이름 그대로
-                const displayName = (lang === 'en' && enNames[idx]) ? enNames[idx] : koName;
+            for (let idx = 0; idx < koNames.length; idx++) {
+                const koName = koNames[idx];
                 const enNameForModal = enNames[idx] || null;
+                let displayName = (lang === 'en' && enNameForModal) ? enNameForModal : koName;
+                
+                if (lang !== 'ko' && lang !== 'en') {
+                    displayName = await translateText(displayName, lang);
+                }
 
                 const badge = document.createElement('span');
                 badge.className = 'concept-badge';
                 badge.textContent = displayName;
-                // 클릭 시 모달 열기: koName(국문)으로 fallback 사전 조회 + 위키 검색
-                badge.onclick = () => window.openIngredientModal(
-                    lang === 'en' ? (enNameForModal || koName) : koName,  // 모달 제목용
-                    enNameForModal // 영문명 (위키 영문 검색용)
-                );
-                // 내부적으로는 koName도 필요하므로, fallback 사전을 koName으로 조회하기 위해 데이터 속성으로 저장
+                
                 badge.dataset.koName = koName;
-                // 실제: openIngredientModal은 koName을 fallback key로 사용하므로, 다시 존재를 순서대로 수정
                 badge.onclick = () => window.openIngredientModal(koName, enNameForModal);
 
                 conceptContainer.appendChild(badge);
-            });
+            }
 
             // 추출된 성분이 있으면 행(tr) 표시, 없으면 숨김
             if (koNames.length > 0) {
@@ -1602,9 +1612,9 @@
                 const warnDiv = document.createElement('div');
                 warnDiv.className = 'warning-box';
 
-                if (lang === 'en') {
+                if (lang !== 'ko') {
                     mainDiv.textContent = await translateText(parts[0].trim(), lang);
-                    warnDiv.innerHTML = `<span class="material-icons" style="font-size:18px;margin-top:2px;">warning</span><span>* Precautions: ${await translateText(parts[1].trim(), lang)}</span>`;
+                    warnDiv.innerHTML = `<span class="material-icons" style="font-size:18px;margin-top:2px;">warning</span><span>* ${await translateText('주의사항', lang)}: ${await translateText(parts[1].trim(), lang)}</span>`;
                 } else {
                     mainDiv.textContent = parts[0].trim();
                     warnDiv.innerHTML = `<span class="material-icons" style="font-size:18px;margin-top:2px;">warning</span><span>* 주의사항 : ${parts[1].trim()}</span>`;
@@ -2175,7 +2185,8 @@
             updateGlobalLangUI('ch');
             updateMakerOptionsAndQr();
         });
-\n    </script>    <!-- 컨셉성분 설명 모달 팝업 -->
+
+    </script>    <!-- 컨셉성분 설명 모달 팝업 -->
     <div id="ingredient-modal" class="modal-overlay" onclick="closeIngredientModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeIngredientModal()">✕</button>
