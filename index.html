@@ -1653,10 +1653,33 @@
             for (let idx = 0; idx < koNames.length; idx++) {
                 const koName = koNames[idx];
                 const enNameForModal = enNames[idx] || null;
-                let displayName = (lang === 'en' && enNameForModal) ? enNameForModal : koName;
+                let displayName = koName;
                 
-                if (lang !== 'ko' && lang !== 'en') {
-                    displayName = await translateText(displayName, lang);
+                if (lang === 'en') {
+                    if (enNameForModal) {
+                        displayName = enNameForModal;
+                    } else {
+                        displayName = await translateText(koName, 'en', 'ko');
+                    }
+                } else if (lang !== 'ko') {
+                    // 다국어(JP, CH)일 경우: 영문명이 있으면 영문 기조로 번역하는 것이 화장품 성분명 번역에 정확함
+                    if (enNameForModal) {
+                        displayName = await translateText(enNameForModal, lang, 'en');
+                        // 구글 번역 오류로 한글이 튀어나왔다면 강제로 영문 원본 명칭 사용
+                        if (/[가-힣]/.test(displayName)) {
+                            displayName = enNameForModal;
+                        }
+                    } else {
+                        // 영문명이 없는 경우 국문에서 번역 시도
+                        displayName = await translateText(koName, lang, 'ko');
+                        // 번역 실패로 한글이 남은 경우, 영문으로라도 강제 변환하여 한글 노출 완전 차단
+                        if (/[가-힣]/.test(displayName)) {
+                            const fallbackEn = await translateText(koName, 'en', 'ko');
+                            if (!/[가-힣]/.test(fallbackEn)) {
+                                displayName = fallbackEn;
+                            }
+                        }
+                    }
                 }
 
                 const badge = document.createElement('span');
