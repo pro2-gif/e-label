@@ -549,8 +549,8 @@
                     COL.conceptKo = idx; 
                     uiLabels.concept.ko = rawHeader + '<br><span style="font-size:11px; font-weight:normal; color:#6b7280;">터치하여 특징 보기</span>'; 
                 }
-                else if (h.includes('핵심컨셉성분(영문)')) COL.conceptEn = idx;
-                else if (h.includes('인체적용시험(영문)')) COL.clinicalEn = idx;
+                else if (h.includes('핵심컨셉성분') && h.includes('영문')) COL.conceptEn = idx;
+                else if (h.includes('인체적용시험') && h.includes('영문')) COL.clinicalEn = idx;
                 else if (h.includes('인체적용시험') || h.includes('인증')) { COL.clinical = idx; uiLabels.clinicalTitle.ko = rawHeader.replace('(국문)', '').trim(); }
                 else if (h.includes('전성분(국문)')) { COL.ingredientsKo = idx; uiLabels.ingredients.ko = rawHeader.replace('(국문)', '').trim(); }
                 else if (h.includes('전성분(영문)')) COL.ingredientsEn = idx;
@@ -1583,8 +1583,20 @@
                     let finalText = textOnly;
                     
                     if (lang !== 'ko') {
-                        // 한글이 포함되어 있으면 무조건 영문으로 강제 번역하여 한글 노출 방지
-                        if (/[가-힣]/.test(textOnly)) {
+                        // 사전 정의된 하드코딩 영문 변환 (API 실패 대비 및 정확도 보장)
+                        let hardcodedEn = '';
+                        if (textOnly.includes('일차자극 테스트 완료') && textOnly.includes('저자극 판정')) {
+                            hardcodedEn = 'Primary skin irritation test completed: Hypoallergenic';
+                        } else if (textOnly.includes('일차자극 테스트 완료') && textOnly.includes('무자극 판정')) {
+                            hardcodedEn = 'Primary skin irritation test completed: Non-irritating';
+                        } else if (textOnly.includes('저자극 판정') || textOnly.includes('저자극 테스트 완료')) {
+                            hardcodedEn = 'Hypoallergenic';
+                        }
+                        
+                        if (hardcodedEn) {
+                            finalText = hardcodedEn;
+                        } else if (/[가-힣]/.test(textOnly)) {
+                            // 하드코딩에 없으나 한글이 포함되어 있다면 무조건 영문으로 강제 번역
                             finalText = await translateText(textOnly, 'en', 'ko');
                         } else {
                             // 이미 영문이면 그대로 사용 (일어, 중어에서도 영문으로 표기)
