@@ -1583,11 +1583,11 @@
                     let finalText = textOnly;
                     
                     if (lang !== 'ko') {
-                        if (clinicalText === clinicalKoText) {
-                            // 영문 데이터가 없어서 국문을 가져온 경우, 해당 언어로 번역
-                            finalText = await translateText(textOnly, lang, 'ko');
+                        // 한글이 포함되어 있으면 무조건 영문으로 강제 번역하여 한글 노출 방지
+                        if (/[가-힣]/.test(textOnly)) {
+                            finalText = await translateText(textOnly, 'en', 'ko');
                         } else {
-                            // 영문 데이터를 가져온 경우, 번역 없이 영문 텍스트 그대로 노출
+                            // 이미 영문이면 그대로 사용 (일어, 중어에서도 영문으로 표기)
                             finalText = textOnly;
                         }
                     }
