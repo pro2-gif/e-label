@@ -658,23 +658,33 @@
             const descEl    = document.getElementById('modal-ing-desc');
 
             // 화면에 표시할 이름 결정 (현재 언어 모드 고려)
-            const displayName = (currentLang === 'en' && enName) ? enName : koName;
+            let displayName = koName;
+            if (currentLang === 'en' && enName) displayName = enName;
+            else if (currentLang !== 'ko') {
+                const srcName = enName || koName;
+                nameEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
+                displayName = await translateText(srcName, currentLang, enName ? 'en' : 'ko');
+            }
             nameEl.textContent = displayName;
-            descEl.innerHTML   = '<span style="color:#9ca3af;">\ud310 정보를 불러오는 중입니다...</span>';
+            
+            descEl.innerHTML   = '<span style="color:#9ca3af;">판 정보를 불러오는 중입니다...</span>';
             modalEl.classList.add('show');
 
             // 0단계: Sheet2 데이터 우선 확인 (가장 최우선 순위)
             if (window.ingredientDetails && window.ingredientDetails[koName]) {
                 const sheetInfo = window.ingredientDetails[koName];
-                if (currentLang === 'en') {
-                    if (sheetInfo.en) {
+                if (currentLang !== 'ko') {
+                    if (currentLang === 'en' && sheetInfo.en) {
                         descEl.textContent = sheetInfo.en;
                     } else if (sheetInfo.ko && sheetInfo.ko !== '상세 설명이 등록되지 않았습니다.') {
                         descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
-                        const translatedDesc = await translateText(sheetInfo.ko, currentLang);
+                        // 영문 원본이 있다면 영문을 번역하고, 없다면 국문을 번역 (정확한 스펠링 보장)
+                        const sourceText = (sheetInfo.en && sheetInfo.en !== 'No description available.') ? sheetInfo.en : sheetInfo.ko;
+                        const srcLang = (sourceText === sheetInfo.en) ? 'en' : 'ko';
+                        const translatedDesc = await translateText(sourceText, currentLang, srcLang);
                         descEl.textContent = translatedDesc;
                     } else {
-                        descEl.textContent = 'No description available.';
+                        descEl.textContent = currentLang === 'en' ? 'No description available.' : '상세 설명이 등록되지 않았습니다.';
                     }
                 } else {
                     descEl.textContent = sheetInfo.ko || '상세 설명이 등록되지 않았습니다.';
@@ -686,16 +696,15 @@
             const fallback = conceptFallbackDesc[koName];
             if (fallback) {
                 let fb = fallback;
-                if (currentLang === 'en') {
-                    // 영문 모드일 경우: 구글 번역 API로 한글 문구를 통째로 번역
+                if (currentLang !== 'ko') {
+                    // 다국어 모드일 경우 구글 번역 API로 통째로 번역
                     descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
-                    const translatedFb = await translateText(fb, currentLang);
+                    const translatedFb = await translateText(fb, currentLang, 'ko');
                     descEl.textContent = translatedFb;
                 } else {
                     descEl.textContent = fb;
                 }
-
-                return; // Fallback(화장품 전용 사전) 정보가 있으면 여기서 즉시 종료하여 위키피디아 의학 정보가 덮어쓰지 못하게 함
+                return; // Fallback 정보가 있으면 즉시 종료
             }
 
             // 2단계: 위키피디아 API에서 실제 정보 가져오기 (비동기)
@@ -703,7 +712,7 @@
                 let summary = null;
 
                 if (currentLang === 'ko') {
-                    // 국문 모드: 한국어 위키피디아에서만 검색 (영문 위키피디아 결과 노출 방지)
+                    // 국문 모드: 한국어 위키피디아에서만 검색
                     const koRes = await fetch(
                         `https://ko.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(koName)}`,
                         { signal: AbortSignal.timeout(4000) }
@@ -716,7 +725,7 @@
                         }
                     }
                 } else {
-                    // 영문 모드: 영어 위키피디아에서 검색
+                    // 다국어 모드: 영어 위키피디아에서 검색 후 필요 시 번역
                     if (enName) {
                         const enRes = await fetch(
                             `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(enName)}`,
@@ -738,16 +747,18 @@
                     if (!summary.includes(currentLang === 'ko' ? '(원료적 특성에 한함)' : '(Limited to raw material characteristics)')) {
                         summary += currentLang === 'ko' ? ' (원료적 특성에 한함)' : ' (Limited to raw material characteristics)';
                     }
-                    // 위키 정보를 성공적으로 가져옴: 표시 업데이트
+                    
+                    if (currentLang !== 'ko' && currentLang !== 'en') {
+                        descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
+                        summary = await translateText(summary, currentLang, 'en');
+                    }
                     descEl.textContent = summary;
                 } else if (!fallback) {
-                    // 둘 다 없으면 대체 메시지
-                    descEl.textContent = enName
+                    descEl.textContent = (currentLang !== 'ko')
                         ? 'No detailed information found.'
                         : '성분 상세 정보를 찾을 수 없습니다.';
                 }
             } catch (e) {
-                // 네트워크 오류 시 fallback을 유지, 없으면 오류 메시지
                 if (!fallback) descEl.textContent = '성분 정보를 불러오는 중 오류가 발생했습니다.';
             }
         };
@@ -1531,9 +1542,9 @@
             const clinicalEnText = getColValue(item, COL.clinicalEn);
             let clinicalText = '';
             
-            // 영문 모드일 경우: 영문 셀 데이터가 있으면 그것을, 없으면 국문 셀 데이터를 사용
-            if (lang === 'en') {
-                clinicalText = clinicalEnText ? clinicalEnText : clinicalKoText;
+            // 다국어 모드(영문/일문/중문)일 경우, 영문 셀 데이터(clinicalEnText)가 있다면 그것을 우선 사용
+            if (lang !== 'ko' && clinicalEnText) {
+                clinicalText = clinicalEnText;
             } else {
                 clinicalText = clinicalKoText;
             }
@@ -1571,9 +1582,14 @@
                     const textOnly = line.replace(/\|?\s*https?:\/\/[^\s|]+/g, '').replace(/\|\s*$/, '').trim();
                     let finalText = textOnly;
                     
-                    // 다국어 모드에서는 원본 출처와 무관하게 구글 번역 수행
                     if (lang !== 'ko') {
-                        finalText = await translateText(textOnly, lang);
+                        if (clinicalText === clinicalKoText) {
+                            // 영문 데이터가 없어서 국문을 가져온 경우, 해당 언어로 번역
+                            finalText = await translateText(textOnly, lang, 'ko');
+                        } else {
+                            // 영문 데이터를 가져온 경우, 번역 없이 영문 텍스트 그대로 노출
+                            finalText = textOnly;
+                        }
                     }
                     return { text: finalText, imageUrl };
                 })).then(results => {
