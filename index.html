@@ -2067,7 +2067,7 @@
     <script>
         // 현재 URL에 'product' 쿼리가 있는지 확인하여 모드 결정
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('product')) {
+        if (urlParams.has('product') || urlParams.has('code') || window.location.pathname.includes('/r/')) {
             // 뷰어 모드 실행
             document.getElementById('viewer-container').style.display = 'block';
             document.body.style.background = '#f9fafb';
