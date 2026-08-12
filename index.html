@@ -847,6 +847,31 @@
         // 크롬 브라우저의 로컬 환경(file://) CORS 차단을 완벽하게 우회하여 데이터를 가져옵니다.
         // =====================================================
         function loadSheetData(callback) {
+            // 30분 캐시 적용하여 로딩 속도 극대화
+            const cacheKey = 'eLabelDataCache_v2';
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    if (Date.now() - parsed.time < 30 * 60 * 1000) {
+                        initColumns(parsed.cols);
+                        productsData = parsed.data;
+                        window.globalSheetData = productsData;
+                        
+                        // Sheet2 데이터도 캐시 적용
+                        const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v2');
+                        if (cache2) {
+                            try {
+                                window.ingredientDetails = JSON.parse(cache2);
+                            } catch(e) {}
+                        }
+                        
+                        callback(null, productsData);
+                        return;
+                    }
+                } catch(e) {}
+            }
+
             // 전역 콜백 함수 등록
             window.handleSheetData = function (response) {
                 try {
@@ -890,6 +915,15 @@
                     if (scriptTag) scriptTag.remove();
 
                     if (productsData.length === 0) throw new Error("데이터 부족");
+
+                    // 캐시 저장
+                    try {
+                        sessionStorage.setItem(cacheKey, JSON.stringify({
+                            time: Date.now(),
+                            cols: productsData[0][0].includes("제품명") ? productsData[0] : headerRow,
+                            data: productsData
+                        }));
+                    } catch(e) {}
 
                     callback(null, productsData);
                 } catch (err) {
@@ -1095,6 +1129,10 @@
                             window.ingredientDetails[name] = { ko: descKo, en: descEn };
                         }
                     });
+                    
+                    try {
+                        sessionStorage.setItem('eLabelSheet2Cache_v2', JSON.stringify(window.ingredientDetails));
+                    } catch(e) {}
                 } catch(e) {
                     console.error("Sheet2 parsing error:", e);
                 }
@@ -1375,8 +1413,8 @@
             const mainEl = document.getElementById('main-content');
             const footerEl = document.getElementById('bottom-footer');
 
-            // 영어 번역 중 로딩 화면 표시
-            if (lang === 'en') {
+            // 번역 중 로딩 화면 표시
+            if (lang !== 'ko') {
                 mainEl.style.display = 'none';
                 footerEl.style.display = 'none';
                 loadingEl.style.display = 'flex';
@@ -1663,11 +1701,9 @@
             }
 
             // 번역 완료 후 화면 다시 표시
-            if (lang === 'en') {
-                loadingEl.style.display = 'none';
-                mainEl.style.display = 'block';
-                footerEl.style.display = 'flex';
-            }
+            loadingEl.style.display = 'none';
+            mainEl.style.display = 'block';
+            footerEl.style.display = 'flex';
         }
 
         // =====================================================
