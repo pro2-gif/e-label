@@ -498,6 +498,7 @@
         // ▼ QR 코드 스캔 시 연결될 실제 인터넷 주소 (Vercel)
         // 스마트폰 카메라로 스캔했을 때 이 주소로 접속되어야 합니다.
         const E_LABEL_BASE_URL = "https://e-label-lyart.vercel.app/";
+        const QR_SHORT_DOMAIN = "https://label.janytree.com/r/";
 
         // 구글 시트 ID (수인이 제공한 진짜 시트 주소)
         const SHEET_ID = "1dQOhtidzJfK3NXzzrzzPeAC10pv8wvbqnWRU-WjM3wQ";
@@ -527,7 +528,8 @@
             howToUse: 11,
             cautions: 12,
             customer: 13,
-            buyUrl: 14
+            buyUrl: 14,
+            productCode: 18
         };
 
         function initColumns(headerRow) {
@@ -557,6 +559,7 @@
                 else if (h.includes('소비자상담')) { COL.customer = idx; uiLabels.customer.ko = rawHeader; }
                 else if (h.includes('구매하기')) COL.buyUrl = idx;
                 else if (h.includes('제품이미지') || h.includes('제품 이미지')) COL.productImage = idx;
+                else if (h.includes('제품코드') || h.includes('식별코드')) COL.productCode = idx;
             });
         }
 
@@ -1169,9 +1172,33 @@
                     return;
                 }
 
-                // QR 파라미터로 제품 찾기 (이름 부분 포함 매칭)
+                // QR 파라미터(또는 경로)로 제품 찾기
                 let targetIndex = 0;
-                if (productParam) {
+                
+                // 1. 단축 URL 경로(/r/CODE) 에서 코드 파싱
+                let codeParam = urlParams.get('code');
+                const pathParts = window.location.pathname.split('/r/');
+                if (pathParts.length > 1) {
+                    codeParam = decodeURIComponent(pathParts[1].replace(/\/$/, ''));
+                }
+
+                if (codeParam) {
+                    const found = data.findIndex(item => {
+                        const codeVal = getColValue(item, COL.productCode) || '';
+                        return codeVal.toLowerCase() === codeParam.toLowerCase();
+                    });
+                    if (found !== -1) {
+                        targetIndex = found;
+                    } else if (productParam) {
+                        // codeParam 매칭 실패 시 productParam 2차 시도
+                        const foundBackup = data.findIndex(item => {
+                            const name = getProductDisplayName(item).toLowerCase();
+                            return name.includes(productParam.toLowerCase());
+                        });
+                        if (foundBackup !== -1) targetIndex = foundBackup;
+                    }
+                } else if (productParam) {
+                    // 2. 레거시 한글 제품명(product) 파라미터로 찾기
                     const found = data.findIndex(item => {
                         const name = getProductDisplayName(item).toLowerCase();
                         return name.includes(productParam.toLowerCase());
@@ -1757,10 +1784,14 @@
 
             const nameKo = getProductDisplayName(item, 'ko'); // ALWAYS KO for URL to ensure matching
             const nameDisplay = getProductDisplayName(item, currentLang); // Display name in current lang
-            const productUrl = `${E_LABEL_BASE_URL}?product=${encodeURIComponent(nameKo)}&lang=${currentLang}`;
+            // 제품코드 열에서 데이터를 우선 가져옴 (없으면 한글 이름 폴백)
+            const productCode = getColValue(item, COL.productCode) || nameKo;
+            
+            // 단축 URL 생성 (lang 파라미터 등 제거)
+            const productUrl = QR_SHORT_DOMAIN + encodeURIComponent(productCode);
 
-            // 외부 API를 이용해 고해상도 QR코드 URL 획득
-            currentQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(productUrl)}`;
+            // 외부 API를 이용해 고해상도 QR코드 URL 획득 (ecc=M 추가하여 15% 오류복구 수준으로 격자 밀도 통일)
+            currentQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=M&data=${encodeURIComponent(productUrl)}`;
 
             titleDisplay.textContent = nameDisplay;
             urlPreview.textContent = productUrl;
