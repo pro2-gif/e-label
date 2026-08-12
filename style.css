@@ -521,3 +521,32 @@ body {
     height: 100%;
     object-fit: cover;
 }
+
+@media (max-width: 600px) {
+    .info-table tr {
+        display: flex;
+        flex-direction: column;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .info-table tr:last-child {
+        border-bottom: none;
+    }
+    .info-table th, .info-table td {
+        display: block;
+        width: 100%;
+        border-bottom: none;
+    }
+    .info-table th {
+        padding: 16px 20px 4px 20px;
+        background-color: transparent;
+        text-align: left;
+    }
+    .info-table td {
+        padding: 4px 20px 16px 20px;
+    }
+    /* 핵심 컨셉 성분 등 버튼 위치 조정 */
+    .info-table th .item-tts-btn {
+        float: right;
+        margin-top: -2px;
+    }
+}

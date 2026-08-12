@@ -261,7 +261,7 @@
         <header class="top-controller">
             <div class="lang-switcher">
                 <button id="btn-ko" class="lang-btn active">KO</button>
-                <button id="btn-en" class="lang-btn">EN</button>
+                <button id="btn-en" class="lang-btn">EN</button>\n                <button id="btn-jp" class="lang-btn">JP</button>\n                <button id="btn-ch" class="lang-btn">CH</button>
             </div>
             <div class="barrier-free-actions">
                 <button id="btn-tts" class="icon-btn" title="음성 안내(TTS)">
@@ -666,7 +666,7 @@
                         descEl.textContent = sheetInfo.en;
                     } else if (sheetInfo.ko && sheetInfo.ko !== '상세 설명이 등록되지 않았습니다.') {
                         descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
-                        const translatedDesc = await translateText(sheetInfo.ko);
+                        const translatedDesc = await translateText(sheetInfo.ko, currentLang);
                         descEl.textContent = translatedDesc;
                     } else {
                         descEl.textContent = 'No description available.';
@@ -684,7 +684,7 @@
                 if (currentLang === 'en') {
                     // 영문 모드일 경우: 구글 번역 API로 한글 문구를 통째로 번역
                     descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
-                    const translatedFb = await translateText(fb);
+                    const translatedFb = await translateText(fb, currentLang);
                     descEl.textContent = translatedFb;
                 } else {
                     descEl.textContent = fb;
@@ -802,40 +802,40 @@
         };
 
         // 다국어 UI 라벨
-        const uiLabels = {
-            volume: { ko: "용량", en: "Volume" },
-            functional: { ko: "기능성 분류", en: "Functional Classification" },
-            batchno: { ko: "제조번호", en: "Batch No." },      // 추가
-            expiration: { ko: "사용기한", en: "Expiration Date" },// 추가
-            howToUse: { ko: "사용방법", en: "How to use" },
-            manufacturer: { ko: "제조업자 및 책임판매업자 / 주소", en: "Manufacturer / Address" },
-            ingredients: { ko: "전성분", en: "Ingredients" },
-            cautions: { ko: "사용할 때의 주의사항", en: "Cautions" },
-            customer: { ko: "소비자 상담", en: "Customer Service" },
-            buyBtn: { ko: "구매하기", en: "Buy Now" },
-            homeBtn: { ko: "돌아가기", en: "Go Back" },
-            clinicalTitle: { ko: "인체적용시험 결과", en: "Clinical Test Results" },
-            clinicalClose: { ko: "닫기", en: "Close" },
-            videoTitle: { ko: "🎬 제니트리 소개 영상", en: "🎬 Janytree Introduction Video" },
-            watchYoutube: { ko: "YouTube에서 동영상 보기", en: "Watch video on YouTube" },
+                const uiLabels = {
+            volume: { ko: "용량", en: "Volume", jp: "容量", ch: "容量" },
+            functional: { ko: "기능성 분류", en: "Functional Classification", jp: "機能性分類", ch: "功能性分类" },
+            batchno: { ko: "제조번호", en: "Batch No.", jp: "製造番号", ch: "批号" },
+            expiration: { ko: "사용기한", en: "Expiration Date", jp: "使用期限", ch: "保质期" },
+            howToUse: { ko: "사용방법", en: "How to use", jp: "使用方法", ch: "使用方法" },
+            manufacturer: { ko: "제조업자 및 책임판매업자 / 주소", en: "Manufacturer / Address", jp: "製造業者および責任販売業者 / 住所", ch: "制造商及责任销售商 / 地址" },
+            ingredients: { ko: "전성분", en: "Ingredients", jp: "全成分", ch: "全成分" },
+            cautions: { ko: "사용할 때의 주의사항", en: "Cautions", jp: "使用上の注意", ch: "使用注意事项" },
+            customer: { ko: "소비자 상담", en: "Customer Service", jp: "お客様相談", ch: "客户服务" },
+            buyBtn: { ko: "구매하기", en: "Buy Now", jp: "購入する", ch: "购买" },
+            homeBtn: { ko: "돌아가기", en: "Go Back", jp: "戻る", ch: "返回" },
+            clinicalTitle: { ko: "인체적용시험 결과", en: "Clinical Test Results", jp: "人体適用試験結果", ch: "人体应用试验结果" },
+            clinicalClose: { ko: "닫기", en: "Close", jp: "閉じる", ch: "关闭" },
+            videoTitle: { ko: "🎬 제니트리 소개 영상", en: "🎬 Janytree Introduction Video", jp: "🎬 ジェニツリー紹介動画", ch: "🎬 Janytree 介绍视频" },
+            watchYoutube: { ko: "YouTube에서 동영상 보기", en: "Watch video on YouTube", jp: "YouTubeで動画を見る", ch: "在YouTube上观看视频" },
             concept: { 
                 ko: "핵심 컨셉 성분<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">터치하여 특징 보기</span>", 
-                en: "Key Ingredients<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">Click for details</span>" 
+                en: "Key Ingredients<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">Click for details</span>",
+                jp: "核心コンセプト成分<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">タップして詳細を見る</span>",
+                ch: "核心成分<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">点击查看详情</span>"
             },
-            socialWebsite: { ko: "홈페이지", en: "Website" },
-            socialYoutube: { ko: "유튜브", en: "YouTube" },
-            socialInstagram: { ko: "인스타그램", en: "Instagram" },
-            makerBrand: { ko: "인투메디 (INTOMEDI)", en: "INTOMEDI" },
-            makerTitle: { ko: "e-Label QR 코드", en: "e-Label QR Code" },
-            makerDesc: { ko: "제품을 선택하면 QR 코드가 즉시 생성됩니다.<br>QR 코드를 클릭하면 바로 전자라벨을 확인할 수 있습니다.", en: "Select a product to generate a QR code instantly.<br>Click the QR code to view the e-Label." },
-            makerSelect: { ko: "제품 선택", en: "Select Product" },
-            makerEmptyTitle: { ko: "제품을 선택해 주세요", en: "Please select a product" },
-            makerBtnPng: { ko: "QR 다운로드 (.png)", en: "Download QR (.png)" },
-            makerBtnSvg: { ko: "QR 다운로드 (.svg)", en: "Download QR (.svg)" },
-            makerClickHint: { ko: "👉 클릭하여 라벨 정보 바로 보기", en: "👉 Click to view label info" }
-        };
-
-        // =====================================================
+            socialWebsite: { ko: "홈페이지", en: "Website", jp: "ホームページ", ch: "主页" },
+            socialYoutube: { ko: "유튜브", en: "YouTube", jp: "YouTube", ch: "YouTube" },
+            socialInstagram: { ko: "인스타그램", en: "Instagram", jp: "Instagram", ch: "Instagram" },
+            makerBrand: { ko: "인투메디 (INTOMEDI)", en: "INTOMEDI", jp: "INTOMEDI", ch: "INTOMEDI" },
+            makerTitle: { ko: "e-Label QR 코드", en: "e-Label QR Code", jp: "e-Label QRコード", ch: "e-Label 二维码" },
+            makerDesc: { ko: "제품을 선택하면 QR 코드가 즉시 생성됩니다.<br>QR 코드를 클릭하면 바로 전자라벨을 확인할 수 있습니다.", en: "Select a product to generate a QR code instantly.<br>Click the QR code to view the e-Label.", jp: "製品を選択するとQRコードが即座に生成されます。<br>QRコードをクリックするとすぐに電子ラベルを確認できます。", ch: "选择产品后即可立即生成二维码。<br>点击二维码即可查看电子标签。" },
+            makerSelect: { ko: "제품 선택", en: "Select Product", jp: "製品選択", ch: "选择产品" },
+            makerEmptyTitle: { ko: "제품을 선택해 주세요", en: "Please select a product", jp: "製品を選択してください", ch: "请选择产品" },
+            makerBtnPng: { ko: "QR 다운로드 (.png)", en: "Download QR (.png)", jp: "QRダウンロード (.png)", ch: "下载二维码 (.png)" },
+            makerBtnSvg: { ko: "QR 다운로드 (.svg)", en: "Download QR (.svg)", jp: "QRダウンロード (.svg)", ch: "下载二维码 (.svg)" },
+            makerClickHint: { ko: "👉 클릭하여 라벨 정보 바로 보기", en: "👉 Click to view label info", jp: "👉 クリックしてラベル情報を確認", ch: "👉 点击查看标签信息" }
+        };\n\n        // =====================================================
         // ■ 구글 시트 데이터 로딩 (JSONP 방식)
         // 크롬 브라우저의 로컬 환경(file://) CORS 차단을 완벽하게 우회하여 데이터를 가져옵니다.
         // =====================================================
@@ -1273,7 +1273,7 @@
             }
 
             // 최종 보완: Google Translate (식약처 DB에 없는 성분 처리)
-            const translated = await translateText(trimmed);
+            const translated = await translateText(trimmed, currentLang);
             ingredientEnCache[trimmed] = translated;
             return translated;
         }
@@ -1299,12 +1299,15 @@
         // =====================================================
         // ■ 일반 텍스트 자동 번역 (Google Translate 무료 API)
         // =====================================================
-        async function translateText(text) {
+        async function translateText(text, targetLang = "en") {
+            let tl = targetLang;
+            if (targetLang === "jp") tl = "ja";
+            if (targetLang === "ch") tl = "zh-CN";
             if (!text || text.trim() === '') return text;
             if (translationCache[text]) return translationCache[text];
 
             try {
-                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ko&tl=en&dt=t&q=${encodeURIComponent(text)}`;
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ko&tl=${tl}&dt=t&q=${encodeURIComponent(text)}`;
                 const res = await fetch(url);
                 const data = await res.json();
 
@@ -1411,12 +1414,12 @@
             if (lang === 'en') {
                 // 제조업자는 이미 영문 추출 완료, 전성분도 영문 열 추출 완료. 나머지만 번역.
                 [volume, functional, batchno, expiration, cautions, customer] = await Promise.all([
-                    translateText(volume),
-                    translateText(functional),
-                    translateText(batchno), // 제조번호도 번역(영문/숫자 혼용 처리)
-                    translateText(expiration), // 사용기한도 번역
-                    translateText(cautions),
-                    translateText(customer)
+                    translateText(volume, lang),
+                    translateText(functional, lang),
+                    translateText(batchno, lang), // 제조번호도 번역(영문/숫자 혼용 처리)
+                    translateText(expiration, lang), // 사용기한도 번역
+                    translateText(cautions, lang),
+                    translateText(customer, lang)
                 ]);
             }
 
@@ -1505,7 +1508,7 @@
                     
                     // 영문 모드에서는 원본 출처(국문/영문 셀)와 무관하게 항상 구글 번역을 수행하여 영어 출력을 보장
                     if (lang === 'en') {
-                        finalText = await translateText(textOnly);
+                        finalText = await translateText(textOnly, lang);
                     }
                     return { text: finalText, imageUrl };
                 })).then(results => {
@@ -1600,8 +1603,8 @@
                 warnDiv.className = 'warning-box';
 
                 if (lang === 'en') {
-                    mainDiv.textContent = await translateText(parts[0].trim());
-                    warnDiv.innerHTML = `<span class="material-icons" style="font-size:18px;margin-top:2px;">warning</span><span>* Precautions: ${await translateText(parts[1].trim())}</span>`;
+                    mainDiv.textContent = await translateText(parts[0].trim(), lang);
+                    warnDiv.innerHTML = `<span class="material-icons" style="font-size:18px;margin-top:2px;">warning</span><span>* Precautions: ${await translateText(parts[1].trim(), lang)}</span>`;
                 } else {
                     mainDiv.textContent = parts[0].trim();
                     warnDiv.innerHTML = `<span class="material-icons" style="font-size:18px;margin-top:2px;">warning</span><span>* 주의사항 : ${parts[1].trim()}</span>`;
@@ -1610,7 +1613,7 @@
                 valHowToUseEl.appendChild(warnDiv);
             } else {
                 valHowToUseEl.style.whiteSpace = 'pre-line';
-                valHowToUseEl.textContent = lang === 'en' ? await translateText(originalHowToUse) : originalHowToUse;
+                valHowToUseEl.textContent = lang !== 'ko' ? await translateText(originalHowToUse, lang) : originalHowToUse;
             }
 
             // 번역 완료 후 화면 다시 표시
@@ -1779,7 +1782,7 @@
             
             const text = window.ttsChunks[window.ttsIndex];
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
+            utterance.lang = currentLang === 'ko' ? 'ko-KR' : (currentLang === 'jp' ? 'ja-JP' : (currentLang === 'ch' ? 'zh-CN' : 'en-US'));
             
             // 영문일 경우 구글 음성을 우선 선택하여 onboundary 이벤트 누락 버그 방지
             const voices = window.speechSynthesis.getVoices();
@@ -1893,7 +1896,7 @@
             textToRead = textToRead.replace(/-/g, ' ');
 
             const utterance = new SpeechSynthesisUtterance(textToRead);
-            utterance.lang = currentLang === 'ko' ? 'ko-KR' : 'en-US';
+            utterance.lang = currentLang === 'ko' ? 'ko-KR' : (currentLang === 'jp' ? 'ja-JP' : (currentLang === 'ch' ? 'zh-CN' : 'en-US'));
             
             const voices = window.speechSynthesis.getVoices();
             if (currentLang === 'en') {
@@ -2142,7 +2145,37 @@
             updateMakerOptionsAndQr();
         });
 
-    </script>    <!-- 컨셉성분 설명 모달 팝업 -->
+    
+        document.getElementById('btn-jp').addEventListener('click', () => {
+            if (currentLang === 'jp') return;
+            window.speechSynthesis.cancel();
+            window.ttsChunks = [];
+            const ttsBtn = document.getElementById('btn-tts');
+            if (ttsBtn) ttsBtn.classList.remove('playing');
+            currentLang = 'jp';
+            document.getElementById('btn-jp').classList.add('active');
+            document.getElementById('btn-ko').classList.remove('active');
+            document.getElementById('btn-en').classList.remove('active');
+            document.getElementById('btn-ch').classList.remove('active');
+            updateGlobalLangUI('jp');
+            updateMakerOptionsAndQr();
+        });
+
+        document.getElementById('btn-ch').addEventListener('click', () => {
+            if (currentLang === 'ch') return;
+            window.speechSynthesis.cancel();
+            window.ttsChunks = [];
+            const ttsBtn = document.getElementById('btn-tts');
+            if (ttsBtn) ttsBtn.classList.remove('playing');
+            currentLang = 'ch';
+            document.getElementById('btn-ch').classList.add('active');
+            document.getElementById('btn-ko').classList.remove('active');
+            document.getElementById('btn-en').classList.remove('active');
+            document.getElementById('btn-jp').classList.remove('active');
+            updateGlobalLangUI('ch');
+            updateMakerOptionsAndQr();
+        });
+\n    </script>    <!-- 컨셉성분 설명 모달 팝업 -->
     <div id="ingredient-modal" class="modal-overlay" onclick="closeIngredientModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeIngredientModal()">✕</button>
