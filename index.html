@@ -2087,7 +2087,7 @@
         
         function updateMakerOptionsAndQr() {
             const makerContainer = document.getElementById('maker-container');
-            if (makerContainer && makerContainer.style.display !== 'none') {
+            if (makerContainer && makerContainer.style.display === 'block') {
                 const selectEl = document.getElementById('product-select-maker');
                 const currentValue = selectEl.value; // Remember selected index
                 
