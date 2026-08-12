@@ -1337,16 +1337,16 @@
         // =====================================================
         // ■ 일반 텍스트 자동 번역 (Google Translate 무료 API)
         // =====================================================
-        async function translateText(text, targetLang = "en") {
+        async function translateText(text, targetLang = "en", sourceLang = "ko") {
             let tl = targetLang;
             if (targetLang === "jp") tl = "ja";
             if (targetLang === "ch") tl = "zh-CN";
             if (!text || text.trim() === '') return text;
-            const cacheKey = text + '_' + tl;
+            const cacheKey = text + '_' + tl + '_' + sourceLang;
             if (translationCache[cacheKey]) return translationCache[cacheKey];
 
             try {
-                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ko&tl=${tl}&dt=t&q=${encodeURIComponent(text)}`;
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${tl}&dt=t&q=${encodeURIComponent(text)}`;
                 const res = await fetch(url);
                 const data = await res.json();
 
@@ -1472,7 +1472,8 @@
             const pNameEl = document.getElementById('product-name');
             let pName = getProductDisplayName(item, lang === 'en' ? 'en' : 'ko');
             if (lang !== 'ko' && lang !== 'en') {
-                pName = await translateText(pName, lang);
+                const enName = getProductDisplayName(item, 'en');
+                pName = await translateText(enName, lang, 'en');
             }
             pNameEl.textContent = pName;
             
@@ -1804,7 +1805,8 @@
             
             let nameDisplay = getProductDisplayName(item, currentLang === 'en' ? 'en' : 'ko');
             if (currentLang !== 'ko' && currentLang !== 'en') {
-                nameDisplay = await translateText(nameDisplay, currentLang);
+                const enName = getProductDisplayName(item, 'en');
+                nameDisplay = await translateText(enName, currentLang, 'en');
             }
             // 제품코드 열에서 데이터를 우선 가져옴 (없으면 한글 이름 폴백)
             const productCode = getColValue(item, COL.productCode) || nameKo;
@@ -2156,7 +2158,8 @@
                         
                         let displayName = getProductDisplayName(item, currentLang === 'en' ? 'en' : 'ko');
                         if (currentLang !== 'ko' && currentLang !== 'en') {
-                            displayName = await translateText(displayName, currentLang);
+                            const enName = getProductDisplayName(item, 'en');
+                            displayName = await translateText(enName, currentLang, 'en');
                         }
                         
                         option.textContent = displayName;
