@@ -1264,30 +1264,7 @@
 
                 // 언어 버튼 이벤트는 전역으로 이동됨
 
-                // ▼ 구매하기 버튼: 구글 시트의 구매링크 URL 사용
-                document.getElementById('btn-buy').addEventListener('click', () => {
-                    let buyUrl = getColValue(target, COL.buyUrl).trim();
-                    if (buyUrl) {
-                        // http로 시작하지 않는 주소(예: www.naver.com)가 입력된 경우 http:// 추가
-                        if (!buyUrl.startsWith('http')) {
-                            buyUrl = 'http://' + buyUrl;
-                        }
-                        window.open(buyUrl, '_blank');
-                    } else {
-                        // 시트에 구매 링크가 비어있을 경우에만 기본 쇼핑몰로 이동
-                        window.open('https://intomedipro.com/', '_blank');
-                    }
-                });
-
-                // 돌아가기(홈) 버튼
-                document.getElementById('btn-home').addEventListener('click', () => {
-                    window.location.href = window.location.pathname; // 쿼리 제거하고 새로고침
-                });
-
-                // TTS 버튼
-                document.getElementById('btn-tts').addEventListener('click', () => {
-                    handleTts(target);
-                });
+                // 버튼 이벤트 리스너들은 전역으로 이동됨 (하단)
             });
         }
 
@@ -2139,16 +2116,7 @@
             document.getElementById('viewer-container').style.display = 'block';
             document.body.style.background = '#f9fafb';
             
-            // 구매하기 버튼 클릭 시 TTS 강제 정지
-            const buyBtn = document.getElementById('btn-buy');
-            if (buyBtn) {
-                buyBtn.addEventListener('click', () => {
-                    window.speechSynthesis.cancel();
-                    window.ttsChunks = [];
-                    const ttsBtn = document.getElementById('btn-tts');
-                    if (ttsBtn) ttsBtn.classList.remove('playing');
-                });
-            }
+            // 구매하기 버튼 등은 하단에서 글로벌로 등록됨
 
             initViewer();
         } else {
@@ -2224,6 +2192,8 @@
             currentLang = 'ko';
             document.getElementById('btn-ko').classList.add('active');
             document.getElementById('btn-en').classList.remove('active');
+            document.getElementById('btn-jp').classList.remove('active');
+            document.getElementById('btn-ch').classList.remove('active');
             updateGlobalLangUI('ko');
             updateMakerOptionsAndQr();
         });
@@ -2237,6 +2207,8 @@
             currentLang = 'en';
             document.getElementById('btn-en').classList.add('active');
             document.getElementById('btn-ko').classList.remove('active');
+            document.getElementById('btn-jp').classList.remove('active');
+            document.getElementById('btn-ch').classList.remove('active');
             updateGlobalLangUI('en');
             updateMakerOptionsAndQr();
         });
@@ -2272,7 +2244,53 @@
             updateMakerOptionsAndQr();
         });
 
-    </script>    <!-- 컨셉성분 설명 모달 팝업 -->
+    
+        // =====================================================
+        // 글로벌 버튼 리스너 (구매하기, 돌아가기, TTS)
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const buyBtn = document.getElementById('btn-buy');
+            if (buyBtn) {
+                buyBtn.addEventListener('click', () => {
+                    // TTS 강제 정지
+                    window.speechSynthesis.cancel();
+                    window.ttsChunks = [];
+                    const ttsBtn = document.getElementById('btn-tts');
+                    if (ttsBtn) ttsBtn.classList.remove('playing');
+                    
+                    if (window.currentTargetItem) {
+                        let buyUrl = getColValue(window.currentTargetItem, COL.buyUrl).trim();
+                        if (buyUrl) {
+                            if (!buyUrl.startsWith('http')) {
+                                buyUrl = 'http://' + buyUrl;
+                            }
+                            window.open(buyUrl, '_blank');
+                        } else {
+                            window.open('https://intomedipro.com/', '_blank');
+                        }
+                    } else {
+                        window.open('https://intomedipro.com/', '_blank');
+                    }
+                });
+            }
+
+            const homeBtn = document.getElementById('btn-home');
+            if (homeBtn) {
+                homeBtn.addEventListener('click', () => {
+                    window.location.href = window.location.pathname; // 쿼리 제거하고 새로고침
+                });
+            }
+
+            const ttsBtn = document.getElementById('btn-tts');
+            if (ttsBtn) {
+                ttsBtn.addEventListener('click', () => {
+                    if (window.currentTargetItem) {
+                        handleTts(window.currentTargetItem);
+                    }
+                });
+            }
+        });
+</script>    <!-- 컨셉성분 설명 모달 팝업 -->
     <div id="ingredient-modal" class="modal-overlay" onclick="closeIngredientModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeIngredientModal()">✕</button>
