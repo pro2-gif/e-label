@@ -1151,17 +1151,24 @@
 
             const urlParams = new URLSearchParams(window.location.search);
             const productParam = urlParams.get('product');
-            const langParam = urlParams.get('lang');
-            if (langParam === 'en' || langParam === 'ko') {
+            
+            const langParamRaw = urlParams.get('l');
+            let langParam = urlParams.get('lang'); // legacy fallback
+            if (langParamRaw === 'e') langParam = 'en';
+            else if (langParamRaw === 'j') langParam = 'jp';
+            else if (langParamRaw === 'c') langParam = 'ch';
+
+            if (langParam && ['ko', 'en', 'jp', 'ch'].includes(langParam)) {
                 currentLang = langParam;
                 updateGlobalLangUI(currentLang);
-                if (currentLang === 'en') {
-                    document.getElementById('btn-en').classList.add('active');
-                    document.getElementById('btn-ko').classList.remove('active');
-                } else {
-                    document.getElementById('btn-ko').classList.add('active');
-                    document.getElementById('btn-en').classList.remove('active');
-                }
+                
+                ['ko', 'en', 'jp', 'ch'].forEach(lang => {
+                    const btn = document.getElementById('btn-' + lang);
+                    if (btn) {
+                        if (lang === currentLang) btn.classList.add('active');
+                        else btn.classList.remove('active');
+                    }
+                });
             }
 
             loadSheetData(function (err, data) {
@@ -1176,7 +1183,7 @@
                 let targetIndex = 0;
                 
                 // 1. 단축 URL 경로(/r/CODE) 에서 코드 파싱
-                let codeParam = urlParams.get('code');
+                let codeParam = urlParams.get('c') || urlParams.get('code');
                 const pathParts = window.location.pathname.split('/r/');
                 if (pathParts.length > 1) {
                     codeParam = decodeURIComponent(pathParts[1].replace(/\/$/, ''));
@@ -1713,12 +1720,20 @@
                 });
 
                 document.getElementById('qr-to-viewer-btn').addEventListener('click', () => {
-                    const idx = parseInt(selectEl.value);
-                    const selectedItem = activeData[idx];
-                    if (!selectedItem) return;
-
-                    const name = getProductDisplayName(selectedItem, 'ko');
-                    window.location.href = `?product=${encodeURIComponent(name)}&lang=${currentLang}`;
+                    if (window.currentTargetItem) {
+                        document.getElementById('maker-container').style.display = 'none';
+                        document.getElementById('viewer-container').style.display = 'block';
+                        document.body.style.background = '#f9fafb';
+                        renderLabel(window.currentTargetItem, currentLang);
+                        
+                        // 뒤로가기 처리를 위해 pushState 추가
+                        const code = getColValue(window.currentTargetItem, COL.productCode) || getProductDisplayName(window.currentTargetItem, 'ko');
+                        let langParam = '';
+                        if (currentLang === 'en') langParam = '&l=e';
+                        else if (currentLang === 'jp') langParam = '&l=j';
+                        else if (currentLang === 'ch') langParam = '&l=c';
+                        window.history.pushState(null, '', `?c=${encodeURIComponent(code)}${langParam}`);
+                    }
                 });
             });
 
@@ -1756,11 +1771,13 @@
                     const urlObj = new URL(currentQrUrl);
                     const qrData = urlObj.searchParams.get('data');
                     // QR Server API: format=svg 로 SVG 형식 요청 (크기 무관하게 벡터로 저장됨)
-                    const svgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&format=svg&data=${encodeURIComponent(qrData)}`;
+                    const svgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&ecc=M&margin=4&format=svg&data=${encodeURIComponent(qrData)}`;
 
                     fetch(svgUrl)
-                        .then(res => res.blob())
-                        .then(blob => {
+                        .then(res => res.text())
+                        .then(svgText => {
+                            svgText = svgText.replace(/<svg\s+/, '<svg viewBox="0 0 377 377" ');
+                            const blob = new Blob([svgText], {type: 'image/svg+xml'});
                             const link = document.createElement('a');
                             link.download = `${safeName}_QR코드.svg`;
                             link.href = URL.createObjectURL(blob);
@@ -1792,11 +1809,16 @@
             // 제품코드 열에서 데이터를 우선 가져옴 (없으면 한글 이름 폴백)
             const productCode = getColValue(item, COL.productCode) || nameKo;
             
-            // 단축 URL 생성 (lang 파라미터 등 제거)
-            const productUrl = QR_SHORT_DOMAIN + encodeURIComponent(productCode);
+            // 언어 파라미터 최소화 추가
+            let langParam = '';
+            if (currentLang === 'en') langParam = '&l=e';
+            else if (currentLang === 'jp') langParam = '&l=j';
+            else if (currentLang === 'ch') langParam = '&l=c';
 
-            // 외부 API를 이용해 고해상도 QR코드 URL 획득 (ecc=M 추가하여 15% 오류복구 수준으로 격자 밀도 통일)
-            currentQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=M&data=${encodeURIComponent(productUrl)}`;
+            const productUrl = `${E_LABEL_BASE_URL}?c=${encodeURIComponent(productCode)}${langParam}`;
+
+            // 외부 API를 이용해 고해상도 QR코드 URL 획득 (ecc=M, margin=4 추가하여 격자 통일 및 스캔률 극대화)
+            currentQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=M&margin=4&data=${encodeURIComponent(productUrl)}`;
 
             titleDisplay.textContent = nameDisplay;
             urlPreview.textContent = productUrl;
@@ -2072,7 +2094,7 @@
     <script>
         // 현재 URL에 'product' 쿼리가 있는지 확인하여 모드 결정
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('product') || urlParams.has('code') || window.location.pathname.includes('/r/')) {
+        if (urlParams.has('product') || urlParams.has('code') || urlParams.has('c') || window.location.pathname.includes('/r/')) {
             // 뷰어 모드 실행
             document.getElementById('viewer-container').style.display = 'block';
             document.body.style.background = '#f9fafb';
