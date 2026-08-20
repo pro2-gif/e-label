@@ -1625,10 +1625,15 @@
                     
                     if (koDataObj && pCode) {
                         if (koDataObj.data) {
-                            // 캐시된 데이터 형태
-                            const kCols = koDataObj.cols;
-                            const r = koDataObj.data.find(row => String(row[kCols.productCode]) === String(pCode));
-                            if (r) matchedRowKoStr = String(r[kCols.conceptKo] || '');
+                            // 캐시된 데이터 형태 (cols는 헤더 배열)
+                            const kCols = koDataObj.cols.map(c => (c || '').replace(/[\s_\(\)\[\]-]/g, '').toLowerCase());
+                            const kCodeIdx = kCols.findIndex(h => h.includes('제품코드') || h.includes('식별코드'));
+                            const kConceptIdx = kCols.findIndex(h => h.includes('핵심컨셉성분') || h.includes('컨셉성분') || (h.includes('핵심성분') && !h.includes('영문')));
+                            
+                            if (kCodeIdx !== -1 && kConceptIdx !== -1) {
+                                const r = koDataObj.data.find(row => row && String(row[kCodeIdx]) === String(pCode));
+                                if (r) matchedRowKoStr = String(r[kConceptIdx] || '');
+                            }
                         } else if (koDataObj.table) {
                             // API 직접 호출 형태
                             let hRow = koDataObj.table.cols.map(c => (c.label || '').replace(/[\s_\(\)\[\]-]/g, '').toLowerCase());
