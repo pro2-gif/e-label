@@ -513,23 +513,23 @@
         // 8: 전성분(국문) | 9: 전성분(영문) | 10: 사용방법
         // 11: 주의사항 | 12: 소비자상담 | 13: 구매하기
         let COL = {
-            name: 0,
-            volume: 1,
-            functional: 2,
-            batchno: 3,
-            expiration: 4,
-            manufacturer: 5,
-            conceptKo: 6,
-            conceptEn: 7,
-            clinical: 8,
-            clinicalEn: 15,
-            ingredientsKo: 9,
-            ingredientsEn: 10,
-            howToUse: 11,
-            cautions: 12,
-            customer: 13,
-            buyUrl: 14,
-            productCode: 18
+            name: -1,
+            volume: -1,
+            functional: -1,
+            batchno: -1,
+            expiration: -1,
+            manufacturer: -1,
+            conceptKo: -1,
+            conceptEn: -1,
+            clinical: -1,
+            clinicalEn: -1,
+            ingredientsKo: -1,
+            ingredientsEn: -1,
+            howToUse: -1,
+            cautions: -1,
+            customer: -1,
+            buyUrl: -1,
+            productCode: -1
         };
 
         function initColumns(headerRow) {
@@ -1523,8 +1523,10 @@
             // 데이터 값 채우기
             document.getElementById('val-volume').textContent = volume;
             document.getElementById('val-functional').textContent = functional;
-            document.getElementById('val-batchno').textContent = batchno; // 추가
-            document.getElementById('val-expiration').textContent = expiration; // 추가
+            document.getElementById('val-batchno').textContent = batchno; 
+            document.getElementById('val-batchno').parentElement.style.display = batchno ? 'table-row' : 'none';
+            document.getElementById('val-expiration').textContent = expiration; 
+            document.getElementById('val-expiration').parentElement.style.display = expiration ? 'table-row' : 'none';
             document.getElementById('val-manufacturer').textContent = manufacturer;
             document.getElementById('val-ingredients').textContent = ingredients;
 
