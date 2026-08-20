@@ -1623,7 +1623,15 @@
                     let koDataStr = sessionStorage.getItem(cacheKey);
                     let koDataObj = null;
                     
-                    koDataObj = await fetchKoSheetDataJSONP();
+                    if (koDataStr) {
+                        koDataObj = JSON.parse(koDataStr);
+                    } else {
+                        const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=국문';
+                        const res = await fetch(url);
+                        const text = await res.text();
+                        const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+                        koDataObj = JSON.parse(jsonStr);
+                    }
                     
                     const pCode = getColValue(item, COL.productCode);
                     let matchedRowKoStr = '';
