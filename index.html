@@ -1606,28 +1606,62 @@
             const conceptContainer = document.getElementById('val-concept-ingredients');
             conceptContainer.innerHTML = '';
 
-            // 언어에 따라 시트에서 읽어온 컨셉 성분 텍스트 선택
-            // (예: "나이아신아마이드, 아데노신, 히알루론산" 형태로 입력되어 있다고 가정)
+            // 다국어 시트 대응: 콤마(,), 일본어 반점(、), 중국어 반점(，) 등을 모두 분리 기호로 사용하도록 정규식 적용
             const rawConceptKo = getColValue(item, COL.conceptKo).trim();
-            const rawConceptEn = getColValue(item, COL.conceptEn).trim();
-
-            // 뱃지 렌더링에 사용할 성분 목록 결정
-            // - 국문 이름은 항상 rawConceptKo에서 읽어옴 (Fallback 사전 key 매칭용)
-            // - 영문 모드일 때 표시 이름은 rawConceptEn에서 읽어옴
-            const koNames = rawConceptKo ? rawConceptKo.split(',').map(s => s.trim()).filter(Boolean) : [];
-            const enNames = rawConceptEn ? rawConceptEn.split(',').map(s => s.trim()).filter(Boolean) : [];
-
-            let extractedCount = 0;
-
-            for (let idx = 0; idx < koNames.length; idx++) {
-                const koName = koNames[idx];
-                const enNameForModal = enNames[idx] || null;
-                let displayName = koName;
-                
-                if (lang === 'en' && enNameForModal) {
-                    displayName = enNameForModal;
+            const foreignNames = rawConceptKo ? rawConceptKo.split(/[,、，]/).map(s => s.trim()).filter(Boolean) : [];
+            let koNames = foreignNames; // 우선 현재 시트의 분리된 배열을 할당
+            
+            // 만약 현재 언어가 국문이 아니라면, 원본 국문 시트의 정보를 백그라운드에서 가져와 모달 키(koName) 매핑 시도
+            if (lang !== 'ko' && foreignNames.length > 0) {
+                try {
+                    const cacheKey = 'eLabelDataCache_v5_ko';
+                    let koDataStr = sessionStorage.getItem(cacheKey);
+                    let koDataObj = null;
+                    
+                    if (koDataStr) {
+                        koDataObj = JSON.parse(koDataStr);
+                    } else {
+                        // 캐시가 없으면 백그라운드에서 한 번 가져옴
+                        const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=국문';
+                        const res = await fetch(url);
+                        const text = await res.text();
+                        const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+                        koDataObj = JSON.parse(jsonStr);
+                    }
+                    
+                    const pCode = getColValue(item, COL.productCode);
+                    let matchedRowKoStr = '';
+                    
+                    if (koDataObj && pCode) {
+                        if (koDataObj.data) {
+                            // 캐시된 데이터 형태
+                            const kCols = koDataObj.cols;
+                            const r = koDataObj.data.find(row => String(row[kCols.productCode]) === String(pCode));
+                            if (r) matchedRowKoStr = String(r[kCols.conceptKo] || '');
+                        } else if (koDataObj.table) {
+                            // API 직접 호출 형태
+                            const hRow = koDataObj.table.cols.map(c => (c.label || '').replace(/[\s_\(\)\[\]-]/g, '').toLowerCase());
+                            const kCodeIdx = hRow.findIndex(h => h.includes('제품코드') || h.includes('식별코드'));
+                            const kConceptIdx = hRow.findIndex(h => h.includes('핵심컨셉성분') || h.includes('컨셉성분') || (h.includes('핵심성분') && !h.includes('영문')));
+                            
+                            const r = koDataObj.table.rows.find(row => row.c && row.c[kCodeIdx] && String(row.c[kCodeIdx].v) === String(pCode));
+                            if (r && r.c[kConceptIdx]) matchedRowKoStr = String(r.c[kConceptIdx].v || '');
+                        }
+                    }
+                    
+                    if (matchedRowKoStr) {
+                        koNames = matchedRowKoStr.split(/[,、，]/).map(s => s.trim()).filter(Boolean);
+                    }
+                } catch(e) {
+                    console.error('Failed to map Korean ingredient names', e);
                 }
+            }
 
+            for (let idx = 0; idx < foreignNames.length; idx++) {
+                const displayName = foreignNames[idx];
+                const koName = koNames[idx] || displayName; // 매핑된 국문 이름이 없으면 원문 폴백
+                const enNameForModal = null; // 모달 내부에서 알아서 koName 기준으로 동작함
+                
                 const badge = document.createElement('span');
                 badge.className = 'concept-badge';
                 badge.textContent = displayName;
