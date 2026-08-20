@@ -535,30 +535,25 @@
         function initColumns(headerRow) {
             if (!headerRow || headerRow.length < 5) return;
             
-            const headers = headerRow.map(h => (h || '').replace(/\s+/g, '').toLowerCase());
+            const headers = headerRow.map(h => (h || '').replace(/[\s_\(\)\[\]-]/g, '').toLowerCase());
             headers.forEach((h, idx) => {
-                const rawHeader = (headerRow[idx] || '').trim();
-                
                 if (h.includes('제품명')) COL.name = idx;
-                else if (h.includes('용량')) { COL.volume = idx; uiLabels.volume.ko = rawHeader; }
-                else if (h.includes('기능성분류')) { COL.functional = idx; uiLabels.functional.ko = rawHeader; }
-                else if (h.includes('제조번호')) { COL.batchno = idx; uiLabels.batchno.ko = rawHeader; }
-                else if (h.includes('사용기한')) { COL.expiration = idx; uiLabels.expiration.ko = rawHeader; }
-                else if (h.includes('제조업자') || h.includes('책임판매업자')) { COL.manufacturer = idx; uiLabels.manufacturer.ko = rawHeader; }
-                else if (h.includes('핵심컨셉성분(국문)')) { 
-                    COL.conceptKo = idx; 
-                    uiLabels.concept.ko = rawHeader + '<br><span style="font-size:11px; font-weight:normal; color:#6b7280;">터치하여 특징 보기</span>'; 
-                }
+                else if (h.includes('용량')) COL.volume = idx;
+                else if (h.includes('기능성분류')) COL.functional = idx;
+                else if (h.includes('제조번호')) COL.batchno = idx;
+                else if (h.includes('사용기한')) COL.expiration = idx;
+                else if (h.includes('제조업자') || h.includes('책임판매업자')) COL.manufacturer = idx;
                 else if (h.includes('핵심컨셉성분') && h.includes('영문')) COL.conceptEn = idx;
+                else if (h.includes('핵심컨셉성분') || h.includes('컨셉성분') || (h.includes('핵심성분') && !h.includes('영문'))) COL.conceptKo = idx;
                 else if (h.includes('인체적용시험') && h.includes('영문')) COL.clinicalEn = idx;
-                else if (h.includes('인체적용시험') || h.includes('인증')) { COL.clinical = idx; uiLabels.clinicalTitle.ko = rawHeader.replace('(국문)', '').trim(); }
-                else if (h.includes('전성분(국문)')) { COL.ingredientsKo = idx; uiLabels.ingredients.ko = rawHeader.replace('(국문)', '').trim(); }
-                else if (h.includes('전성분(영문)')) COL.ingredientsEn = idx;
-                else if (h.includes('사용방법')) { COL.howToUse = idx; uiLabels.howToUse.ko = rawHeader; }
-                else if (h.includes('주의사항')) { COL.cautions = idx; uiLabels.cautions.ko = rawHeader; }
-                else if (h.includes('소비자상담')) { COL.customer = idx; uiLabels.customer.ko = rawHeader; }
+                else if (h.includes('인체적용시험') || h.includes('인증')) COL.clinical = idx;
+                else if (h.includes('전성분') && h.includes('영문')) COL.ingredientsEn = idx;
+                else if (h.includes('전성분')) COL.ingredientsKo = idx;
+                else if (h.includes('사용방법')) COL.howToUse = idx;
+                else if (h.includes('주의사항')) COL.cautions = idx;
+                else if (h.includes('소비자상담') || h.includes('고객센터')) COL.customer = idx;
                 else if (h.includes('구매하기')) COL.buyUrl = idx;
-                else if (h.includes('제품이미지') || h.includes('제품 이미지')) COL.productImage = idx;
+                else if (h.includes('제품이미지') || h.includes('이미지')) COL.productImage = idx;
                 else if (h.includes('제품코드') || h.includes('식별코드')) COL.productCode = idx;
             });
         }
@@ -1578,27 +1573,7 @@
                     const textOnly = line.replace(/\|?\s*https?:\/\/[^\s|]+/g, '').replace(/\|\s*$/, '').trim();
                     let finalText = textOnly;
                     
-                    if (lang !== 'ko') {
-                        // 사전 정의된 하드코딩 영문 변환 (API 실패 대비 및 정확도 보장)
-                        let hardcodedEn = '';
-                        if (textOnly.includes('일차자극 테스트 완료') && textOnly.includes('저자극 판정')) {
-                            hardcodedEn = 'Primary skin irritation test completed: Hypoallergenic';
-                        } else if (textOnly.includes('일차자극 테스트 완료') && textOnly.includes('무자극 판정')) {
-                            hardcodedEn = 'Primary skin irritation test completed: Non-irritating';
-                        } else if (textOnly.includes('저자극 판정') || textOnly.includes('저자극 테스트 완료')) {
-                            hardcodedEn = 'Hypoallergenic';
-                        }
-                        
-                        if (hardcodedEn) {
-                            finalText = hardcodedEn;
-                        } else if (/[가-힣]/.test(textOnly)) {
-                            // 하드코딩에 없으나 한글이 포함되어 있다면 무조건 영문으로 강제 번역
-                            finalText = await translateText(textOnly, 'en', 'ko');
-                        } else {
-                            // 이미 영문이면 그대로 사용 (일어, 중어에서도 영문으로 표기)
-                            finalText = textOnly;
-                        }
-                    }
+                    if (lang !== 'ko') { finalText = textOnly; }
                     return { text: finalText, imageUrl };
                 })).then(results => {
                     results.forEach((res, idx) => {
@@ -1651,31 +1626,8 @@
                 const enNameForModal = enNames[idx] || null;
                 let displayName = koName;
                 
-                if (lang === 'en') {
-                    if (enNameForModal) {
-                        displayName = enNameForModal;
-                    } else {
-                        displayName = await translateText(koName, 'en', 'ko');
-                    }
-                } else if (lang !== 'ko') {
-                    // 다국어(JP, CH)일 경우: 영문명이 있으면 영문 기조로 번역하는 것이 화장품 성분명 번역에 정확함
-                    if (enNameForModal) {
-                        displayName = await translateText(enNameForModal, lang, 'en');
-                        // 구글 번역 오류로 한글이 튀어나왔다면 강제로 영문 원본 명칭 사용
-                        if (/[가-힣]/.test(displayName)) {
-                            displayName = enNameForModal;
-                        }
-                    } else {
-                        // 영문명이 없는 경우 국문에서 번역 시도
-                        displayName = await translateText(koName, lang, 'ko');
-                        // 번역 실패로 한글이 남은 경우, 영문으로라도 강제 변환하여 한글 노출 완전 차단
-                        if (/[가-힣]/.test(displayName)) {
-                            const fallbackEn = await translateText(koName, 'en', 'ko');
-                            if (!/[가-힣]/.test(fallbackEn)) {
-                                displayName = fallbackEn;
-                            }
-                        }
-                    }
+                if (lang === 'en' && enNameForModal) {
+                    displayName = enNameForModal;
                 }
 
                 const badge = document.createElement('span');
@@ -1699,31 +1651,31 @@
             document.getElementById('val-customer').textContent = customer;
 
             // 사용방법: 주의사항 경고 박스 분리 렌더링
-            const warnKeywordKo = "* 주의사항 :";
             const originalHowToUse = getColValue(item, COL.howToUse);
             const valHowToUseEl = document.getElementById('val-how-to-use');
             valHowToUseEl.innerHTML = '';
 
-            if (originalHowToUse.includes(warnKeywordKo)) {
-                const parts = originalHowToUse.split(warnKeywordKo);
+            const warnMatch = originalHowToUse.match(/\*\s*(주의사항|注意事項|cautions?|caution)\s*[:：]\s*/i);
+            
+            if (warnMatch) {
+                const parts = [
+                    originalHowToUse.substring(0, warnMatch.index),
+                    originalHowToUse.substring(warnMatch.index + warnMatch[0].length)
+                ];
+                
                 const mainDiv = document.createElement('div');
                 mainDiv.style.whiteSpace = 'pre-line';
+                mainDiv.textContent = parts[0].trim();
 
                 const warnDiv = document.createElement('div');
                 warnDiv.className = 'warning-box';
-
-                if (lang !== 'ko') {
-                    mainDiv.textContent = await translateText(parts[0].trim(), lang);
-                    warnDiv.innerHTML = `<span class="material-icons" style="font-size:18px;margin-top:2px;">warning</span><span>* ${await translateText('주의사항', lang)}: ${await translateText(parts[1].trim(), lang)}</span>`;
-                } else {
-                    mainDiv.textContent = parts[0].trim();
-                    warnDiv.innerHTML = `<span class="material-icons" style="font-size:18px;margin-top:2px;">warning</span><span>* 주의사항 : ${parts[1].trim()}</span>`;
-                }
+                warnDiv.innerHTML = `<span class="material-icons" style="font-size:18px;margin-top:2px;">warning</span><span>* ${warnMatch[1]} : ${parts[1].trim()}</span>`;
+                
                 valHowToUseEl.appendChild(mainDiv);
                 valHowToUseEl.appendChild(warnDiv);
             } else {
                 valHowToUseEl.style.whiteSpace = 'pre-line';
-                valHowToUseEl.textContent = lang !== 'ko' ? await translateText(originalHowToUse, lang) : originalHowToUse;
+                valHowToUseEl.textContent = originalHowToUse;
             }
 
             // 번역 완료 후 화면 다시 표시
