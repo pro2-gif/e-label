@@ -857,14 +857,14 @@
         // ■ 구글 시트 데이터 로딩 (JSONP 방식)
         // 크롬 브라우저의 로컬 환경(file://) CORS 차단을 완벽하게 우회하여 데이터를 가져옵니다.
         // =====================================================
-        function loadSheetData(callback) {
-            // 30분 캐시 적용하여 로딩 속도 극대화
+        function loadSheetData(callback, bypassCache = false) {
+            // 5분 캐시 적용하여 로딩 속도 극대화 (최신 데이터 빠른 반영)
             const cacheKey = 'eLabelDataCache_v3';
             const cached = sessionStorage.getItem(cacheKey);
-            if (cached) {
+            if (cached && !bypassCache) {
                 try {
                     const parsed = JSON.parse(cached);
-                    if (Date.now() - parsed.time < 30 * 60 * 1000) {
+                    if (Date.now() - parsed.time < 5 * 60 * 1000) {
                         initColumns(parsed.cols);
                         productsData = parsed.data;
                         window.globalSheetData = productsData;
@@ -1231,7 +1231,7 @@
                 }
 
                 // QR 파라미터(또는 경로)로 제품 찾기
-                let targetIndex = 0;
+                let targetIndex = -1;
                 
                 // 1. 단축 URL 경로(/r/CODE) 에서 코드 파싱
                 let codeParam = urlParams.get('c') || urlParams.get('code');
@@ -1262,6 +1262,21 @@
                         return name.includes(productParam.toLowerCase());
                     });
                     if (found !== -1) targetIndex = found;
+                }
+
+                // 캐시에 제품이 없을 경우 캐시 비우고 1회 새로고침 시도
+                if (targetIndex === -1) {
+                    if (!sessionStorage.getItem('retryCacheBust')) {
+                        sessionStorage.setItem('retryCacheBust', 'true');
+                        sessionStorage.removeItem('eLabelDataCache_v3');
+                        window.location.reload();
+                        return;
+                    } else {
+                        sessionStorage.removeItem('retryCacheBust');
+                        targetIndex = 0; // 최후의 수단
+                    }
+                } else {
+                    sessionStorage.removeItem('retryCacheBust');
                 }
 
                 const target = data[targetIndex];
@@ -1802,7 +1817,7 @@
                         window.history.pushState(null, '', `?c=${encodeURIComponent(code)}${langParam}`);
                     }
                 });
-            });
+            }, true); // 메이커 모드는 무조건 캐시 무시(최신 데이터 로드)
 
             // QR 이미지 다운로드 (PNG)
             downloadBtn.addEventListener('click', () => {
