@@ -1608,7 +1608,7 @@
 
             // 다국어 시트 대응: 콤마(,), 일본어 반점(、), 중국어 반점(，) 등을 모두 분리 기호로 사용하도록 정규식 적용
             const rawConceptKo = getColValue(item, COL.conceptKo).trim();
-            const foreignNames = rawConceptKo ? rawConceptKo.split(/[,、，]/).map(s => s.trim()).filter(Boolean) : [];
+            const foreignNames = rawConceptKo ? rawConceptKo.split(/[,、，﹑・･]/).map(s => s.trim()).filter(Boolean) : [];
             let koNames = foreignNames; // 우선 현재 시트의 분리된 배열을 할당
             
             // 만약 현재 언어가 국문이 아니라면, 원본 국문 시트의 정보를 백그라운드에서 가져와 모달 키(koName) 매핑 시도
@@ -1640,17 +1640,27 @@
                             if (r) matchedRowKoStr = String(r[kCols.conceptKo] || '');
                         } else if (koDataObj.table) {
                             // API 직접 호출 형태
-                            const hRow = koDataObj.table.cols.map(c => (c.label || '').replace(/[\s_\(\)\[\]-]/g, '').toLowerCase());
+                            let hRow = koDataObj.table.cols.map(c => (c.label || '').replace(/[\s_\(\)\[\]-]/g, '').toLowerCase());
+                            let rows = koDataObj.table.rows;
+                            
+                            // 헤더가 rows[0]에 들어간 경우 처리
+                            if (hRow.every(h => !h) && rows.length > 0 && rows[0].c && rows[0].c[0] && String(rows[0].c[0].v).includes("제품명")) {
+                                hRow = rows[0].c.map(cell => (cell ? String(cell.v || '') : '').replace(/[\s_\(\)\[\]-]/g, '').toLowerCase());
+                                rows = rows.slice(1);
+                            }
+                            
                             const kCodeIdx = hRow.findIndex(h => h.includes('제품코드') || h.includes('식별코드'));
                             const kConceptIdx = hRow.findIndex(h => h.includes('핵심컨셉성분') || h.includes('컨셉성분') || (h.includes('핵심성분') && !h.includes('영문')));
                             
-                            const r = koDataObj.table.rows.find(row => row.c && row.c[kCodeIdx] && String(row.c[kCodeIdx].v) === String(pCode));
-                            if (r && r.c[kConceptIdx]) matchedRowKoStr = String(r.c[kConceptIdx].v || '');
+                            if (kCodeIdx !== -1 && kConceptIdx !== -1) {
+                                const r = rows.find(row => row.c && row.c[kCodeIdx] && String(row.c[kCodeIdx].v) === String(pCode));
+                                if (r && r.c[kConceptIdx]) matchedRowKoStr = String(r.c[kConceptIdx].v || '');
+                            }
                         }
                     }
                     
                     if (matchedRowKoStr) {
-                        koNames = matchedRowKoStr.split(/[,、，]/).map(s => s.trim()).filter(Boolean);
+                        koNames = matchedRowKoStr.split(/[,、，﹑・･]/).map(s => s.trim()).filter(Boolean);
                     }
                 } catch(e) {
                     console.error('Failed to map Korean ingredient names', e);
