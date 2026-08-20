@@ -1394,6 +1394,22 @@
                 }
 
                 if (translated) {
+                    // 후처리: genitree를 Janytree로 강제 치환 (대소문자 무관)
+                    translated = translated.replace(/genitree/gi, 'Janytree');
+
+                    // 후처리: 다국어(영문/일문/중문 등)일 때, 남은 한글(예: (원료적 특성에 한함))을 완전히 제거
+                    if (targetLang !== 'ko') {
+                        // 한글이 포함된 괄호 전체 제거
+                        translated = translated.replace(/\([^)]*[ㄱ-ㅎㅏ-ㅣ가-힣]+[^)]*\)/g, '');
+                        // 혹시 남아있는 독립된 한글 찌꺼기 제거
+                        translated = translated.replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]+/g, '');
+                        // 불필요한 공백 및 구두점 앞의 공백 정리
+                        translated = translated.replace(/\s+([.,!?])/g, '$1');
+                        translated = translated.replace(/\s+/g, ' ').trim();
+                    }
+                }
+
+                if (translated) {
                     translationCache[cacheKey] = translated;
                     return translated;
                 }
