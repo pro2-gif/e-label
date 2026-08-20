@@ -1679,7 +1679,7 @@
             for (let idx = 0; idx < foreignNames.length; idx++) {
                 const displayName = foreignNames[idx];
                 const koName = koNames[idx] || displayName; // 매핑된 국문 이름이 없으면 원문 폴백
-                const enNameForModal = null; // 모달 내부에서 알아서 koName 기준으로 동작함
+                const enNameForModal = (lang === 'en') ? displayName : null; // 영문 모드일 경우 뱃지에 표시된 시트의 원문을 그대로 타이틀로 사용
                 
                 const badge = document.createElement('span');
                 badge.className = 'concept-badge';
