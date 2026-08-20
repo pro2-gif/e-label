@@ -2246,7 +2246,7 @@
             }
         }
 
-                document.getElementById('btn-ko').addEventListener('click', () => {
+        document.getElementById('btn-ko').addEventListener('click', () => {
             if (currentLang === 'ko') return;
             window.speechSynthesis.cancel();
             window.ttsChunks = [];
@@ -2284,9 +2284,44 @@
             }
         });
 
+        document.getElementById('btn-en').addEventListener('click', () => {
+            if (currentLang === 'en') return;
+            window.speechSynthesis.cancel();
+            window.ttsChunks = [];
+            const ttsBtn = document.getElementById('btn-tts');
+            if (ttsBtn) ttsBtn.classList.remove('playing');
+            currentLang = 'en';
+            ['ko', 'en', 'jp', 'ch'].forEach(l => {
+                const btn = document.getElementById('btn-' + l);
+                if (btn) {
+                    if (l === currentLang) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
+            updateGlobalLangUI('en');
+            
+            if (document.getElementById('viewer-container').style.display === 'block') {
+                const loadingEl = document.getElementById('loading-screen');
+                loadingEl.style.display = 'flex';
+                loadingEl.querySelector('p').textContent = 'Loading...';
+                loadSheetData(function(err, data) {
+                    if (!err && data && data.length > 0 && window.currentTargetItem) {
+                        const code = getColValue(window.currentTargetItem, COL.productCode);
+                        const found = data.findIndex(item => getColValue(item, COL.productCode) === code);
+                        if (found !== -1) {
+                            window.currentTargetItem = data[found];
+                        } else {
+                            window.currentTargetItem = data[0]; 
+                        }
+                    }
+                    loadingEl.style.display = 'none';
+                    renderLabel(window.currentTargetItem, currentLang);
+                }, false, currentLang);
+            } else {
+                updateMakerOptionsAndQr();
+            }
+        });
 
-
-    
         document.getElementById('btn-jp').addEventListener('click', () => {
             if (currentLang === 'jp') return;
             window.speechSynthesis.cancel();
@@ -2294,12 +2329,35 @@
             const ttsBtn = document.getElementById('btn-tts');
             if (ttsBtn) ttsBtn.classList.remove('playing');
             currentLang = 'jp';
-            document.getElementById('btn-jp').classList.add('active');
-            document.getElementById('btn-ko').classList.remove('active');
-            document.getElementById('btn-en').classList.remove('active');
-            document.getElementById('btn-ch').classList.remove('active');
+            ['ko', 'en', 'jp', 'ch'].forEach(l => {
+                const btn = document.getElementById('btn-' + l);
+                if (btn) {
+                    if (l === currentLang) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
             updateGlobalLangUI('jp');
-            updateMakerOptionsAndQr();
+            
+            if (document.getElementById('viewer-container').style.display === 'block') {
+                const loadingEl = document.getElementById('loading-screen');
+                loadingEl.style.display = 'flex';
+                loadingEl.querySelector('p').textContent = 'Loading...';
+                loadSheetData(function(err, data) {
+                    if (!err && data && data.length > 0 && window.currentTargetItem) {
+                        const code = getColValue(window.currentTargetItem, COL.productCode);
+                        const found = data.findIndex(item => getColValue(item, COL.productCode) === code);
+                        if (found !== -1) {
+                            window.currentTargetItem = data[found];
+                        } else {
+                            window.currentTargetItem = data[0]; 
+                        }
+                    }
+                    loadingEl.style.display = 'none';
+                    renderLabel(window.currentTargetItem, currentLang);
+                }, false, currentLang);
+            } else {
+                updateMakerOptionsAndQr();
+            }
         });
 
         document.getElementById('btn-ch').addEventListener('click', () => {
@@ -2309,13 +2367,37 @@
             const ttsBtn = document.getElementById('btn-tts');
             if (ttsBtn) ttsBtn.classList.remove('playing');
             currentLang = 'ch';
-            document.getElementById('btn-ch').classList.add('active');
-            document.getElementById('btn-ko').classList.remove('active');
-            document.getElementById('btn-en').classList.remove('active');
-            document.getElementById('btn-jp').classList.remove('active');
+            ['ko', 'en', 'jp', 'ch'].forEach(l => {
+                const btn = document.getElementById('btn-' + l);
+                if (btn) {
+                    if (l === currentLang) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
             updateGlobalLangUI('ch');
-            updateMakerOptionsAndQr();
+            
+            if (document.getElementById('viewer-container').style.display === 'block') {
+                const loadingEl = document.getElementById('loading-screen');
+                loadingEl.style.display = 'flex';
+                loadingEl.querySelector('p').textContent = 'Loading...';
+                loadSheetData(function(err, data) {
+                    if (!err && data && data.length > 0 && window.currentTargetItem) {
+                        const code = getColValue(window.currentTargetItem, COL.productCode);
+                        const found = data.findIndex(item => getColValue(item, COL.productCode) === code);
+                        if (found !== -1) {
+                            window.currentTargetItem = data[found];
+                        } else {
+                            window.currentTargetItem = data[0]; 
+                        }
+                    }
+                    loadingEl.style.display = 'none';
+                    renderLabel(window.currentTargetItem, currentLang);
+                }, false, currentLang);
+            } else {
+                updateMakerOptionsAndQr();
+            }
         });
+
 
     
         // =====================================================
