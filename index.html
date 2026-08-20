@@ -1618,16 +1618,7 @@
                     let koDataStr = sessionStorage.getItem(cacheKey);
                     let koDataObj = null;
                     
-                    if (koDataStr) {
-                        koDataObj = JSON.parse(koDataStr);
-                    } else {
-                        // 캐시가 없으면 백그라운드에서 한 번 가져옴
-                        const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=국문';
-                        const res = await fetch(url);
-                        const text = await res.text();
-                        const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-                        koDataObj = JSON.parse(jsonStr);
-                    }
+                    koDataObj = await fetchKoSheetDataJSONP();
                     
                     const pCode = getColValue(item, COL.productCode);
                     let matchedRowKoStr = '';
