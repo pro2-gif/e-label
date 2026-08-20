@@ -857,9 +857,10 @@
         // ■ 구글 시트 데이터 로딩 (JSONP 방식)
         // 크롬 브라우저의 로컬 환경(file://) CORS 차단을 완벽하게 우회하여 데이터를 가져옵니다.
         // =====================================================
-        function loadSheetData(callback, bypassCache = false) {
-            // 5분 캐시 적용하여 로딩 속도 극대화 (최신 데이터 빠른 반영)
-            const cacheKey = 'eLabelDataCache_v4';
+        function loadSheetData(callback, bypassCache = false, lang = 'ko') {
+            const sheetMap = { ko: '국문', en: '영문', jp: '일본어', ch: '중국어' };
+            const sheetName = sheetMap[lang] || '국문';
+            const cacheKey = 'eLabelDataCache_v5_' + lang;
             const cached = sessionStorage.getItem(cacheKey);
             if (cached && !bypassCache) {
                 try {
@@ -948,7 +949,7 @@
             // JSONP 스크립트 생성 및 삽입 (로컬 환경에서도 무조건 작동)
             const script = document.createElement('script');
             script.id = 'gviz-script';
-            script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheetData&_=${Date.now()}`;
+            script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheetData&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
             script.onerror = function () {
                 callback(new Error("네트워크 오류 또는 구글 시트 로드 실패"), null);
             };
@@ -1287,11 +1288,7 @@
                 footerEl.style.display = 'flex';
 
                 renderLabel(target, currentLang);
-
-                // 언어 버튼 이벤트는 전역으로 이동됨
-
-                // 버튼 이벤트 리스너들은 전역으로 이동됨 (하단)
-            });
+            }, false, currentLang);
         }
 
         // =====================================================
@@ -1817,7 +1814,7 @@
                         window.history.pushState(null, '', `?c=${encodeURIComponent(code)}${langParam}`);
                     }
                 });
-            }, true); // 메이커 모드는 무조건 캐시 무시(최신 데이터 로드)
+            }, true, currentLang); // 메이커 모드는 무조건 캐시 무시(최신 데이터 로드)
 
             // QR 이미지 다운로드 (PNG)
             downloadBtn.addEventListener('click', () => {
@@ -2249,35 +2246,45 @@
             }
         }
 
-        document.getElementById('btn-ko').addEventListener('click', () => {
+                document.getElementById('btn-ko').addEventListener('click', () => {
             if (currentLang === 'ko') return;
             window.speechSynthesis.cancel();
             window.ttsChunks = [];
             const ttsBtn = document.getElementById('btn-tts');
             if (ttsBtn) ttsBtn.classList.remove('playing');
             currentLang = 'ko';
-            document.getElementById('btn-ko').classList.add('active');
-            document.getElementById('btn-en').classList.remove('active');
-            document.getElementById('btn-jp').classList.remove('active');
-            document.getElementById('btn-ch').classList.remove('active');
+            ['ko', 'en', 'jp', 'ch'].forEach(l => {
+                const btn = document.getElementById('btn-' + l);
+                if (btn) {
+                    if (l === currentLang) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
             updateGlobalLangUI('ko');
-            updateMakerOptionsAndQr();
+            
+            if (document.getElementById('viewer-container').style.display === 'block') {
+                const loadingEl = document.getElementById('loading-screen');
+                loadingEl.style.display = 'flex';
+                loadingEl.querySelector('p').textContent = 'Loading...';
+                loadSheetData(function(err, data) {
+                    if (!err && data && data.length > 0 && window.currentTargetItem) {
+                        const code = getColValue(window.currentTargetItem, COL.productCode);
+                        const found = data.findIndex(item => getColValue(item, COL.productCode) === code);
+                        if (found !== -1) {
+                            window.currentTargetItem = data[found];
+                        } else {
+                            window.currentTargetItem = data[0]; 
+                        }
+                    }
+                    loadingEl.style.display = 'none';
+                    renderLabel(window.currentTargetItem, currentLang);
+                }, false, currentLang);
+            } else {
+                updateMakerOptionsAndQr();
+            }
         });
 
-        document.getElementById('btn-en').addEventListener('click', () => {
-            if (currentLang === 'en') return;
-            window.speechSynthesis.cancel();
-            window.ttsChunks = [];
-            const ttsBtn = document.getElementById('btn-tts');
-            if (ttsBtn) ttsBtn.classList.remove('playing');
-            currentLang = 'en';
-            document.getElementById('btn-en').classList.add('active');
-            document.getElementById('btn-ko').classList.remove('active');
-            document.getElementById('btn-jp').classList.remove('active');
-            document.getElementById('btn-ch').classList.remove('active');
-            updateGlobalLangUI('en');
-            updateMakerOptionsAndQr();
-        });
+
 
     
         document.getElementById('btn-jp').addEventListener('click', () => {
