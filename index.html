@@ -851,7 +851,7 @@
         function loadSheetData(callback, bypassCache = false, lang = 'ko') {
             const sheetMap = { ko: '국문', en: '영문', jp: '일본어', ch: '중국어' };
             const sheetName = sheetMap[lang] || '국문';
-            const cacheKey = 'eLabelDataCache_v5_' + lang;
+            const cacheKey = 'eLabelDataCache_v6_' + lang;
             const cached = sessionStorage.getItem(cacheKey);
             if (cached && !bypassCache) {
                 try {
@@ -1614,7 +1614,7 @@
             // 만약 현재 언어가 국문이 아니라면, 원본 국문 시트의 정보를 백그라운드에서 가져와 모달 키(koName) 매핑 시도
             if (lang !== 'ko' && foreignNames.length > 0) {
                 try {
-                    const cacheKey = 'eLabelDataCache_v5_ko';
+                    const cacheKey = 'eLabelDataCache_v6_ko';
                     let koDataStr = sessionStorage.getItem(cacheKey);
                     let koDataObj = null;
                     
