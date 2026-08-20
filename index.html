@@ -669,14 +669,10 @@
             if (window.ingredientDetails && window.ingredientDetails[koName]) {
                 const sheetInfo = window.ingredientDetails[koName];
                 if (currentLang !== 'ko') {
-                    if (currentLang === 'en' && sheetInfo.en) {
-                        descEl.textContent = sheetInfo.en;
-                    } else if (sheetInfo.ko && sheetInfo.ko !== '상세 설명이 등록되지 않았습니다.') {
+                    if (sheetInfo.ko && sheetInfo.ko !== '상세 설명이 등록되지 않았습니다.') {
                         descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
-                        // 영문 원본이 있다면 영문을 번역하고, 없다면 국문을 번역 (정확한 스펠링 보장)
-                        const sourceText = (sheetInfo.en && sheetInfo.en !== 'No description available.') ? sheetInfo.en : sheetInfo.ko;
-                        const srcLang = (sourceText === sheetInfo.en) ? 'en' : 'ko';
-                        const translatedDesc = await translateText(sourceText, currentLang, srcLang);
+                        // 표시광고법에 맞게 순화된 국문(ko)을 기반으로 모든 언어를 실시간 번역
+                        const translatedDesc = await translateText(sheetInfo.ko, currentLang, 'ko');
                         descEl.textContent = translatedDesc;
                     } else {
                         descEl.textContent = currentLang === 'en' ? 'No description available.' : '상세 설명이 등록되지 않았습니다.';
