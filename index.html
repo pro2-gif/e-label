@@ -543,8 +543,13 @@
                 else if (h.includes('제조번호')) COL.batchno = idx;
                 else if (h.includes('사용기한')) COL.expiration = idx;
                 else if (h.includes('제조업자') || h.includes('책임판매업자')) COL.manufacturer = idx;
-                else if (h.includes('핵심컨셉성분') && h.includes('영문')) COL.conceptEn = idx;
-                else if (h.includes('핵심컨셉성분') || h.includes('컨셉성분') || (h.includes('핵심성분') && !h.includes('영문'))) COL.conceptKo = idx;
+                else if (h.includes('핵심컨셉성분') && h.includes('영문')) {
+                    COL.conceptEn = idx;
+                    COL.conceptKo = idx; // 다국어(영문) 시트에서도 conceptKo로 접근할 수 있도록 폴백 설정
+                }
+                else if (h.includes('핵심컨셉성분') || h.includes('컨셉성분') || (h.includes('핵심성분') && !h.includes('영문'))) {
+                    COL.conceptKo = idx;
+                }
                 else if (h.includes('인체적용시험') && h.includes('영문')) COL.clinicalEn = idx;
                 else if (h.includes('인체적용시험') || h.includes('인증')) COL.clinical = idx;
                 else if (h.includes('전성분') && h.includes('영문')) COL.ingredientsEn = idx;
