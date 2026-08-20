@@ -859,7 +859,7 @@
         // =====================================================
         function loadSheetData(callback, bypassCache = false) {
             // 5분 캐시 적용하여 로딩 속도 극대화 (최신 데이터 빠른 반영)
-            const cacheKey = 'eLabelDataCache_v3';
+            const cacheKey = 'eLabelDataCache_v4';
             const cached = sessionStorage.getItem(cacheKey);
             if (cached && !bypassCache) {
                 try {
@@ -870,7 +870,7 @@
                         window.globalSheetData = productsData;
                         
                         // Sheet2 데이터도 캐시 적용
-                        const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v3');
+                        const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v4');
                         if (cache2) {
                             try {
                                 window.ingredientDetails = JSON.parse(cache2);
@@ -948,7 +948,7 @@
             // JSONP 스크립트 생성 및 삽입 (로컬 환경에서도 무조건 작동)
             const script = document.createElement('script');
             script.id = 'gviz-script';
-            script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheetData`;
+            script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheetData&_=${Date.now()}`;
             script.onerror = function () {
                 callback(new Error("네트워크 오류 또는 구글 시트 로드 실패"), null);
             };
@@ -1144,7 +1144,7 @@
                     });
                     
                     try {
-                        sessionStorage.setItem('eLabelSheet2Cache_v3', JSON.stringify(window.ingredientDetails));
+                        sessionStorage.setItem('eLabelSheet2Cache_v4', JSON.stringify(window.ingredientDetails));
                     } catch(e) {}
                 } catch(e) {
                     console.error("Sheet2 parsing error:", e);
@@ -1152,7 +1152,7 @@
             };
             const script2 = document.createElement('script');
             script2.id = 'gviz-script2';
-            script2.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheet2Data&sheet=시트2`;
+            script2.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheet2Data&sheet=시트2&_=${Date.now()}`;
             document.head.appendChild(script2);
         }
 
@@ -1268,7 +1268,7 @@
                 if (targetIndex === -1) {
                     if (!sessionStorage.getItem('retryCacheBust')) {
                         sessionStorage.setItem('retryCacheBust', 'true');
-                        sessionStorage.removeItem('eLabelDataCache_v3');
+                        sessionStorage.removeItem('eLabelDataCache_v4');
                         window.location.reload();
                         return;
                     } else {
