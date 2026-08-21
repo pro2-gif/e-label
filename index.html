@@ -1818,7 +1818,24 @@
                     let rawName = getColValue(comp, COL.componentName);
                     if (!rawName) rawName = 'Step ' + (i + 1);
                     
-                    btn.textContent = rawName;
+                    // 구성품명이 부모 제품명을 포함하는 경우, 부모 제품명 뒤에서 강제 줄바꿈(<br>) 처리
+                    const parentName = getColValue(window.currentTargetItem, COL.name);
+                    if (parentName && rawName.includes(parentName)) {
+                        if (rawName.includes(parentName + ' ')) {
+                            rawName = rawName.replace(parentName + ' ', parentName + '<br>');
+                        } else {
+                            rawName = rawName.replace(parentName, parentName + '<br>');
+                        }
+                    } else {
+                        // 만약 포함되지 않는다면 라뉴필 키워드로 강제 줄바꿈 (안전망)
+                        rawName = rawName
+                            .replace('라뉴필 ', '라뉴필<br>')
+                            .replace('LAHNUPEEL ', 'LAHNUPEEL<br>')
+                            .replace('ラヌピール ', 'ラヌピール<br>')
+                            .replace('拉纽皮尔 ', '拉纽皮尔<br>');
+                    }
+                    
+                    btn.innerHTML = rawName;
                     btn.className = 'sub-tab-btn';
                     // 인라인 스타일 (JT 디자인 토큰 컬러 활용 가능시 클래스로 대체)
                     btn.style.padding = '10px 20px';
