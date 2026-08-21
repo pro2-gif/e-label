@@ -1354,6 +1354,14 @@
                 footerEl.style.display = 'flex';
 
                 renderLabel(target, currentLang);
+                
+                // 다국어 탭 로딩 속도를 높이기 위해 백그라운드에서 미리 로드(프리패치)
+                setTimeout(() => {
+                    const langs = ['en', 'jp', 'ch'];
+                    langs.forEach(l => {
+                        if (l !== currentLang) loadSheetData(()=>{}, false, l);
+                    });
+                }, 1000); // UI 렌더링을 방해하지 않게 1초 후 백그라운드 요청
             }, false, currentLang);
         }
 
@@ -1740,7 +1748,7 @@
                 mainEl.style.display = 'none';
                 footerEl.style.display = 'none';
                 loadingEl.style.display = 'flex';
-                loadingEl.querySelector('p').textContent = 'Translating product info...';
+                loadingEl.querySelector('p').textContent = 'Loading...';
             }
 
             document.getElementById('label-volume').textContent = uiLabels.volume[lang];
@@ -1796,11 +1804,7 @@
 
             // 대표 제품명 및 이미지 렌더링 (그룹의 첫 번째 행 기준)
             const pNameEl = document.getElementById('product-name');
-            let pName = getProductDisplayName(item, lang === 'en' ? 'en' : 'ko');
-            if (lang !== 'ko' && lang !== 'en') {
-                const enName = getProductDisplayName(item, 'en');
-                pName = await translateText(enName, lang, 'en');
-            }
+            let pName = getProductDisplayName(item, lang);
             pNameEl.textContent = pName;
 
             // 서브탭 렌더링
