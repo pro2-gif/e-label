@@ -671,6 +671,14 @@
             const nameEl    = document.getElementById('modal-ing-name');
             const descEl    = document.getElementById('modal-ing-desc');
 
+            // 제품명 기반 헤어 제품 판별 (에이치알 또는 헤어 포함)
+            const rawProductName = window.currentTargetItem ? getColValue(window.currentTargetItem, COL.name) : '';
+            const isHairProduct = rawProductName.includes('에이치알') || rawProductName.includes('헤어');
+            let lookupKey = koName;
+            if (isHairProduct && window.ingredientDetails && window.ingredientDetails[koName + '_헤어']) {
+                lookupKey = koName + '_헤어';
+            }
+
             // 화면에 표시할 이름 결정 (현재 언어 모드 고려)
             let displayName = koName;
             if (currentLang === 'en' && enName) displayName = enName;
@@ -685,8 +693,8 @@
             modalEl.classList.add('show');
 
             // 0단계: Sheet2 데이터 우선 확인 (가장 최우선 순위)
-            if (window.ingredientDetails && window.ingredientDetails[koName]) {
-                const sheetInfo = window.ingredientDetails[koName];
+            if (window.ingredientDetails && window.ingredientDetails[lookupKey]) {
+                const sheetInfo = window.ingredientDetails[lookupKey];
                 if (currentLang !== 'ko') {
                     if (sheetInfo.ko && sheetInfo.ko !== '상세 설명이 등록되지 않았습니다.') {
                         descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
@@ -886,7 +894,7 @@
                             window.globalSheetData = productsData;
                             
                             // Sheet2 데이터도 캐시 적용
-                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v4');
+                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v6');
                             if (cache2) {
                                 try {
                                     window.ingredientDetails = JSON.parse(cache2);
@@ -1026,12 +1034,20 @@
                     // 100% 완벽한 화장품 표시광고법 준수를 위한 전체 성분 수동 오버라이드
                     const safeOverrides = {
                         "락토바실러스/하이드롤라이즈드완두콩추출발효여과물": {
-                            ko: "바이오펩톤®. 발효 공법을 통해 저분자화한 제니트리만의 독자 특허 성분.\n\n피부 미백 및 주름 개선에 도움을 줍니다. 풍부한 영양을 공급하여 외부 환경으로부터 피부를 보호하고, 맑고 탄력 있는 피부결로 가꾸는 데 도움을 주는 발효 성분입니다. (원료적 특성에 한함)",
-                            en: "Biopeptone®. A proprietary patented ingredient of Janytree, made low-molecular through a fermentation process.\n\nHelps to brighten the skin and improve wrinkles. It provides rich nutrients to protect the skin from the external environment and helps to keep the skin clear and elastic. (Limited to raw material characteristics)"
+                            ko: "[바이오펩톤®. 발효 공법을 통해 저분자화한 제니트리만의 독자 특허 성분]\n\n피부 미백 및 주름 개선에 도움을 줍니다. 풍부한 영양을 공급하여 외부 환경으로부터 피부를 보호하고, 맑고 탄력 있는 피부결로 가꾸는 데 도움을 주는 발효 성분입니다. (원료적 특성에 한함)",
+                            en: "[Biopeptone®. A proprietary patented ingredient of Janytree, made low-molecular through a fermentation process.]\n\nHelps to brighten the skin and improve wrinkles. It provides rich nutrients to protect the skin from the external environment and helps to keep the skin clear and elastic. (Limited to raw material characteristics)"
+                        },
+                        "락토바실러스/하이드롤라이즈드완두콩추출발효여과물_헤어": {
+                            ko: "[바이오펩톤®. 발효 공법을 통해 저분자화한 제니트리만의 독자 특허 성분]\n\n두피와 모발에 풍부한 영양을 공급하여 건강한 모발 환경을 조성하는 데 도움을 줍니다. 두피를 편안하게 케어하고 모발을 탄탄하게 가꾸어 활력 있는 두피 컨디션 유지에 기여하는 발효 성분입니다. (원료적 특성에 한함)",
+                            en: "[Biopeptone®. A proprietary patented ingredient of Janytree, made low-molecular through a fermentation process.]\n\nProvides abundant nutrition to the scalp and hair to help create a healthy hair environment. It is a fermented ingredient that comfortably cares for the scalp and cultivates strong hair, contributing to maintaining a vital scalp condition. (Limited to raw material characteristics)"
                         },
                         "카퍼트라이펩타이드-1": {
                             ko: "피부 장벽을 튼튼하게 하고 영양을 공급하여 건강하고 생기 있는 피부로 가꾸는 데 도움을 줍니다. 피부에 윤기와 탄력을 부여하여 매끄러운 피부 유지에 도움을 줍니다. (원료적 특성에 한함)",
                             en: "Strengthens the skin barrier and supplies nutrients to help keep the skin healthy and revitalized. It imparts shine and elasticity to the skin, helping to maintain a smooth skin texture. (Limited to raw material characteristics)"
+                        },
+                        "카퍼트라이펩타이드-1_헤어": {
+                            ko: "두피에 영양을 공급하고 민감해진 두피를 편안하게 진정시키는 데 도움을 줍니다. 모발을 건강하고 탄력 있게 가꾸어 주며, 깨끗한 두피 환경을 유지하는 데 기여합니다. (원료적 특성에 한함)",
+                            en: "Provides nutrition to the scalp and helps to comfortably soothe a sensitive scalp. It cultivates healthy and elastic hair and contributes to maintaining a clean scalp environment. (Limited to raw material characteristics)"
                         },
                         "아세틸헥사펩타이드-8": {
                             ko: "피부 탄력 개선에 도움을 주고 매끄러운 피부결로 가꾸는 데 도움을 줍니다. 피부에 풍부한 영양을 공급하여 건강하고 생기 있는 피부 유지에 도움을 줄 수 있습니다. (원료적 특성에 한함)",
@@ -1163,14 +1179,19 @@
                         if (!row || !row.c) return;
                         const cellName = row.c[0];
                         const cellDescKo = row.c[1];
-                        const cellDescEn = row.c[2]; // C열 (영문 효능)
+                        const cellCategory = row.c[2]; // C열: 헤어 카테고리 구분 등
                         
                         if (cellName && cellName.v) {
                             const name = String(cellName.v).trim();
+                            const category = (cellCategory && cellCategory.v) ? String(cellCategory.v).trim() : '';
+                            const key = category === '헤어' ? name + '_헤어' : name;
                             
                             // 1. 수동으로 완벽하게 다듬어진 안전 문구가 있다면 그것을 최우선 적용
-                            if (safeOverrides[name]) {
-                                window.ingredientDetails[name] = safeOverrides[name];
+                            if (safeOverrides[key]) {
+                                window.ingredientDetails[key] = safeOverrides[key];
+                                return; // 다음 성분으로 넘어감
+                            } else if (category !== '헤어' && safeOverrides[name]) {
+                                window.ingredientDetails[key] = safeOverrides[name];
                                 return; // 다음 성분으로 넘어감
                             }
                             
@@ -1189,25 +1210,22 @@
                                 shortKo = sanitizeCosmeticText(shortKo);
                                 
                                 // 뒤에 임상/연구 관련 문장이 잘렸을 수 있으므로, 부드러운 화장품 문구 1개 추가하여 2문장 완성
-                                descKo = shortKo + ' 맑고 건강한 피부 컨디션 유지에 도움을 줄 수 있습니다.';
+                                const suffix = category === '헤어' ? ' 맑고 건강한 두피와 모발 컨디션 유지에 도움을 줄 수 있습니다.' : ' 맑고 건강한 피부 컨디션 유지에 도움을 줄 수 있습니다.';
+                                descKo = shortKo + suffix;
                             }
-                            let descEn = (cellDescEn && cellDescEn.v) ? String(cellDescEn.v).trim() : 'No description available.';
+                            
+                            let descEn = 'No description available.';
                             
                             if (descKo !== '상세 설명이 등록되지 않았습니다.' && !descKo.includes('(원료적 특성에 한함)')) {
                                 descKo += ' (원료적 특성에 한함)';
                             }
-                            // 영문은 번역기를 돌리더라도 기본적으로 원본(descKo)에 '(원료적 특성에 한함)'이 추가되었으므로 
-                            // 번역기가 이를 통째로 번역하게 됩니다. 만약 영문 데이터가 시트2에 따로 존재한다면 아래를 적용합니다.
-                            if (descEn !== 'No description available.' && !descEn.includes('(Limited to raw material characteristics)')) {
-                                descEn += ' (Limited to raw material characteristics)';
-                            }
                             
-                            window.ingredientDetails[name] = { ko: descKo, en: descEn };
+                            window.ingredientDetails[key] = { ko: descKo, en: descEn };
                         }
                     });
                     
                     try {
-                        sessionStorage.setItem('eLabelSheet2Cache_v4', JSON.stringify(window.ingredientDetails));
+                        sessionStorage.setItem('eLabelSheet2Cache_v6', JSON.stringify(window.ingredientDetails));
                     } catch(e) {}
                 } catch(e) {
                     console.error("Sheet2 parsing error:", e);
