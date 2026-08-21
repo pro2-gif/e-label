@@ -347,7 +347,7 @@
                 <h1 id="product-name" class="product-name" style="overflow-wrap: break-word; word-break: break-word; margin: 0; width: 100%; padding: 0 8px; box-sizing: border-box; display: block; text-align: center; font-size: clamp(14px, 4.5vw, 26px); line-height: 1.35;"></h1>
                 
                 <!-- 서브탭 컨테이너 (위치 이동) -->
-                <div id="sub-tabs-container" style="display:none; width: 100%; max-width: 600px; padding: 0 16px; margin: 0 auto; overflow-x: auto; white-space: nowrap; gap: 12px; -webkit-overflow-scrolling: touch; box-sizing: border-box; justify-content: center;"></div>
+                <div id="sub-tabs-container" style="display:none; width: 100%; max-width: 600px; padding: 0 16px; margin: 0 auto; gap: 12px; box-sizing: border-box; justify-content: center; flex-wrap: wrap;"></div>
 
                 <div id="product-image-wrapper" style="display:none; width: 100%; max-width: 442px; margin: 0 auto; border-radius: 24px; border: 1px solid #eaddd3; box-shadow: 0 10px 30px rgba(0,0,0,0.08); background-color: #ffffff; box-sizing: border-box; aspect-ratio: 1/1; position: relative;">
                     <div style="position: absolute; top: 16px; left: 16px; right: 16px; bottom: 16px; display: flex; justify-content: center; align-items: center;">
@@ -1830,7 +1830,10 @@
                     btn.style.fontSize = '15px';
                     btn.style.cursor = 'pointer';
                     btn.style.transition = 'all 0.2s ease-in-out';
-                    btn.style.flexShrink = '0'; // 가로 스크롤 시 버튼 찌그러짐 방지
+                    btn.style.flexShrink = '0'; // 가로 찌그러짐 방지하되
+                    btn.style.maxWidth = '100%'; // 화면 밖으로 넘치지 않게
+                    btn.style.whiteSpace = 'normal'; // 글자가 길면 줄바꿈 허용
+                    btn.style.wordBreak = 'keep-all'; // 단어 단위로 줄바꿈
                     btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.05)';
                     
                     btn.onclick = async () => {
