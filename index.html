@@ -878,18 +878,24 @@
                     if (Date.now() - parsed.time < 5 * 60 * 1000) {
                         initColumns(parsed.cols);
                         productsData = parsed.data;
-                        window.globalSheetData = productsData;
                         
-                        // Sheet2 데이터도 캐시 적용
-                        const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v4');
-                        if (cache2) {
-                            try {
-                                window.ingredientDetails = JSON.parse(cache2);
-                            } catch(e) {}
+                        // 구버전 캐시(배열)인 경우 무시하고 새로 가져오기
+                        if (productsData.length > 0 && !productsData[0].isGroup) {
+                            console.log("Old cache format detected, fetching fresh data...");
+                        } else {
+                            window.globalSheetData = productsData;
+                            
+                            // Sheet2 데이터도 캐시 적용
+                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v4');
+                            if (cache2) {
+                                try {
+                                    window.ingredientDetails = JSON.parse(cache2);
+                                } catch(e) {}
+                            }
+                            
+                            callback(null, productsData);
+                            return;
                         }
-                        
-                        callback(null, productsData);
-                        return;
                     }
                 } catch(e) {}
             }
@@ -973,9 +979,11 @@
 
                     // 3단계: 기존 로직(배열)과 호환되도록 구성품 정보(.components)를 배열에 속성으로 추가
                     productsData = groupedProducts.map(g => {
-                        let item = g.firstRow;
-                        item.components = g.components;
-                        return item;
+                        return {
+                            isGroup: true,
+                            data: g.firstRow,
+                            components: g.components
+                        };
                     });
 
                     // 스크립트 찌꺼기 정리
@@ -1213,7 +1221,9 @@
 
         // 제품명 가져오기
         function getProductDisplayName(item, lang) {
-            const rawName = item[COL.name] || '';
+            if (!item) return '';
+            const actualItem = item.isGroup ? item.data : item;
+            const rawName = actualItem[COL.name] || '';
             const lines = rawName.split('\n').map(l => l.trim()).filter(l => l);
 
             if (lang === 'en') {
@@ -1229,7 +1239,9 @@
 
         // 인덱스 기반으로 값 가져오기
         function getColValue(item, colIndex) {
-            return item[colIndex] || '';
+            const actualItem = (item && item.isGroup) ? item.data : item;
+            if (!actualItem) return '';
+            return actualItem[colIndex] || '';
         }
 
         // 제조업자 항목: 언어에 따라 한글 줄 or 영문 줄만 추출
@@ -1636,14 +1648,24 @@
                         const kConceptIdx = kCols.findIndex(h => h.includes('핵심컨셉성분') || h.includes('컨셉성분') || (h.includes('핵심성분') && !h.includes('영문')));
                         
                         if (kCodeIdx !== -1 && kConceptIdx !== -1) {
-                            // 같은 제품코드의 행들을 추출
-                            const matchedRows = targetData.filter(row => row && String(row[kCodeIdx]) === String(pCode));
-                            
-                            // 탭 인덱스(compIdx)를 기반으로 매칭
-                            if (matchedRows.length > compIdx) {
-                                matchedRowKoStr = String(matchedRows[compIdx][kConceptIdx] || '');
-                            } else if (matchedRows.length > 0) {
-                                matchedRowKoStr = String(matchedRows[0][kConceptIdx] || '');
+                            if (koDataObj.data) {
+                                // 캐시된 데이터 (Grouped object)
+                                const matchedGroup = targetData.find(row => row && String(getColValue(row, kCodeIdx)) === String(pCode));
+                                if (matchedGroup) {
+                                    if (matchedGroup.components && matchedGroup.components.length > compIdx) {
+                                        matchedRowKoStr = String(getColValue(matchedGroup.components[compIdx], kConceptIdx) || '');
+                                    } else {
+                                        matchedRowKoStr = String(getColValue(matchedGroup, kConceptIdx) || '');
+                                    }
+                                }
+                            } else {
+                                // 실시간 데이터 (Raw array)
+                                const matchedRows = targetData.filter(row => row && String(row[kCodeIdx]) === String(pCode));
+                                if (matchedRows.length > compIdx) {
+                                    matchedRowKoStr = String(matchedRows[compIdx][kConceptIdx] || '');
+                                } else if (matchedRows.length > 0) {
+                                    matchedRowKoStr = String(matchedRows[0][kConceptIdx] || '');
+                                }
                             }
                         }
                     }
