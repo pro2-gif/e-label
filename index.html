@@ -894,7 +894,7 @@
                             window.globalSheetData = productsData;
                             
                             // Sheet2 데이터도 캐시 적용
-                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v6');
+                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v7');
                             if (cache2) {
                                 try {
                                     window.ingredientDetails = JSON.parse(cache2);
@@ -1034,12 +1034,12 @@
                     // 100% 완벽한 화장품 표시광고법 준수를 위한 전체 성분 수동 오버라이드
                     const safeOverrides = {
                         "락토바실러스/하이드롤라이즈드완두콩추출발효여과물": {
-                            ko: "[바이오펩톤®. 발효 공법을 통해 저분자화한 제니트리만의 독자 특허 성분]\n\n피부 미백 및 주름 개선에 도움을 줍니다. 풍부한 영양을 공급하여 외부 환경으로부터 피부를 보호하고, 맑고 탄력 있는 피부결로 가꾸는 데 도움을 주는 발효 성분입니다. (원료적 특성에 한함)",
-                            en: "[Biopeptone®. A proprietary patented ingredient of Janytree, made low-molecular through a fermentation process.]\n\nHelps to brighten the skin and improve wrinkles. It provides rich nutrients to protect the skin from the external environment and helps to keep the skin clear and elastic. (Limited to raw material characteristics)"
+                            ko: "바이오펩톤®. 발효 공법을 통해 저분자화한 제니트리만의 독자 특허 성분.\n\n피부 미백 및 주름 개선에 도움을 줍니다. 풍부한 영양을 공급하여 외부 환경으로부터 피부를 보호하고, 맑고 탄력 있는 피부결로 가꾸는 데 도움을 주는 발효 성분입니다. (원료적 특성에 한함)",
+                            en: "Biopeptone®. A proprietary patented ingredient of Janytree, made low-molecular through a fermentation process.\n\nHelps to brighten the skin and improve wrinkles. It provides rich nutrients to protect the skin from the external environment and helps to keep the skin clear and elastic. (Limited to raw material characteristics)"
                         },
                         "락토바실러스/하이드롤라이즈드완두콩추출발효여과물_헤어": {
-                            ko: "[바이오펩톤®. 발효 공법을 통해 저분자화한 제니트리만의 독자 특허 성분]\n\n두피와 모발에 풍부한 영양을 공급하여 건강한 모발 환경을 조성하는 데 도움을 줍니다. 두피를 편안하게 케어하고 모발을 탄탄하게 가꾸어 활력 있는 두피 컨디션 유지에 기여하는 발효 성분입니다. (원료적 특성에 한함)",
-                            en: "[Biopeptone®. A proprietary patented ingredient of Janytree, made low-molecular through a fermentation process.]\n\nProvides abundant nutrition to the scalp and hair to help create a healthy hair environment. It is a fermented ingredient that comfortably cares for the scalp and cultivates strong hair, contributing to maintaining a vital scalp condition. (Limited to raw material characteristics)"
+                            ko: "바이오펩톤®. 발효 공법을 통해 저분자화한 제니트리만의 독자 특허 성분.\n\n두피와 모발에 풍부한 영양을 공급하여 건강한 모발 환경을 조성하는 데 도움을 줍니다. 두피를 편안하게 케어하고 모발을 탄탄하게 가꾸어 활력 있는 두피 컨디션 유지에 기여하는 발효 성분입니다. (원료적 특성에 한함)",
+                            en: "Biopeptone®. A proprietary patented ingredient of Janytree, made low-molecular through a fermentation process.\n\nProvides abundant nutrition to the scalp and hair to help create a healthy hair environment. It is a fermented ingredient that comfortably cares for the scalp and cultivates strong hair, contributing to maintaining a vital scalp condition. (Limited to raw material characteristics)"
                         },
                         "카퍼트라이펩타이드-1": {
                             ko: "피부 장벽을 튼튼하게 하고 영양을 공급하여 건강하고 생기 있는 피부로 가꾸는 데 도움을 줍니다. 피부에 윤기와 탄력을 부여하여 매끄러운 피부 유지에 도움을 줍니다. (원료적 특성에 한함)",
@@ -1225,7 +1225,7 @@
                     });
                     
                     try {
-                        sessionStorage.setItem('eLabelSheet2Cache_v6', JSON.stringify(window.ingredientDetails));
+                        sessionStorage.setItem('eLabelSheet2Cache_v7', JSON.stringify(window.ingredientDetails));
                     } catch(e) {}
                 } catch(e) {
                     console.error("Sheet2 parsing error:", e);
