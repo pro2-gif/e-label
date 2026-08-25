@@ -883,7 +883,7 @@
         function loadSheetData(callback, bypassCache = false, lang = 'ko') {
             const sheetMap = { ko: '국문', en: '영문', jp: '일본어', ch: '중국어' };
             const sheetName = sheetMap[lang] || '국문';
-            const cacheKey = 'eLabelDataCache_v7_' + lang;
+            const cacheKey = 'eLabelDataCache_v10_' + lang;
             const cached = sessionStorage.getItem(cacheKey);
             if (cached && !bypassCache) {
                 try {
@@ -899,7 +899,7 @@
                             window.globalSheetData = productsData;
                             
                             // Sheet2 데이터도 캐시 적용
-                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v8');
+                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v11');
                             if (cache2) {
                                 try {
                                     window.ingredientDetails = JSON.parse(cache2);
@@ -1198,27 +1198,33 @@
                         if (!row || !row.c) return;
                         const cellName = row.c[0];
                         const cellDescKo = row.c[1];
-                        const cellCategory = row[5]; // F열: 헤어 카테고리 구분 등
+                        const cellCategory = row.c[5]; // F열: 헤어 카테고리 구분 등
                         
                         if (cellName && cellName.v) {
                             const name = String(cellName.v).trim();
                             const category = (cellCategory && cellCategory.v) ? String(cellCategory.v).trim() : '';
                             const key = category === '헤어' ? name + '_헤어' : name;
                             
-                            // 1. 수동으로 완벽하게 다듬어진 안전 문구가 있다면 그것을 최우선 적용
+                            let rawEn = (row.c[2] && row.c[2].v) ? String(row.c[2].v).trim() : '';
+                            let rawJp = (row.c[3] && row.c[3].v) ? String(row.c[3].v).trim() : '';
+                            let rawCh = (row.c[4] && row.c[4].v) ? String(row.c[4].v).trim() : '';
+
+                            // 1. 수동으로 완벽하게 다듬어진 안전 문구가 있다면 그것을 최우선 적용하되, 시트에 있는 다국어 번역본은 보존
                             if (safeOverrides[key]) {
-                                window.ingredientDetails[key] = safeOverrides[key];
-                                return; // 다음 성분으로 넘어감
+                                window.ingredientDetails[key] = Object.assign({}, safeOverrides[key]);
+                                if (rawJp) window.ingredientDetails[key].jp = rawJp;
+                                if (rawCh) window.ingredientDetails[key].ch = rawCh;
+                                // 만약 사용자가 영문도 직접 적었다면 그걸 쓸지 말지 결정해야 하지만, 일단 안전문구 우선
+                                return; 
                             } else if (category !== '헤어' && safeOverrides[name]) {
-                                window.ingredientDetails[key] = safeOverrides[name];
-                                return; // 다음 성분으로 넘어감
+                                window.ingredientDetails[key] = Object.assign({}, safeOverrides[name]);
+                                if (rawJp) window.ingredientDetails[key].jp = rawJp;
+                                if (rawCh) window.ingredientDetails[key].ch = rawCh;
+                                return; 
                             }
                             
                             // 2. 수동 오버라이드가 없는 경우, 시트의 원본 텍스트를 화장품법에 맞게 자동 순화 및 2~3문장 요약
                             let rawKo = (cellDescKo && cellDescKo.v) ? String(cellDescKo.v).trim() : '';
-                            let rawEn = (row[2] && row[2].v) ? String(row[2].v).trim() : '';
-                            let rawJp = (row[3] && row[3].v) ? String(row[3].v).trim() : '';
-                            let rawCh = (row[4] && row[4].v) ? String(row[4].v).trim() : '';
                             
                             let descKo = '상세 설명이 등록되지 않았습니다.';
                             
@@ -1235,12 +1241,34 @@
                                 descKo += ' (원료적 특성에 한함)';
                             }
                             
-                            window.ingredientDetails[key] = { ko: descKo, en: descEn, jp: rawJp, ch: rawCh };
+                            if (window.ingredientDetails[key]) {
+                                // 이미 저장된 값이 있다면 (중복 행), 빈 값이 아닐 때만 덮어쓰거나 보존합니다.
+                                if (descKo && descKo !== '상세 설명이 등록되지 않았습니다.') window.ingredientDetails[key].ko = descKo;
+                                if (descEn && descEn !== 'No description available.') window.ingredientDetails[key].en = descEn;
+                                if (rawJp) window.ingredientDetails[key].jp = rawJp;
+                                if (rawCh) window.ingredientDetails[key].ch = rawCh;
+                            } else {
+                                window.ingredientDetails[key] = { ko: descKo, en: descEn, jp: rawJp, ch: rawCh };
+                            }
+                        }
+                    });
+
+                    // _헤어 카테고리로 등록된 성분 중 번역이 없는 경우, 일반 성분 행에 번역이 있다면 가져오기
+                    Object.keys(window.ingredientDetails).forEach(key => {
+                        if (key.endsWith('_헤어')) {
+                            const baseKey = key.replace('_헤어', '');
+                            const baseDetails = window.ingredientDetails[baseKey];
+                            if (baseDetails) {
+                                const hairDetails = window.ingredientDetails[key];
+                                if (!hairDetails.en || hairDetails.en === 'No description available.') hairDetails.en = baseDetails.en;
+                                if (!hairDetails.jp) hairDetails.jp = baseDetails.jp;
+                                if (!hairDetails.ch) hairDetails.ch = baseDetails.ch;
+                            }
                         }
                     });
                     
                     try {
-                        sessionStorage.setItem('eLabelSheet2Cache_v8', JSON.stringify(window.ingredientDetails));
+                        sessionStorage.setItem('eLabelSheet2Cache_v11', JSON.stringify(window.ingredientDetails));
                     } catch(e) {}
                 } catch(e) {
                     console.error("Sheet2 parsing error:", e);
@@ -1368,7 +1396,7 @@
                 if (targetIndex === -1) {
                     if (!sessionStorage.getItem('retryCacheBust')) {
                         sessionStorage.setItem('retryCacheBust', 'true');
-                        sessionStorage.removeItem('eLabelDataCache_v8');
+                        sessionStorage.removeItem('eLabelDataCache_v10');
                         window.location.reload();
                         return;
                     } else {
@@ -1652,7 +1680,7 @@
             
             if (lang !== 'ko' && foreignNames.length > 0) {
                 try {
-                    const cacheKey = 'eLabelDataCache_v7_ko';
+                    const cacheKey = 'eLabelDataCache_v10_ko';
                     let koDataStr = sessionStorage.getItem(cacheKey);
                     let koDataObj = null;
                     
