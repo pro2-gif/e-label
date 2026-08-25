@@ -1034,7 +1034,7 @@
             window.handleSheet2Data = function(data) {
                 try {
                     const rows = data.table.rows;
-                    window.ingredientDetails = {};
+                    
                     
                     // 100% 완벽한 화장품 표시광고법 준수를 위한 전체 성분 수동 오버라이드
                     const safeOverrides = {
@@ -1191,6 +1191,8 @@
                         
                         return s.trim();
                     }
+
+                    window.ingredientDetails = Object.assign({}, safeOverrides);
 
                     rows.forEach(row => {
                         if (!row || !row.c) return;
