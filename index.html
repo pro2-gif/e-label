@@ -673,7 +673,8 @@
 
             // 제품명 기반 헤어 제품 판별 (에이치알 또는 헤어 포함)
             const rawProductName = window.currentTargetItem ? getColValue(window.currentTargetItem, COL.name) : '';
-            const isHairProduct = rawProductName.includes('에이치알') || rawProductName.includes('헤어');
+            const rawProductCode = window.currentTargetItem ? getColValue(window.currentTargetItem, COL.productCode) : '';
+            const isHairProduct = rawProductName.includes('에이치알') || rawProductName.includes('헤어') || rawProductCode === 'INTO-HP';
             let lookupKey = koName;
             if (isHairProduct && window.ingredientDetails && window.ingredientDetails[koName + '_헤어']) {
                 lookupKey = koName + '_헤어';
@@ -883,7 +884,7 @@
         function loadSheetData(callback, bypassCache = false, lang = 'ko') {
             const sheetMap = { ko: '국문', en: '영문', jp: '일본어', ch: '중국어' };
             const sheetName = sheetMap[lang] || '국문';
-            const cacheKey = 'eLabelDataCache_v13_' + lang;
+            const cacheKey = 'eLabelDataCache_v14_' + lang;
             const cached = sessionStorage.getItem(cacheKey);
             if (cached && !bypassCache) {
                 try {
@@ -899,7 +900,7 @@
                             window.globalSheetData = productsData;
                             
                             // Sheet2 데이터도 캐시 적용
-                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v14');
+                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v15');
                             if (cache2) {
                                 try {
                                     window.ingredientDetails = JSON.parse(cache2);
@@ -1279,7 +1280,7 @@
                     delete window[cbName2];
 
                     try {
-                        sessionStorage.setItem('eLabelSheet2Cache_v14', JSON.stringify(window.ingredientDetails));
+                        sessionStorage.setItem('eLabelSheet2Cache_v15', JSON.stringify(window.ingredientDetails));
                     } catch(e) {}
                 } catch(e) {
                     console.error("Sheet2 parsing error:", e);
@@ -1410,7 +1411,7 @@
                 if (targetIndex === -1) {
                     if (!sessionStorage.getItem('retryCacheBust')) {
                         sessionStorage.setItem('retryCacheBust', 'true');
-                        sessionStorage.removeItem('eLabelDataCache_v13');
+                        sessionStorage.removeItem('eLabelDataCache_v14');
                         window.location.reload();
                         return;
                     } else {
@@ -1694,7 +1695,7 @@
             
             if (lang !== 'ko' && foreignNames.length > 0) {
                 try {
-                    const cacheKey = 'eLabelDataCache_v13_ko';
+                    const cacheKey = 'eLabelDataCache_v14_ko';
                     let koDataStr = sessionStorage.getItem(cacheKey);
                     let koDataObj = null;
                     
@@ -2110,11 +2111,7 @@
 
             const nameKo = getProductDisplayName(item, 'ko'); // ALWAYS KO for URL to ensure matching
             
-            let nameDisplay = getProductDisplayName(item, currentLang === 'en' ? 'en' : 'ko');
-            if (currentLang !== 'ko' && currentLang !== 'en') {
-                const enName = getProductDisplayName(item, 'en');
-                nameDisplay = await translateText(enName, currentLang, 'en');
-            }
+            let nameDisplay = getProductDisplayName(item, currentLang);
             // 제품코드 열에서 데이터를 우선 가져옴 (없으면 한글 이름 폴백)
             const productCode = getColValue(item, COL.productCode) || nameKo;
             
