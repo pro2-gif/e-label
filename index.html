@@ -666,7 +666,7 @@
         };
 
         // 모달 제어 함수 (위키피디아 API로 실시간 성분 정보 제공)
-        window.openIngredientModal = async function(koName, enName) {
+        window.openIngredientModal = async function(koName, enName, localName) {
             const modalEl   = document.getElementById('ingredient-modal');
             const nameEl    = document.getElementById('modal-ing-name');
             const descEl    = document.getElementById('modal-ing-desc');
@@ -681,8 +681,11 @@
 
             // 화면에 표시할 이름 결정 (현재 언어 모드 고려)
             let displayName = koName;
-            if (currentLang === 'en' && enName) displayName = enName;
-            else if (currentLang !== 'ko') {
+            if (localName) {
+                displayName = localName;
+            } else if (currentLang === 'en' && enName) {
+                displayName = enName;
+            } else if (currentLang !== 'ko') {
                 const srcName = enName || koName;
                 nameEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
                 displayName = await translateText(srcName, currentLang, enName ? 'en' : 'ko');
@@ -1712,7 +1715,7 @@
                 badge.textContent = displayName;
                 
                 badge.dataset.koName = koName;
-                badge.onclick = () => window.openIngredientModal(koName, enNameForModal);
+                badge.onclick = () => window.openIngredientModal(koName, enNameForModal, displayName);
 
                 conceptContainer.appendChild(badge);
             }
