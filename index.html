@@ -1184,7 +1184,7 @@
                         if (!row || !row.c) return;
                         const cellName = row.c[0];
                         const cellDescKo = row.c[1];
-                        const cellCategory = row.c[2]; // C열: 헤어 카테고리 구분 등
+                        const cellCategory = row[5]; // F열: 헤어 카테고리 구분 등
                         
                         if (cellName && cellName.v) {
                             const name = String(cellName.v).trim();
