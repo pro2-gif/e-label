@@ -883,7 +883,7 @@
         function loadSheetData(callback, bypassCache = false, lang = 'ko') {
             const sheetMap = { ko: '국문', en: '영문', jp: '일본어', ch: '중국어' };
             const sheetName = sheetMap[lang] || '국문';
-            const cacheKey = 'eLabelDataCache_v6_' + lang;
+            const cacheKey = 'eLabelDataCache_v7_' + lang;
             const cached = sessionStorage.getItem(cacheKey);
             if (cached && !bypassCache) {
                 try {
@@ -899,7 +899,7 @@
                             window.globalSheetData = productsData;
                             
                             // Sheet2 데이터도 캐시 적용
-                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v7');
+                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v8');
                             if (cache2) {
                                 try {
                                     window.ingredientDetails = JSON.parse(cache2);
@@ -1240,7 +1240,7 @@
                     });
                     
                     try {
-                        sessionStorage.setItem('eLabelSheet2Cache_v7', JSON.stringify(window.ingredientDetails));
+                        sessionStorage.setItem('eLabelSheet2Cache_v8', JSON.stringify(window.ingredientDetails));
                     } catch(e) {}
                 } catch(e) {
                     console.error("Sheet2 parsing error:", e);
@@ -1368,7 +1368,7 @@
                 if (targetIndex === -1) {
                     if (!sessionStorage.getItem('retryCacheBust')) {
                         sessionStorage.setItem('retryCacheBust', 'true');
-                        sessionStorage.removeItem('eLabelDataCache_v4');
+                        sessionStorage.removeItem('eLabelDataCache_v8');
                         window.location.reload();
                         return;
                     } else {
@@ -1652,7 +1652,7 @@
             
             if (lang !== 'ko' && foreignNames.length > 0) {
                 try {
-                    const cacheKey = 'eLabelDataCache_v6_ko';
+                    const cacheKey = 'eLabelDataCache_v7_ko';
                     let koDataStr = sessionStorage.getItem(cacheKey);
                     let koDataObj = null;
                     
