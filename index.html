@@ -883,7 +883,7 @@
         function loadSheetData(callback, bypassCache = false, lang = 'ko') {
             const sheetMap = { ko: '국문', en: '영문', jp: '일본어', ch: '중국어' };
             const sheetName = sheetMap[lang] || '국문';
-            const cacheKey = 'eLabelDataCache_v10_' + lang;
+            const cacheKey = 'eLabelDataCache_v13_' + lang;
             const cached = sessionStorage.getItem(cacheKey);
             if (cached && !bypassCache) {
                 try {
@@ -899,7 +899,7 @@
                             window.globalSheetData = productsData;
                             
                             // Sheet2 데이터도 캐시 적용
-                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v11');
+                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v14');
                             if (cache2) {
                                 try {
                                     window.ingredientDetails = JSON.parse(cache2);
@@ -913,8 +913,12 @@
                 } catch(e) {}
             }
 
-            // 전역 콜백 함수 등록
-            window.handleSheetData = function (response) {
+            // 전역 콜백 함수 등록 (JSONP Race Condition 방지)
+            const reqId = Date.now() + '_' + Math.floor(Math.random() * 10000);
+            const cbName1 = 'handleSheetData_' + reqId;
+            const cbName2 = 'handleSheet2Data_' + reqId;
+            
+            window[cbName1] = function (response) {
                 try {
                     if (!response || !response.table || !response.table.rows) {
                         throw new Error("데이터 형식이 올바르지 않습니다.");
@@ -1000,8 +1004,9 @@
                     });
 
                     // 스크립트 찌꺼기 정리
-                    const scriptTag = document.getElementById('gviz-script');
+                    const scriptTag = document.getElementById('gviz-script_' + reqId);
                     if (scriptTag) scriptTag.remove();
+                    delete window[cbName1];
 
                     if (productsData.length === 0) throw new Error("데이터 부족");
 
@@ -1017,21 +1022,24 @@
                     callback(null, productsData);
                 } catch (err) {
                     console.error("데이터 파싱 실패:", err);
+                    const scriptTag = document.getElementById('gviz-script_' + reqId);
+                    if (scriptTag) scriptTag.remove();
+                    delete window[cbName1];
                     callback(err, null);
                 }
             };
 
             // JSONP 스크립트 생성 및 삽입 (로컬 환경에서도 무조건 작동)
             const script = document.createElement('script');
-            script.id = 'gviz-script';
-            script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheetData&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
+            script.id = 'gviz-script_' + reqId;
+            script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:${cbName1}&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
             script.onerror = function () {
                 callback(new Error("네트워크 오류 또는 구글 시트 로드 실패"), null);
             };
             document.head.appendChild(script);
             
             // Sheet2 (핵심 컨셉 성분 설명) 데이터 로드
-            window.handleSheet2Data = function(data) {
+            window[cbName2] = function(data) {
                 try {
                     const rows = data.table.rows;
                     
@@ -1210,14 +1218,12 @@
                             let rawCh = (row.c[4] && row.c[4].v) ? String(row.c[4].v).trim() : '';
 
                             // 1. 수동으로 완벽하게 다듬어진 안전 문구가 있다면 그것을 최우선 적용하되, 시트에 있는 다국어 번역본은 보존
-                            if (safeOverrides[key]) {
-                                window.ingredientDetails[key] = Object.assign({}, safeOverrides[key]);
-                                if (rawJp) window.ingredientDetails[key].jp = rawJp;
-                                if (rawCh) window.ingredientDetails[key].ch = rawCh;
-                                // 만약 사용자가 영문도 직접 적었다면 그걸 쓸지 말지 결정해야 하지만, 일단 안전문구 우선
-                                return; 
-                            } else if (category !== '헤어' && safeOverrides[name]) {
-                                window.ingredientDetails[key] = Object.assign({}, safeOverrides[name]);
+                            if (safeOverrides[key] || (category !== '헤어' && safeOverrides[name])) {
+                                const overrideKey = safeOverrides[key] ? key : name;
+                                if (!window.ingredientDetails[key]) {
+                                    window.ingredientDetails[key] = Object.assign({}, safeOverrides[overrideKey]);
+                                }
+                                // 기존에 이미 저장된 번역이 있다면 덮어쓰지 않고 보존 (중복 행 처리)
                                 if (rawJp) window.ingredientDetails[key].jp = rawJp;
                                 if (rawCh) window.ingredientDetails[key].ch = rawCh;
                                 return; 
@@ -1267,16 +1273,24 @@
                         }
                     });
                     
+                    // 스크립트 찌꺼기 정리
+                    const scriptTag2 = document.getElementById('gviz-script2_' + reqId);
+                    if (scriptTag2) scriptTag2.remove();
+                    delete window[cbName2];
+
                     try {
-                        sessionStorage.setItem('eLabelSheet2Cache_v11', JSON.stringify(window.ingredientDetails));
+                        sessionStorage.setItem('eLabelSheet2Cache_v14', JSON.stringify(window.ingredientDetails));
                     } catch(e) {}
                 } catch(e) {
                     console.error("Sheet2 parsing error:", e);
+                    const scriptTag2 = document.getElementById('gviz-script2_' + reqId);
+                    if (scriptTag2) scriptTag2.remove();
+                    delete window[cbName2];
                 }
             };
             const script2 = document.createElement('script');
-            script2.id = 'gviz-script2';
-            script2.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheet2Data&sheet=시트2&_=${Date.now()}`;
+            script2.id = 'gviz-script2_' + reqId;
+            script2.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:${cbName2}&sheet=시트2&_=${Date.now()}`;
             document.head.appendChild(script2);
         }
 
@@ -1396,7 +1410,7 @@
                 if (targetIndex === -1) {
                     if (!sessionStorage.getItem('retryCacheBust')) {
                         sessionStorage.setItem('retryCacheBust', 'true');
-                        sessionStorage.removeItem('eLabelDataCache_v10');
+                        sessionStorage.removeItem('eLabelDataCache_v13');
                         window.location.reload();
                         return;
                     } else {
@@ -1680,7 +1694,7 @@
             
             if (lang !== 'ko' && foreignNames.length > 0) {
                 try {
-                    const cacheKey = 'eLabelDataCache_v10_ko';
+                    const cacheKey = 'eLabelDataCache_v13_ko';
                     let koDataStr = sessionStorage.getItem(cacheKey);
                     let koDataObj = null;
                     
