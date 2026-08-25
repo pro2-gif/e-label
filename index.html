@@ -2397,11 +2397,10 @@
                         const option = document.createElement('option');
                         option.value = idx;
                         
-                        let displayName = getProductDisplayName(item, currentLang === 'en' ? 'en' : 'ko');
-                        if (currentLang !== 'ko' && currentLang !== 'en') {
-                            const enName = getProductDisplayName(item, 'en');
-                            displayName = await translateText(enName, currentLang, 'en');
-                        }
+                        // 이미 각 언어별 시트를 불러왔으므로 item[COL.name] 안에 올바른 언어의 제품명이 있습니다.
+                        const actualItem = item.isGroup ? item.data : item;
+                        const rawName = actualItem[COL.name] || '';
+                        const displayName = rawName.split('\n')[0].trim();
                         
                         option.textContent = displayName;
                         selectEl.appendChild(option);
@@ -2418,13 +2417,13 @@
             }
         }
 
-        document.getElementById('btn-ko').addEventListener('click', () => {
-            if (currentLang === 'ko') return;
+        function switchLanguage(lang) {
+            if (currentLang === lang) return;
             window.speechSynthesis.cancel();
             window.ttsChunks = [];
             const ttsBtn = document.getElementById('btn-tts');
             if (ttsBtn) ttsBtn.classList.remove('playing');
-            currentLang = 'ko';
+            currentLang = lang;
             ['ko', 'en', 'jp', 'ch'].forEach(l => {
                 const btn = document.getElementById('btn-' + l);
                 if (btn) {
@@ -2432,158 +2431,40 @@
                     else btn.classList.remove('active');
                 }
             });
-            updateGlobalLangUI('ko');
+            updateGlobalLangUI(lang);
             
-            if (document.getElementById('viewer-container').style.display === 'block') {
-                const loadingEl = document.getElementById('loading-screen');
+            const loadingEl = document.getElementById('loading-screen');
+            if (loadingEl) {
                 loadingEl.style.display = 'flex';
                 loadingEl.querySelector('p').textContent = 'Loading...';
-                
-                // 현재 제품 코드를 시트 로딩(COL 변경) 전에 미리 저장해 둠
-                const currentCode = window.currentTargetItem ? getColValue(window.currentTargetItem, COL.productCode) : null;
-                
-                loadSheetData(function(err, data) {
-                    if (!err && data && data.length > 0 && window.currentTargetItem) {
-                        const found = data.findIndex(item => getColValue(item, COL.productCode) === currentCode);
-                        if (found !== -1) {
-                            window.currentTargetItem = data[found];
-                        } else {
-                            window.currentTargetItem = data[0]; 
-                        }
-                    }
-                    loadingEl.style.display = 'none';
-                    renderLabel(window.currentTargetItem, currentLang);
-                }, false, currentLang);
-            } else {
-                updateMakerOptionsAndQr();
             }
-        });
-
-        document.getElementById('btn-en').addEventListener('click', () => {
-            if (currentLang === 'en') return;
-            window.speechSynthesis.cancel();
-            window.ttsChunks = [];
-            const ttsBtn = document.getElementById('btn-tts');
-            if (ttsBtn) ttsBtn.classList.remove('playing');
-            currentLang = 'en';
-            ['ko', 'en', 'jp', 'ch'].forEach(l => {
-                const btn = document.getElementById('btn-' + l);
-                if (btn) {
-                    if (l === currentLang) btn.classList.add('active');
-                    else btn.classList.remove('active');
+            
+            const currentCode = window.currentTargetItem ? getColValue(window.currentTargetItem, COL.productCode) : null;
+            
+            loadSheetData(function(err, data) {
+                if (!err && data && data.length > 0 && window.currentTargetItem) {
+                    const found = data.findIndex(item => getColValue(item, COL.productCode) === currentCode);
+                    if (found !== -1) {
+                        window.currentTargetItem = data[found];
+                    } else {
+                        window.currentTargetItem = data[0]; 
+                    }
                 }
-            });
-            updateGlobalLangUI('en');
-            
-            if (document.getElementById('viewer-container').style.display === 'block') {
-                const loadingEl = document.getElementById('loading-screen');
-                loadingEl.style.display = 'flex';
-                loadingEl.querySelector('p').textContent = 'Loading...';
+                if (loadingEl) loadingEl.style.display = 'none';
                 
-                // 현재 제품 코드를 시트 로딩(COL 변경) 전에 미리 저장해 둠
-                const currentCode = window.currentTargetItem ? getColValue(window.currentTargetItem, COL.productCode) : null;
-                
-                loadSheetData(function(err, data) {
-                    if (!err && data && data.length > 0 && window.currentTargetItem) {
-                        const found = data.findIndex(item => getColValue(item, COL.productCode) === currentCode);
-                        if (found !== -1) {
-                            window.currentTargetItem = data[found];
-                        } else {
-                            window.currentTargetItem = data[0]; 
-                        }
-                    }
-                    loadingEl.style.display = 'none';
+                if (document.getElementById('viewer-container').style.display === 'block') {
                     renderLabel(window.currentTargetItem, currentLang);
-                }, false, currentLang);
-            } else {
-                updateMakerOptionsAndQr();
-            }
-        });
-
-        document.getElementById('btn-jp').addEventListener('click', () => {
-            if (currentLang === 'jp') return;
-            window.speechSynthesis.cancel();
-            window.ttsChunks = [];
-            const ttsBtn = document.getElementById('btn-tts');
-            if (ttsBtn) ttsBtn.classList.remove('playing');
-            currentLang = 'jp';
-            ['ko', 'en', 'jp', 'ch'].forEach(l => {
-                const btn = document.getElementById('btn-' + l);
-                if (btn) {
-                    if (l === currentLang) btn.classList.add('active');
-                    else btn.classList.remove('active');
+                } else {
+                    updateMakerOptionsAndQr();
                 }
-            });
-            updateGlobalLangUI('jp');
-            
-            if (document.getElementById('viewer-container').style.display === 'block') {
-                const loadingEl = document.getElementById('loading-screen');
-                loadingEl.style.display = 'flex';
-                loadingEl.querySelector('p').textContent = 'Loading...';
-                
-                // 현재 제품 코드를 시트 로딩(COL 변경) 전에 미리 저장해 둠
-                const currentCode = window.currentTargetItem ? getColValue(window.currentTargetItem, COL.productCode) : null;
-                
-                loadSheetData(function(err, data) {
-                    if (!err && data && data.length > 0 && window.currentTargetItem) {
-                        const found = data.findIndex(item => getColValue(item, COL.productCode) === currentCode);
-                        if (found !== -1) {
-                            window.currentTargetItem = data[found];
-                        } else {
-                            window.currentTargetItem = data[0]; 
-                        }
-                    }
-                    loadingEl.style.display = 'none';
-                    renderLabel(window.currentTargetItem, currentLang);
-                }, false, currentLang);
-            } else {
-                updateMakerOptionsAndQr();
-            }
-        });
+            }, false, currentLang);
+        }
 
-        document.getElementById('btn-ch').addEventListener('click', () => {
-            if (currentLang === 'ch') return;
-            window.speechSynthesis.cancel();
-            window.ttsChunks = [];
-            const ttsBtn = document.getElementById('btn-tts');
-            if (ttsBtn) ttsBtn.classList.remove('playing');
-            currentLang = 'ch';
-            ['ko', 'en', 'jp', 'ch'].forEach(l => {
-                const btn = document.getElementById('btn-' + l);
-                if (btn) {
-                    if (l === currentLang) btn.classList.add('active');
-                    else btn.classList.remove('active');
-                }
-            });
-            updateGlobalLangUI('ch');
-            
-            if (document.getElementById('viewer-container').style.display === 'block') {
-                const loadingEl = document.getElementById('loading-screen');
-                loadingEl.style.display = 'flex';
-                loadingEl.querySelector('p').textContent = 'Loading...';
-                
-                // 현재 제품 코드를 시트 로딩(COL 변경) 전에 미리 저장해 둠
-                const currentCode = window.currentTargetItem ? getColValue(window.currentTargetItem, COL.productCode) : null;
-                
-                loadSheetData(function(err, data) {
-                    if (!err && data && data.length > 0 && window.currentTargetItem) {
-                        const found = data.findIndex(item => getColValue(item, COL.productCode) === currentCode);
-                        if (found !== -1) {
-                            window.currentTargetItem = data[found];
-                        } else {
-                            window.currentTargetItem = data[0]; 
-                        }
-                    }
-                    loadingEl.style.display = 'none';
-                    renderLabel(window.currentTargetItem, currentLang);
-                }, false, currentLang);
-            } else {
-                updateMakerOptionsAndQr();
-            }
-        });
+        document.getElementById('btn-ko').addEventListener('click', () => switchLanguage('ko'));
+        document.getElementById('btn-en').addEventListener('click', () => switchLanguage('en'));
+        document.getElementById('btn-jp').addEventListener('click', () => switchLanguage('jp'));
+        document.getElementById('btn-ch').addEventListener('click', () => switchLanguage('ch'));
 
-
-    
         // =====================================================
         // 글로벌 버튼 리스너 (구매하기, 돌아가기, TTS)
         // =====================================================
