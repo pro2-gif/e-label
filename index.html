@@ -859,7 +859,19 @@
             const cbName1 = 'handleSheetData_' + reqId;
             const cbName2 = 'handleSheet2Data_' + reqId;
             
+            let isTimeout1 = false;
+            const timeoutTimer1 = setTimeout(() => {
+                isTimeout1 = true;
+                const scriptTag = document.getElementById('gviz-script_' + reqId);
+                if (scriptTag) scriptTag.remove();
+                delete window[cbName1];
+                console.error("Sheet1 Load Timeout");
+                callback(new Error("구글 시트 응답 시간 초과"), null);
+            }, 8000);
+
             window[cbName1] = function (response) {
+                if (isTimeout1) return;
+                clearTimeout(timeoutTimer1);
                 try {
                     if (!response || !response.table || !response.table.rows) {
                         throw new Error("데이터 형식이 올바르지 않습니다.");
@@ -1371,13 +1383,6 @@
 
                 renderLabel(target, currentLang);
                 
-                // 다국어 탭 로딩 속도를 높이기 위해 백그라운드에서 미리 로드(프리패치)
-                setTimeout(() => {
-                    const langs = ['en', 'jp', 'ch'];
-                    langs.forEach(l => {
-                        if (l !== currentLang) loadSheetData(()=>{}, false, l);
-                    });
-                }, 1000); // UI 렌더링을 방해하지 않게 1초 후 백그라운드 요청
             }, false, currentLang);
         }
 
@@ -1642,7 +1647,7 @@
                     if (koDataStr) {
                         koDataObj = JSON.parse(koDataStr);
                     } else {
-                        const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=국문';
+                        const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent('국문');
                         const res = await fetch(url);
                         const text = await res.text();
                         const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
