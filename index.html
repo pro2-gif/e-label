@@ -621,6 +621,22 @@
         };
 
         // 모달 제어 함수 (위키피디아 API로 실시간 성분 정보 제공)
+        
+        function appendDisclaimer(text, lang) {
+            if (!text || typeof text !== 'string') return text;
+            if (text.includes('상세 설명이 등록되지 않았습니다') || text.includes('No detailed information found') || text.includes('No description available') || text.includes('Translating') || text.includes('정보를 찾을 수 없습니다') || text.includes('오류가 발생')) return text;
+            if (text.includes('(원료적 특성에 한함)') || text.includes('원료적 특성') || text.includes('原料特性') || text.includes('raw material')) return text;
+            
+            let disclaimer = '';
+            if (lang === 'ko') disclaimer = '(원료적 특성에 한함)';
+            else if (lang === 'en') disclaimer = '(Limited to raw material characteristics)';
+            else if (lang === 'jp') disclaimer = '（原料の特性に限る）';
+            else if (lang === 'ch') disclaimer = '(仅限原料特性)';
+            else disclaimer = '(원료적 특성에 한함)';
+            
+            return text.trim() + ' ' + disclaimer;
+        }
+
         window.openIngredientModal = async function(koName, enName, localName) {
             const modalEl   = document.getElementById('ingredient-modal');
             const nameEl    = document.getElementById('modal-ing-name');
@@ -656,17 +672,17 @@
                 const sheetInfo = window.ingredientDetails[lookupKey];
                 if (currentLang !== 'ko') {
                     if (sheetInfo[currentLang] && sheetInfo[currentLang] !== '상세 설명이 등록되지 않았습니다.' && sheetInfo[currentLang] !== 'No description available.') {
-                        descEl.textContent = sheetInfo[currentLang];
+                        descEl.textContent = appendDisclaimer(sheetInfo[currentLang], currentLang);
                     } else if (sheetInfo.ko && sheetInfo.ko !== '상세 설명이 등록되지 않았습니다.') {
                         descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
                         // 표시광고법에 맞게 순화된 국문(ko)을 기반으로 모든 언어를 실시간 번역
                         const translatedDesc = await translateText(sheetInfo.ko, currentLang, 'ko');
-                        descEl.textContent = translatedDesc;
+                        descEl.textContent = appendDisclaimer(translatedDesc, currentLang);
                     } else {
-                        descEl.textContent = currentLang === 'en' ? 'No description available.' : '상세 설명이 등록되지 않았습니다.';
+                        descEl.textContent = appendDisclaimer(currentLang === 'en' ? 'No description available.' : '상세 설명이 등록되지 않았습니다.', currentLang);
                     }
                 } else {
-                    descEl.textContent = sheetInfo.ko || '상세 설명이 등록되지 않았습니다.';
+                    descEl.textContent = appendDisclaimer(sheetInfo.ko || '상세 설명이 등록되지 않았습니다.', currentLang);
                 }
                 return; // 시트2에 정보가 있으면 여기서 즉시 종료
             }
@@ -679,9 +695,9 @@
                     // 다국어 모드일 경우 구글 번역 API로 통째로 번역
                     descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
                     const translatedFb = await translateText(fb, currentLang, 'ko');
-                    descEl.textContent = translatedFb;
+                    descEl.textContent = appendDisclaimer(translatedFb, currentLang);
                 } else {
-                    descEl.textContent = fb;
+                    descEl.textContent = appendDisclaimer(fb, currentLang);
                 }
                 return; // Fallback 정보가 있으면 즉시 종료
             }
@@ -723,22 +739,17 @@
                 if (summary) {
                     // 위키 정보에도 반드시 (원료적 특성에 한함) 추가
                     summary = summary.trim();
-                    if (!summary.includes(currentLang === 'ko' ? '(원료적 특성에 한함)' : '(Limited to raw material characteristics)')) {
-                        summary += currentLang === 'ko' ? ' (원료적 특성에 한함)' : ' (Limited to raw material characteristics)';
-                    }
                     
                     if (currentLang !== 'ko' && currentLang !== 'en') {
                         descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
                         summary = await translateText(summary, currentLang, 'en');
                     }
-                    descEl.textContent = summary;
+                    descEl.textContent = appendDisclaimer(summary, currentLang);
                 } else if (!fallback) {
-                    descEl.textContent = (currentLang !== 'ko')
-                        ? 'No detailed information found.'
-                        : '성분 상세 정보를 찾을 수 없습니다.';
+                    descEl.textContent = appendDisclaimer((currentLang !== 'ko') ? 'No detailed information found.' : '성분 상세 정보를 찾을 수 없습니다.', currentLang);
                 }
             } catch (e) {
-                if (!fallback) descEl.textContent = '성분 정보를 불러오는 중 오류가 발생했습니다.';
+                if (!fallback) descEl.textContent = appendDisclaimer('성분 정보를 불러오는 중 오류가 발생했습니다.', currentLang);
             }
         };
         window.closeIngredientModal = function(event) {
