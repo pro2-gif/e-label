@@ -906,30 +906,31 @@
 
                 // Grouping logic (same as original)
                 let groupedProducts = [];
-                let currentGroup = null;
-
                 for (let i = 0; i < rawRows.length; i++) {
                     let row = rawRows[i];
                     if (!row[COL.name]) continue;
 
                     const pCodeRaw = row[COL.productCode] || row[COL.name];
                     const pCode = pCodeRaw.split('#')[0].trim();
-                    if (currentGroup && currentGroup.code === pCode) {
-                        currentGroup.components.push(row);
+                    
+                    let existingGroup = groupedProducts.find(g => g.code === pCode);
+                    if (existingGroup) {
+                        existingGroup.components.push(row);
                     } else {
-                        currentGroup = {
+                        groupedProducts.push({
                             code: pCode,
                             firstRow: row,
                             components: [row]
-                        };
-                        groupedProducts.push(currentGroup);
+                        });
                     }
                 }
 
                 groupedProducts.forEach(group => {
+                    group.components.sort((a, b) => (a[COL.productCode] || '').trim().localeCompare((b[COL.productCode] || '').trim()));
                     let comps = group.components;
-                    let mainRow = group.firstRow;
+                    let mainRow = comps[0];
                     mainRow.componentsList = comps;
+                    group.firstRow = mainRow;
                 });
 
                 let productsData = groupedProducts.map(g => {
