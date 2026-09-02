@@ -277,7 +277,7 @@ window.addEventListener("unhandledrejection", function(e) {
                                  {{ {ko:'국문', en:'영문', jp:'일본어', ch:'중국어'}[l] }}
                             </div>
                         </div>
-                        <button v-if="currentLangTab === 'jp' || currentLangTab === 'ch'" @click="autoTranslate('product')" :disabled="loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm disabled:opacity-50">
+                        <button v-if="currentLangTab !== 'ko'" @click="autoTranslate('product', currentLangTab)" :disabled="loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm disabled:opacity-50">
                             <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate ? '번역 중...' : 'Gemini Flash' }}
                         </button>
                     </div>
@@ -570,9 +570,12 @@ window.addEventListener("unhandledrejection", function(e) {
                                 full_ingredients: ko.full_ingredients, test_results: ko.test_results,
                                 usage_instructions: ko.usage_instructions, precautions: ko.precautions, consumer_service: ko.consumer_service
                             });
-                            promptText = `You are an expert cosmetics translator. Translate the following JSON data from Korean into highly natural and professional Japanese and Chinese (Simplified).
-CRITICAL INSTRUCTION: For 'concept_ingredients' and 'full_ingredients', you MUST translate them strictly based on the official cosmetic ICID (International Cosmetic Ingredient Dictionary) names.
-Return ONLY a valid JSON object with two root keys: "jp" and "ch". Do not include markdown code blocks.
+                            
+                            const targetLangName = lang === 'en' ? 'English' : lang === 'jp' ? 'Japanese' : 'Chinese (Simplified)';
+                            promptText = `You are an expert cosmetics translator. Translate the following JSON data from Korean into highly natural and professional ${targetLangName}.
+CRITICAL INSTRUCTION 1: For 'concept_ingredients' and 'full_ingredients', you MUST translate them strictly based on the official cosmetic ICID (International Cosmetic Ingredient Dictionary) names.
+CRITICAL INSTRUCTION 2: You MUST ALWAYS translate the company name '(주)제니트리' or '제니트리' strictly as 'JANYTREE INC.' exactly. Do not transliterate it.
+Return ONLY a valid JSON object with a single root key "${lang}". Do not include markdown code blocks.
 Input: ${textToTranslate}`;
                         } else if (type === 'ingredient') {
                             const sourceText = this.ingredientForm.desc_ko;
@@ -588,6 +591,7 @@ Input: ${sourceText}`;
                             } else {
                                 const targetLang = lang === 'en' ? 'English' : lang === 'jp' ? 'Japanese' : 'Chinese (Simplified)';
                                 promptText = `Translate the following cosmetic ingredient description from Korean to highly natural and professional ${targetLang}.
+CRITICAL INSTRUCTION: You MUST ALWAYS translate the company name '(주)제니트리' or '제니트리' strictly as 'JANYTREE INC.' exactly. Do not transliterate it.
 Return ONLY the translated text without any markdown or explanations.
 Input: ${sourceText}`;
                             }
@@ -610,8 +614,7 @@ Input: ${sourceText}`;
                         
                         if (type === 'product') {
                             const translated = JSON.parse(resultText);
-                            Object.assign(this.formData.translations.jp, translated.jp);
-                            Object.assign(this.formData.translations.ch, translated.ch);
+                            Object.assign(this.formData.translations[lang], translated[lang]);
                             alert('✨ 제미나이 번역 완료! 하단의 [저장하기]를 잊지 마세요.');
                         } else {
                             if (lang === 'ko') this.ingredientForm.desc_ko = resultText;
