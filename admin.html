@@ -671,9 +671,13 @@ Input: ${sourceText}`;
                             .upsert(transUpserts, { onConflict: 'product_id, lang_code' });
                             
                         if (tError) throw tError;
+
+                        if (!this.modal.isEdit) {
+                            this.formData.id = productId;
+                            this.modal.isEdit = true;
+                        }
                         
                         alert('저장되었습니다.');
-                        this.closeProductModal();
                         this.loadProducts();
                         
                     } catch (e) {
