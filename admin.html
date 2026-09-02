@@ -260,7 +260,7 @@ window.addEventListener("unhandledrejection", function(e) {
                             <label class="block text-sm font-bold mb-1">제품 이미지</label>
                             <input type="file" accept="image/*" @change="uploadImage" class="w-full border p-2 rounded bg-white">
                             <div v-if="formData.image_url" class="mt-2">
-                                <img :src="formData.image_url" class="h-20 object-contain border rounded">
+                                <img :src="formData.image_url" class="h-20 object-contain border rounded transition-transform duration-300 ease-in-out hover:scale-[3] hover:z-50 relative origin-top-left shadow-sm hover:shadow-2xl cursor-pointer bg-white">
                             </div>
                             <div v-if="loading.image" class="mt-1 text-sm text-blue-500">이미지 업로드 중...</div>
                         </div>
