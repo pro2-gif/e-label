@@ -253,7 +253,7 @@ window.addEventListener("unhandledrejection", function(e) {
                     <div class="mb-6 grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold mb-1">제품 코드 <span class="text-red-500">*</span></label>
-                            <input type="text" v-model="formData.product_code" class="w-full border p-2 rounded" placeholder="예: CLX-RJ" :disabled="modal.isEdit">
+                            <input type="text" v-model="formData.product_code" class="w-full border p-2 rounded" placeholder="예: CLX-RJ" >
                             <p class="text-[11px] text-gray-500 mt-1">💡 세트(2종 이상) 상품은 <b>CLX-LAP#1</b>, <b>CLX-LAP#2</b> 처럼 #번호를 붙여서 각각 등록하시면, 고객 화면에서 <b>CLX-LAP</b> 하나로 묶여서 드롭다운으로 표시됩니다.</p>
                         </div>
                         
@@ -649,7 +649,7 @@ Input: ${sourceText}`;
                         // 1. Save Product
                         if (this.modal.isEdit) {
                             const { error } = await supabaseClient.from('products')
-                                .update({ image_url: this.formData.image_url })
+                                .update({ image_url: this.formData.image_url, product_code: this.formData.product_code })
                                 .eq('id', productId);
                             if (error) throw error;
                         } else {
