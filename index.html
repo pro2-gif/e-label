@@ -968,6 +968,19 @@
             return lines[0] || '';
         }
 
+        
+        function getCommonPrefix(strings) {
+            if (!strings || strings.length === 0) return '';
+            let prefix = strings[0];
+            for (let i = 1; i < strings.length; i++) {
+                while (strings[i].indexOf(prefix) !== 0) {
+                    prefix = prefix.substring(0, prefix.length - 1);
+                    if (prefix === '') return '';
+                }
+            }
+            return prefix.trim();
+        }
+
         // 인덱스 기반으로 값 가져오기
         function getColValue(item, colIndex) {
             const actualItem = (item && item.isGroup) ? item.data : item;
@@ -1546,25 +1559,31 @@
             // 대표 제품명 및 이미지 렌더링 (그룹의 첫 번째 행 기준)
             const pNameEl = document.getElementById('product-name');
             let pName = getProductDisplayName(item, lang);
+            let commonPrefixGlobal = '';
+            if (item.componentsList && item.componentsList.length > 1) {
+                const allNames = item.componentsList.map(c => getProductDisplayName(c, lang));
+                commonPrefixGlobal = getCommonPrefix(allNames);
+                if (commonPrefixGlobal.length > 3) pName = commonPrefixGlobal;
+            }
             pNameEl.textContent = pName;
 
             // 서브탭 렌더링
             const tabsContainer = document.getElementById('sub-tabs-container');
-            if (item.components && item.components.length > 1) {
+            if (item.componentsList && item.componentsList.length > 1) {
                 tabsContainer.style.display = 'flex';
                 tabsContainer.innerHTML = '';
                 
                 // 첫 렌더링 플래그 (비동기 처리 중 UI 깜빡임 방지)
                 let isFirstRender = true;
                 
-                for (let i = 0; i < item.components.length; i++) {
-                    const comp = item.components[i];
+                for (let i = 0; i < item.componentsList.length; i++) {
+                    const comp = item.componentsList[i];
                     const btn = document.createElement('button');
                     let rawName = getColValue(comp, COL.componentName);
                     if (!rawName) rawName = 'Step ' + (i + 1);
                     
                     // 구성품명이 부모 제품명을 포함하는 경우, 부모 제품명 뒤에서 강제 줄바꿈(<br>) 처리
-                    const parentName = getColValue(window.currentTargetItem, COL.name);
+                    const parentName = commonPrefixGlobal || getColValue(window.currentTargetItem, COL.name);
                     if (parentName && rawName.includes(parentName)) {
                         if (rawName.includes(parentName + ' ')) {
                             rawName = rawName.replace(parentName + ' ', parentName + '<br>');
@@ -2119,7 +2138,12 @@
                         // 이미 각 언어별 시트를 불러왔으므로 item[COL.name] 안에 올바른 언어의 제품명이 있습니다.
                         const actualItem = item.isGroup ? item.data : item;
                         const rawName = actualItem[COL.name] || '';
-                        const displayName = rawName.split('\n')[0].trim();
+                        let displayName = rawName.split('\n')[0].trim();
+                        if (item.isGroup && item.components && item.components.length > 1) {
+                            const allNames = item.components.map(c => (getColValue(c, COL.name) || '').split('\n')[0].trim());
+                            const commonPrefix = getCommonPrefix(allNames);
+                            if (commonPrefix.length > 3) displayName = commonPrefix;
+                        }
                         
                         option.textContent = displayName;
                         selectEl.appendChild(option);
