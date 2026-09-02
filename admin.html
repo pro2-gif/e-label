@@ -575,6 +575,7 @@ window.addEventListener("unhandledrejection", function(e) {
                             promptText = `You are an expert cosmetics translator. Translate the following JSON data from Korean into highly natural and professional ${targetLangName}.
 CRITICAL INSTRUCTION 1: For 'concept_ingredients' and 'full_ingredients', you MUST translate them strictly based on the official cosmetic ICID (International Cosmetic Ingredient Dictionary) names.
 CRITICAL INSTRUCTION 2: You MUST ALWAYS translate the company name '(주)제니트리' or '제니트리' strictly as 'JANYTREE INC.' exactly. Do not transliterate it.
+CRITICAL INSTRUCTION 3: You MUST ALWAYS translate the brand name '인투메디' strictly as 'INTOMEDI' exactly. Do not transliterate it.
 Return ONLY a valid JSON object with a single root key "${lang}". Do not include markdown code blocks.
 Input: ${textToTranslate}`;
                         } else if (type === 'ingredient') {
@@ -591,7 +592,8 @@ Input: ${sourceText}`;
                             } else {
                                 const targetLang = lang === 'en' ? 'English' : lang === 'jp' ? 'Japanese' : 'Chinese (Simplified)';
                                 promptText = `Translate the following cosmetic ingredient description from Korean to highly natural and professional ${targetLang}.
-CRITICAL INSTRUCTION: You MUST ALWAYS translate the company name '(주)제니트리' or '제니트리' strictly as 'JANYTREE INC.' exactly. Do not transliterate it.
+CRITICAL INSTRUCTION 1: You MUST ALWAYS translate the company name '(주)제니트리' or '제니트리' strictly as 'JANYTREE INC.' exactly. Do not transliterate it.
+CRITICAL INSTRUCTION 2: You MUST ALWAYS translate the brand name '인투메디' strictly as 'INTOMEDI' exactly. Do not transliterate it.
 Return ONLY the translated text without any markdown or explanations.
 Input: ${sourceText}`;
                             }
@@ -631,7 +633,7 @@ Input: ${sourceText}`;
                             localStorage.removeItem('GEMINI_API_KEY');
                         }
                     }
-                    this.loading.save = false;
+                    this.loading.translate = false;
                 },
 
                 async saveProduct() {
