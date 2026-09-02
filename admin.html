@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Label Admin Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        jt: {
+                            charcoal: '#1F2328',
+                            blue: '#305CDE',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: 'Pretendard', sans-serif; background-color: #f3f4f6; }
+        .tab-btn { padding: 0.5rem 1rem; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab-btn.active { border-bottom-color: #305CDE; color: #305CDE; font-weight: bold; }
+        [v-cloak] { display: none !important; }
+    </style>
+</head>
+<body>
+<div id='global-error' style='display:none; color:red; padding: 20px; border: 2px solid red; background: #fee; margin: 20px;'></div>
+<script>
+window.onerror = function(msg, src, lineno, colno, err) {
+  document.getElementById('global-error').style.display = 'block';
+  document.getElementById('global-error').innerText += 'Error: ' + msg + ' at ' + lineno + ':' + colno + '\n';
+};
+window.addEventListener("unhandledrejection", function(e) {
+  document.getElementById('global-error').style.display = 'block';
+  document.getElementById('global-error').innerText += 'Promise Rejection: ' + (e.reason && e.reason.message || e.reason) + '\n';
+});
+</script>
+
+    <div id="app" class="min-h-screen text-gray-800" v-cloak>
+        
+        <!-- 로딩 -->
+        <div v-if="loading.init" class="flex items-center justify-center min-h-screen">
+            <div class="text-xl text-gray-500">로딩 중...</div>
+        </div>
+
+        <!-- 로그인 화면 -->
+        <div v-else-if="!session" class="flex items-center justify-center min-h-screen bg-gray-100">
+            <div class="bg-white p-8 rounded-lg shadow-md w-96">
+                <h1 class="text-2xl font-bold mb-6 text-center text-jt-charcoal">E-Label 관리자 로그인</h1>
+                <form @submit.prevent="handleLogin">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-1">이메일</label>
+                        <input type="email" v-model="login.email" class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-jt-blue" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-1">비밀번호</label>
+                        <input type="password" v-model="login.password" class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-jt-blue" required>
+                    </div>
+                    <button type="submit" class="w-full bg-jt-charcoal text-white rounded p-2 hover:bg-black transition disabled:opacity-50" :disabled="loading.login">
+                        {{ loading.login ? '로그인 중...' : '로그인' }}
+                    </button>
+                    <p v-if="login.error" class="text-red-500 text-sm mt-3 text-center">{{ login.error }}</p>
+                </form>
+            </div>
+        </div>
+
+        <!-- 관리자 대시보드 -->
+        <div v-else class="flex h-screen bg-gray-100">
+            
+            <!-- 사이드바 -->
+            <div class="w-64 bg-jt-charcoal text-white flex flex-col">
+                <div class="p-6 text-xl font-bold border-b border-gray-700">E-Label Admin</div>
+                <nav class="flex-1 p-4 space-y-2">
+                    <button @click="currentMenu = 'products'; loadProducts()" class="w-full text-left p-2 rounded hover:bg-gray-700 transition" :class="{'bg-jt-blue': currentMenu === 'products'}">제품 관리</button>
+                    <button @click="currentMenu = 'ingredients'" class="w-full text-left p-2 rounded hover:bg-gray-700 transition" :class="{'bg-jt-blue': currentMenu === 'ingredients'}">핵심 성분 관리</button>
+                </nav>
+                <div class="p-4 border-t border-gray-700 text-sm">
+                    <p class="truncate mb-2 text-gray-400">{{ session.user.email }}</p>
+                    <button @click="handleLogout" class="text-gray-300 hover:text-white underline">로그아웃</button>
+                </div>
+            </div>
+
+            <!-- 메인 컨텐츠 -->
+            <div class="flex-1 overflow-auto">
+                
+                <!-- 제품 관리 -->
+                <div v-if="currentMenu === 'products'" class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-jt-charcoal">제품 관리</h2>
+                        <button @click="openProductModal()" class="bg-jt-blue text-white px-4 py-2 rounded shadow hover:bg-blue-700">새 제품 추가</button>
+                    </div>
+                    
+                    <div v-if="loading.products" class="text-gray-500">목록을 불러오는 중...</div>
+                    <div v-else class="bg-white rounded shadow overflow-hidden">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">제품코드</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">제품명 (국문)</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr v-for="p in products" :key="p.id" class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ p.product_code }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ getKoName(p) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button @click="openProductModal(p)" class="text-jt-blue hover:underline mr-3">수정</button>
+                                        <button @click="deleteProduct(p)" class="text-red-500 hover:underline">삭제</button>
+                                    </td>
+                                </tr>
+                                <tr v-if="products.length === 0">
+                                    <td colspan="3" class="px-6 py-4 text-center text-gray-500">등록된 제품이 없습니다.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 핵심 성분 관리 -->
+                <div v-if="currentMenu === 'ingredients'" class="p-8">
+                    
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-jt-charcoal">핵심 성분 관리</h2>
+                        <button @click="openIngredientModal()" class="bg-jt-blue text-white px-4 py-2 rounded shadow hover:bg-blue-700">새 성분 추가</button>
+                    </div>
+                    
+                    <div v-if="loadingIngredients" class="text-gray-500">목록을 불러오는 중...</div>
+                    <div v-else class="bg-white rounded shadow overflow-hidden">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">성분명 (국문)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">분류(카테고리)</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr v-for="ing in ingredients" :key="ing.id" class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ ing.name_ko }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ing.category }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button @click="openIngredientModal(ing)" class="text-jt-blue hover:underline mr-3">수정</button>
+                                        <button @click="deleteIngredient(ing)" class="text-red-500 hover:underline">삭제</button>
+                                    </td>
+                                </tr>
+                                <tr v-if="ingredients.length === 0">
+                                    <td colspan="3" class="px-6 py-4 text-center text-gray-500">등록된 성분이 없습니다.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        
+        <!-- 핵심 성분 에디터 모달 -->
+        <div v-if="ingredientModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-full flex flex-col overflow-hidden">
+                <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+                    <h3 class="text-lg font-bold">{{ ingredientForm.id ? '성분 수정' : '새 성분 추가' }}</h3>
+                    <button @click="closeIngredientModal" class="text-gray-500 hover:text-black">&times;</button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-6 space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold mb-1">성분명 (국문) <span class="text-red-500">*</span></label>
+                            <input type="text" v-model="ingredientForm.name_ko" class="w-full border p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1">분류 (카테고리)</label>
+                            <input type="text" v-model="ingredientForm.category" class="w-full border p-2 rounded" placeholder="예: 일반, 헤어 등">
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    <div class="mt-6 mb-2">
+                        <h4 class="font-bold text-gray-700 border-b w-full pb-2">다국어 설명</h4>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-sm font-medium">설명 (국문)</label>
+                            <button @click="autoTranslate('ingredient', 'ko')" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm">
+                                <span class="mr-1 text-yellow-500">✨</span> 화장품법 검수 (Gemini)
+                            </button>
+                        </div>
+                        <textarea v-model="ingredientForm.desc_ko" class="w-full border p-2 rounded h-20"></textarea>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-sm font-medium">설명 (영문)</label>
+                            <button @click="autoTranslate('ingredient', 'en')" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm">
+                                <span class="mr-1 text-yellow-500">✨</span> Gemini Flash
+                            </button>
+                        </div>
+                        <textarea v-model="ingredientForm.desc_en" class="w-full border p-2 rounded h-20"></textarea>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-sm font-medium">설명 (일본어)</label>
+                            <button @click="autoTranslate('ingredient', 'jp')" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm">
+                                <span class="mr-1 text-yellow-500">✨</span> Gemini Flash
+                            </button>
+                        </div>
+                        <textarea v-model="ingredientForm.desc_jp" class="w-full border p-2 rounded h-20"></textarea>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-sm font-medium">설명 (중국어)</label>
+                            <button @click="autoTranslate('ingredient', 'ch')" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm">
+                                <span class="mr-1 text-yellow-500">✨</span> Gemini Flash
+                            </button>
+                        </div>
+                        <textarea v-model="ingredientForm.desc_ch" class="w-full border p-2 rounded h-20"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="p-4 border-t bg-gray-50 flex justify-end space-x-3">
+                    <button @click="closeIngredientModal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">취소</button>
+                    <button @click="saveIngredient" class="px-4 py-2 bg-jt-blue text-white rounded hover:bg-blue-700">저장하기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 제품 에디터 모달 -->
+        <div v-if="modal.product" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-full flex flex-col overflow-hidden">
+                <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+                    <h3 class="text-lg font-bold">{{ modal.isEdit ? '제품 수정' : '새 제품 추가' }}</h3>
+                    <button @click="closeProductModal" class="text-gray-500 hover:text-black">&times;</button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-6">
+                    <div class="mb-6 grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold mb-1">제품 코드 <span class="text-red-500">*</span></label>
+                            <input type="text" v-model="formData.product_code" class="w-full border p-2 rounded" placeholder="예: CLX-RJ" :disabled="modal.isEdit">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold mb-1">제품 이미지</label>
+                            <input type="file" accept="image/*" @change="uploadImage" class="w-full border p-2 rounded bg-white">
+                            <div v-if="formData.image_url" class="mt-2">
+                                <img :src="formData.image_url" class="h-20 object-contain border rounded">
+                            </div>
+                            <div v-if="loading.image" class="mt-1 text-sm text-blue-500">이미지 업로드 중...</div>
+                        </div>
+
+
+                    </div>
+
+                    
+                    
+                    <div class="border-b flex justify-between items-center mb-4">
+                        <div class="flex">
+                            <div v-for="l in ['ko', 'en', 'jp', 'ch']" :key="l" 
+                                 @click="currentLangTab = l"
+                                 class="tab-btn"
+                                 :class="{ active: currentLangTab === l }">
+                                 {{ {ko:'국문', en:'영문', jp:'일본어', ch:'중국어'}[l] }}
+                            </div>
+                        </div>
+                        <button v-if="currentLangTab === 'jp' || currentLangTab === 'ch'" @click="autoTranslate('product')" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm">
+                            <span class="mr-1 text-yellow-500">✨</span> Gemini Flash
+                        </button>
+                    </div>
+
+
+
+                    <div v-for="l in ['ko', 'en', 'jp', 'ch']" :key="l" v-show="currentLangTab === l" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">제품명 ({{l}})</label>
+                            <input type="text" v-model="formData.translations[l].name" class="w-full border p-2 rounded">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">용량</label>
+                                <input type="text" v-model="formData.translations[l].capacity" class="w-full border p-2 rounded">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">기능성 분류</label>
+                                <input type="text" v-model="formData.translations[l].function_type" class="w-full border p-2 rounded">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">제조업자 및 책임판매업자</label>
+                            <input type="text" v-model="formData.translations[l].manufacturer_address" class="w-full border p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">핵심 컨셉 성분</label>
+                            <textarea v-model="formData.translations[l].concept_ingredients" class="w-full border p-2 rounded h-20"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">전성분</label>
+                            <textarea v-model="formData.translations[l].full_ingredients" class="w-full border p-2 rounded h-20"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">인체적용시험</label>
+                            <input type="text" v-model="formData.translations[l].test_results" class="w-full border p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">사용방법</label>
+                            <textarea v-model="formData.translations[l].usage_instructions" class="w-full border p-2 rounded h-20"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">주의사항</label>
+                            <textarea v-model="formData.translations[l].precautions" class="w-full border p-2 rounded h-20"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">소비자 상담</label>
+                            <input type="text" v-model="formData.translations[l].consumer_service" class="w-full border p-2 rounded">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border-t bg-gray-50 flex justify-end space-x-3">
+                    <button @click="closeProductModal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">취소</button>
+                    <button @click="saveProduct" class="px-4 py-2 bg-jt-blue text-white rounded hover:bg-blue-700" :disabled="loading.save">
+                        {{ loading.save ? '저장 중...' : '저장하기' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://jvilxuppwvzsxsdzhale.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2aWx4dXBwd3Z6c3hzZHpoYWxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwMDk4ODgsImV4cCI6MjEwMjU4NTg4OH0.4buNsHOKZKcjWmpWfD-BNx-Gm3X8r_gRcVb7sO8O10s';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    session: null,
+                    loading: {
+                        init: true,
+                        login: false,
+                        products: false,
+                        save: false
+                    },
+                    login: {
+                        email: '',
+                        password: '',
+                        error: null
+                    },
+                    currentMenu: 'products',
+                    products: [], ingredients: [], loadingIngredients: false, ingredientModal: false, ingredientForm: { id: null, name_ko: '', category: '', desc_ko: '', desc_en: '', desc_jp: '', desc_ch: '' },
+                    
+                    // Modal state
+                    modal: {
+                        product: false,
+                        isEdit: false
+                    },
+                    currentLangTab: 'ko',
+                    formData: { id: null, product_code: '', image_url: '', shop_url: '', translations: { ko: {}, en: {}, jp: {}, ch: {} } }
+                }
+            },
+            async mounted() {
+                // Check auth
+                const { data } = await supabaseClient.auth.getSession();
+                this.session = data.session;
+                
+                supabaseClient.auth.onAuthStateChange((_event, session) => {
+                    this.session = session;
+                });
+                
+                this.loading.init = false;
+                
+                if (this.session) {
+                    this.loadProducts(); this.loadIngredients();
+                }
+            },
+            methods: {
+                async handleLogin() {
+                    this.loading.login = true;
+                    this.login.error = null;
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: this.login.email,
+                        password: this.login.password
+                    });
+                    if (error) {
+                        this.login.error = error.message;
+                    } else {
+                        this.session = data.session;
+                        this.loadProducts();
+                    }
+                    this.loading.login = false;
+                },
+                async handleLogout() {
+                    await supabaseClient.auth.signOut();
+                    this.session = null;
+                },
+                
+                async loadIngredients() {
+                    this.loadingIngredients = true;
+                    const { data, error } = await supabaseClient.from('ingredient_details').select('*').order('name_ko');
+                    if (error) console.error(error);
+                    else this.ingredients = data;
+                    this.loadingIngredients = false;
+                },
+                openIngredientModal(ing = null) {
+                    if (ing) {
+                        this.ingredientForm = { ...ing };
+                    } else {
+                        this.ingredientForm = { id: null, name_ko: '', category: '', desc_ko: '', desc_en: '', desc_jp: '', desc_ch: '' };
+                    }
+                    this.ingredientModal = true;
+                },
+                closeIngredientModal() {
+                    this.ingredientModal = false;
+                },
+                async saveIngredient() {
+                    if (!this.ingredientForm.name_ko) return alert('성분명을 입력해주세요.');
+                    
+                    try {
+                        const payload = {
+                            name_ko: this.ingredientForm.name_ko,
+                            category: this.ingredientForm.category,
+                            desc_ko: this.ingredientForm.desc_ko,
+                            desc_en: this.ingredientForm.desc_en,
+                            desc_jp: this.ingredientForm.desc_jp,
+                            desc_ch: this.ingredientForm.desc_ch
+                        };
+                        
+                        if (this.ingredientForm.id) {
+                            const { error } = await supabaseClient.from('ingredient_details').update(payload).eq('id', this.ingredientForm.id);
+                            if (error) throw error;
+                        } else {
+                            const { error } = await supabaseClient.from('ingredient_details').insert([payload]);
+                            if (error) throw error;
+                        }
+                        
+                        alert('저장되었습니다.');
+                        this.closeIngredientModal();
+                        this.loadIngredients();
+                    } catch (e) {
+                        alert('저장 실패: ' + e.message);
+                    }
+                },
+                async deleteIngredient(ing) {
+                    if (confirm(`정말 '${ing.name_ko}' 성분을 삭제하시겠습니까?`)) {
+                        const { error } = await supabaseClient.from('ingredient_details').delete().eq('id', ing.id);
+                        if (error) alert('삭제 실패: ' + error.message);
+                        else this.loadIngredients();
+                    }
+                },
+
+                async loadProducts() {
+                    this.loading.products = true;
+                    const { data, error } = await supabaseClient
+                        .from('products')
+                        .select('*, product_translations(*)');
+                    if (error) {
+                        console.error('Error fetching products:', error);
+                    } else {
+                        this.products = data;
+                    }
+                    this.loading.products = false;
+                },
+                getKoName(product) {
+                    const koTrans = product.product_translations.find(t => t.lang_code === 'ko');
+                    return koTrans ? koTrans.name : '(이름 없음)';
+                },
+                getEmptyFormData() {
+                    const trans = {};
+                    ['ko', 'en', 'jp', 'ch'].forEach(l => {
+                        trans[l] = { name: '', capacity: '', function_type: '', manufacturer_address: '', concept_ingredients: '', full_ingredients: '', test_results: '', usage_instructions: '', precautions: '', consumer_service: '' };
+                    });
+                    return { id: null, product_code: '', image_url: '', shop_url: '', translations: trans };
+                },
+                openProductModal(product = null) {
+                    this.currentLangTab = 'ko';
+                    if (product) {
+                        this.modal.isEdit = true;
+                        const trans = {};
+                        ['ko', 'en', 'jp', 'ch'].forEach(l => {
+                            const t = product.product_translations.find(x => x.lang_code === l) || {};
+                            trans[l] = { 
+                                name: t.name || '', capacity: t.capacity || '', function_type: t.function_type || '', 
+                                manufacturer_address: t.manufacturer_address || '', concept_ingredients: t.concept_ingredients || '', 
+                                full_ingredients: t.full_ingredients || '', test_results: t.test_results || '', 
+                                usage_instructions: t.usage_instructions || '', precautions: t.precautions || '', 
+                                consumer_service: t.consumer_service || '' 
+                            };
+                        });
+                        this.formData = {
+                            id: product.id,
+                            product_code: product.product_code,
+                            image_url: product.image_url,
+                            shop_url: product.shop_url,
+                            translations: trans
+                        };
+                    } else {
+                        this.modal.isEdit = false;
+                        this.formData = this.getEmptyFormData();
+                    }
+                    this.modal.product = true;
+                },
+                closeProductModal() {
+                    this.modal.product = false;
+                },
+                
+                
+                async uploadImage(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    
+                    this.loading.image = true;
+                    try {
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = Date.now() + Math.random().toString(36).substring(7) + '.' + fileExt;
+                        const filePath = fileName;
+                        
+                        const { error: uploadError } = await supabaseClient.storage
+                            .from('product-images')
+                            .upload(filePath, file);
+                            
+                        if (uploadError) throw uploadError;
+                        
+                        const { data } = supabaseClient.storage
+                            .from('product-images')
+                            .getPublicUrl(filePath);
+                            
+                        this.formData.image_url = data.publicUrl;
+                    } catch (error) {
+                        alert('이미지 업로드 실패: ' + error.message);
+                    } finally {
+                        this.loading.image = false;
+                    }
+                },
+                async autoTranslate(type, lang = null) {
+                    let apiKey = localStorage.getItem('GEMINI_API_KEY');
+                    if (!apiKey) {
+                        apiKey = prompt('제미나이 AI를 사용하려면 Gemini API Key를 입력해주세요.\n(https://aistudio.google.com/app/apikey 에서 발급)');
+                        if (!apiKey) return;
+                        localStorage.setItem('GEMINI_API_KEY', apiKey);
+                    }
+                    
+                    this.loading.save = true;
+                    try {
+                        let promptText = '';
+                        
+                        if (type === 'product') {
+                            const ko = this.formData.translations.ko;
+                            const textToTranslate = JSON.stringify({
+                                name: ko.name, capacity: ko.capacity, function_type: ko.function_type,
+                                manufacturer_address: ko.manufacturer_address, concept_ingredients: ko.concept_ingredients,
+                                full_ingredients: ko.full_ingredients, test_results: ko.test_results,
+                                usage_instructions: ko.usage_instructions, precautions: ko.precautions, consumer_service: ko.consumer_service
+                            });
+                            promptText = `You are an expert cosmetics translator. Translate the following JSON data from Korean into highly natural and professional Japanese and Chinese (Simplified).
+CRITICAL INSTRUCTION: For 'concept_ingredients' and 'full_ingredients', you MUST translate them strictly based on the official cosmetic ICID (International Cosmetic Ingredient Dictionary) names.
+Return ONLY a valid JSON object with two root keys: "jp" and "ch". Do not include markdown code blocks.
+Input: ${textToTranslate}`;
+                        } else if (type === 'ingredient') {
+                            const sourceText = this.ingredientForm.desc_ko;
+                            if (!sourceText) throw new Error('국문 설명을 먼저 입력해주세요.');
+                            
+                            if (lang === 'ko') {
+                                promptText = `You are a strict Korean Cosmetics Regulatory Affairs expert. Review and rewrite the following cosmetic ingredient description to strictly comply with the Korean Cosmetics Act (화장품법 표시광고 가이드라인).
+1. Remove any prohibited medical claims (e.g., curing diseases, anti-inflammatory, treating acne directly unless clinically proven, skin regeneration).
+2. Soften the language to cosmetic efficacy (e.g., "helps improve skin", "soothes skin", "provides moisture").
+3. Make it sound professional yet compliant.
+Return ONLY the revised Korean text without any markdown or explanations.
+Input: ${sourceText}`;
+                            } else {
+                                const targetLang = lang === 'en' ? 'English' : lang === 'jp' ? 'Japanese' : 'Chinese (Simplified)';
+                                promptText = `Translate the following cosmetic ingredient description from Korean to highly natural and professional ${targetLang}.
+Return ONLY the translated text without any markdown or explanations.
+Input: ${sourceText}`;
+                            }
+                        }
+
+                        const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-3.6-flash:generateContent?key=' + apiKey, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+                        });
+                        
+                        if (!response.ok) {
+                            const errText = await response.text();
+                            throw new Error('API 오류: ' + response.status + ' - ' + errText);
+                        }
+                        
+                        const data = await response.json();
+                        let resultText = data.candidates[0].content.parts[0].text.trim();
+                        resultText = resultText.replace(/\s*\`\`\`json\s*/g, '').replace(/\s*\`\`\`\s*/g, '');
+                        
+                        if (type === 'product') {
+                            const translated = JSON.parse(resultText);
+                            Object.assign(this.formData.translations.jp, translated.jp);
+                            Object.assign(this.formData.translations.ch, translated.ch);
+                            alert('✨ 제미나이 번역 완료! 하단의 [저장하기]를 잊지 마세요.');
+                        } else {
+                            if (lang === 'ko') this.ingredientForm.desc_ko = resultText;
+                            else if (lang === 'en') this.ingredientForm.desc_en = resultText;
+                            else if (lang === 'jp') this.ingredientForm.desc_jp = resultText;
+                            else if (lang === 'ch') this.ingredientForm.desc_ch = resultText;
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        alert('작업 중 오류가 발생했습니다: ' + e.message);
+                        
+                        
+                        if (e.message.includes('API_KEY_INVALID') || e.message.includes('400') || e.message.includes('403')) {
+                            localStorage.removeItem('GEMINI_API_KEY');
+                        }
+                    }
+                    this.loading.save = false;
+                },
+
+                async saveProduct() {
+                    if (!this.formData.product_code) return alert('제품 코드를 입력해주세요.');
+                    this.loading.save = true;
+                    
+                    try {
+                        let productId = this.formData.id;
+                        
+                        // 1. Save Product
+                        if (this.modal.isEdit) {
+                            const { error } = await supabaseClient.from('products')
+                                .update({ image_url: this.formData.image_url })
+                                .eq('id', productId);
+                            if (error) throw error;
+                        } else {
+                            const { data, error } = await supabaseClient.from('products')
+                                .insert({ product_code: this.formData.product_code, image_url: this.formData.image_url })
+                                .select().single();
+                            if (error) throw error;
+                            productId = data.id;
+                        }
+                        
+                        // 2. Save Translations
+                        const transUpserts = ['ko', 'en', 'jp', 'ch'].map(l => ({
+                            product_id: productId,
+                            lang_code: l,
+                            ...this.formData.translations[l]
+                        }));
+                        
+                        const { error: tError } = await supabaseClient.from('product_translations')
+                            .upsert(transUpserts, { onConflict: 'product_id, lang_code' });
+                            
+                        if (tError) throw tError;
+                        
+                        alert('저장되었습니다.');
+                        this.closeProductModal();
+                        this.loadProducts();
+                        
+                    } catch (e) {
+                        console.error(e);
+                        alert('오류가 발생했습니다: ' + e.message);
+                    }
+                    this.loading.save = false;
+                },
+                async deleteProduct(product) {
+                    if (confirm(`정말 '${this.getKoName(product)}' 제품을 삭제하시겠습니까?`)) {
+                        const { error } = await supabaseClient.from('products').delete().eq('id', product.id);
+                        if (error) alert('삭제 실패: ' + error.message);
+                        else this.loadProducts();
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
