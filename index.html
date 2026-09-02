@@ -1797,7 +1797,10 @@
             
             let nameDisplay = getProductDisplayName(item, currentLang);
             // 제품코드 열에서 데이터를 우선 가져옴 (없으면 한글 이름 폴백)
-            const productCode = getColValue(item, COL.productCode) || nameKo;
+            let productCode = getColValue(item, COL.productCode) || nameKo;
+            if (productCode && productCode.includes('#')) {
+                productCode = productCode.split('#')[0].trim();
+            }
             
             // 언어 파라미터 최소화 추가
             let langParam = '';
