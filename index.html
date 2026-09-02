@@ -953,19 +953,27 @@
         // 제품명 가져오기
         function getProductDisplayName(item, lang) {
             if (!item) return '';
-            const actualItem = item.isGroup ? item.data : item;
-            const rawName = actualItem[COL.name] || '';
-            const lines = rawName.split('\n').map(l => l.trim()).filter(l => l);
 
-            if (lang === 'en') {
-                const enLine = lines.find(line => !/[가-힣]/.test(line));
-                if (enLine) return enLine;
-                
-                // 괄호 안의 영문 이름이 있는지 추출 시도
-                const match = lines[0].match(/\(([a-zA-Z\s]+)\)/);
-                if (match) return match[1].trim();
+            const getSingleName = (rawName) => {
+                const lines = rawName.split('\n').map(l => l.trim()).filter(l => l);
+                if (lang === 'en') {
+                    const enLine = lines.find(line => !/[가-힣]/.test(line));
+                    if (enLine) return enLine;
+                    const match = lines[0] && lines[0].match(/\(([a-zA-Z\s]+)\)/);
+                    if (match) return match[1].trim();
+                }
+                return lines[0] || '';
+            };
+
+            const comps = item.components || item.componentsList;
+            if (item.isGroup && comps && comps.length > 1) {
+                const allNames = comps.map(c => getSingleName(c[COL.name] || ''));
+                const commonPrefix = getCommonPrefix(allNames);
+                if (commonPrefix.length > 3) return commonPrefix;
             }
-            return lines[0] || '';
+
+            const actualItem = item.isGroup ? item.data : item;
+            return getSingleName(actualItem[COL.name] || '');
         }
 
         
@@ -1563,7 +1571,6 @@
             if (item.componentsList && item.componentsList.length > 1) {
                 const allNames = item.componentsList.map(c => getProductDisplayName(c, lang));
                 commonPrefixGlobal = getCommonPrefix(allNames);
-                if (commonPrefixGlobal.length > 3) pName = commonPrefixGlobal;
             }
             pNameEl.textContent = pName;
 
@@ -2141,12 +2148,7 @@
                         // 이미 각 언어별 시트를 불러왔으므로 item[COL.name] 안에 올바른 언어의 제품명이 있습니다.
                         const actualItem = item.isGroup ? item.data : item;
                         const rawName = actualItem[COL.name] || '';
-                        let displayName = rawName.split('\n')[0].trim();
-                        if (item.isGroup && item.components && item.components.length > 1) {
-                            const allNames = item.components.map(c => (getColValue(c, COL.name) || '').split('\n')[0].trim());
-                            const commonPrefix = getCommonPrefix(allNames);
-                            if (commonPrefix.length > 3) displayName = commonPrefix;
-                        }
+                        let displayName = getProductDisplayName(item, currentLang);
                         
                         option.textContent = displayName;
                         selectEl.appendChild(option);
