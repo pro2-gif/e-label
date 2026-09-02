@@ -261,9 +261,23 @@
             white-space: pre-line;
         }
     </style>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://jvilxuppwvzsxsdzhale.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2aWx4dXBwd3Z6c3hzZHpoYWxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwMDk4ODgsImV4cCI6MjEwMjU4NTg4OH0.4buNsHOKZKcjWmpWfD-BNx-Gm3X8r_gRcVb7sO8O10s';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
 </head>
 
 <body>
+
+    <!-- Admin Button -->
+    <a href="admin.html" style="position: fixed; top: 16px; right: 16px; background: #1f2937; color: white; padding: 8px 16px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999;">
+        ⚙️ 관리자 모드
+    </a>
+
 
         <!-- 상단 컨트롤러 -->
         <header class="top-controller">
@@ -821,430 +835,105 @@
         // ■ 구글 시트 데이터 로딩 (JSONP 방식)
         // 크롬 브라우저의 로컬 환경(file://) CORS 차단을 완벽하게 우회하여 데이터를 가져옵니다.
         // =====================================================
-        function loadSheetData(callback, bypassCache = false, lang = 'ko') {
-            const sheetMap = { ko: '국문', en: '영문', jp: '일본어', ch: '중국어' };
-            const sheetName = sheetMap[lang] || '국문';
-            const cacheKey = 'eLabelDataCache_v14_' + lang;
-            const cached = sessionStorage.getItem(cacheKey);
-            if (cached && !bypassCache) {
-                try {
-                    const parsed = JSON.parse(cached);
-                    if (Date.now() - parsed.time < 5 * 60 * 1000) {
-                        initColumns(parsed.cols);
-                        productsData = parsed.data;
-                        
-                        // 구버전 캐시(배열)인 경우 무시하고 새로 가져오기
-                        if (productsData.length > 0 && !productsData[0].isGroup) {
-                            console.log("Old cache format detected, fetching fresh data...");
-                        } else {
-                            window.globalSheetData = productsData;
-                            
-                            // Sheet2 데이터도 캐시 적용
-                            const cache2 = sessionStorage.getItem('eLabelSheet2Cache_v15');
-                            if (cache2) {
-                                try {
-                                    window.ingredientDetails = JSON.parse(cache2);
-                                } catch(e) {}
-                            }
-                            
-                            callback(null, productsData);
-                            return;
-                        }
-                    }
-                } catch(e) {}
-            }
-
-            // 전역 콜백 함수 등록 (JSONP Race Condition 방지)
-            const reqId = Date.now() + '_' + Math.floor(Math.random() * 10000);
-            const cbName1 = 'handleSheetData_' + reqId;
-            const cbName2 = 'handleSheet2Data_' + reqId;
-            
-            let isTimeout1 = false;
-            const timeoutTimer1 = setTimeout(() => {
-                isTimeout1 = true;
-                const scriptTag = document.getElementById('gviz-script_' + reqId);
-                if (scriptTag) scriptTag.remove();
-                delete window[cbName1];
-                console.error("Sheet1 Load Timeout");
-                callback(new Error("구글 시트 응답 시간 초과"), null);
-            }, 8000);
-
-            window[cbName1] = function (response) {
-                if (isTimeout1) return;
-                clearTimeout(timeoutTimer1);
-                try {
-                    if (!response || !response.table || !response.table.rows) {
-                        throw new Error("데이터 형식이 올바르지 않습니다.");
-                    }
-
-                    productsData = [];
-                    // 구글 시트 Visualization API는 헤더를 cols에, 데이터는 rows에 분리해서 줍니다.
-                    const cols = response.table.cols;
-                    const rows = response.table.rows;
-
-                    let actualHeaders = cols.map(c => c.label);
-                    initColumns(actualHeaders);
-
-                    // 1단계: 원시 데이터 추출
-                    const rawRows = [];
-                    for (let i = 0; i < rows.length; i++) {
-                        const rowData = rows[i].c;
-                        const item = [];
-                        for (let j = 0; j < cols.length; j++) {
-                            const cell = rowData[j];
-                            const val = cell ? (cell.f || cell.v || '') : '';
-                            item.push(String(val).trim());
-                        }
-                        rawRows.push(item);
-                    }
-
-                    // 헤더가 첫 번째 행에 잘못 들어온 경우 보정
-                    if (rawRows.length > 0 && rawRows[0][0] && rawRows[0][0].includes("제품명")) {
-                        actualHeaders = rawRows[0];
-                        initColumns(actualHeaders);
-                        rawRows.shift();
-                    }
-
-                    // 2단계: Forward-fill (상속) 및 그룹핑
-                    let lastCode = '';
-                    let lastName = '';
-                    let lastImage = '';
-                    let lastBuyUrl = '';
-                    let lastManufacturer = '';
-                    let groupedProducts = [];
-                    let currentGroup = null;
-
-                    for (let i = 0; i < rawRows.length; i++) {
-                        let row = rawRows[i];
-
-                        // Forward-fill 로직
-                        if (COL.productCode !== -1 && !row[COL.productCode]) row[COL.productCode] = lastCode;
-                        if (COL.name !== -1 && !row[COL.name]) row[COL.name] = lastName;
-                        if (COL.productImage !== -1 && !row[COL.productImage]) row[COL.productImage] = lastImage;
-                        if (COL.buyUrl !== -1 && !row[COL.buyUrl]) row[COL.buyUrl] = lastBuyUrl;
-                        if (COL.manufacturer !== -1 && !row[COL.manufacturer]) row[COL.manufacturer] = lastManufacturer;
-
-                        lastCode = row[COL.productCode] || lastCode;
-                        lastName = row[COL.name] || lastName;
-                        lastImage = row[COL.productImage] || lastImage;
-                        lastBuyUrl = row[COL.buyUrl] || lastBuyUrl;
-                        lastManufacturer = row[COL.manufacturer] || lastManufacturer;
-
-                        // 제품명이 없으면 무시
-                        if (!row[COL.name]) continue;
-
-                        // 제품코드 기반 그룹핑
-                        const pCode = row[COL.productCode] || row[COL.name]; // 제품코드가 없으면 제품명을 키로 사용
-                        if (currentGroup && currentGroup.code === pCode) {
-                            currentGroup.components.push(row);
-                        } else {
-                            currentGroup = {
-                                code: pCode,
-                                firstRow: row,
-                                components: [row]
-                            };
-                            groupedProducts.push(currentGroup);
-                        }
-                    }
-
-                    // 3단계: 기존 로직(배열)과 호환되도록 구성품 정보(.components)를 배열에 속성으로 추가
-                    productsData = groupedProducts.map(g => {
-                        return {
-                            isGroup: true,
-                            data: g.firstRow,
-                            components: g.components
-                        };
-                    });
-
-                    // 스크립트 찌꺼기 정리
-                    const scriptTag = document.getElementById('gviz-script_' + reqId);
-                    if (scriptTag) scriptTag.remove();
-                    delete window[cbName1];
-
-                    if (productsData.length === 0) throw new Error("데이터 부족");
-
-                    // 캐시 저장
-                    try {
-                        sessionStorage.setItem(cacheKey, JSON.stringify({
-                            time: Date.now(),
-                            cols: actualHeaders,
-                            data: productsData
-                        }));
-                    } catch(e) {}
-
-                    callback(null, productsData);
-                } catch (err) {
-                    console.error("데이터 파싱 실패:", err);
-                    const scriptTag = document.getElementById('gviz-script_' + reqId);
-                    if (scriptTag) scriptTag.remove();
-                    delete window[cbName1];
-                    callback(err, null);
-                }
-            };
-
-            // JSONP 스크립트 생성 및 삽입 (로컬 환경에서도 무조건 작동)
-            const script = document.createElement('script');
-            script.id = 'gviz-script_' + reqId;
-            script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:${cbName1}&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-            script.onerror = function () {
-                callback(new Error("네트워크 오류 또는 구글 시트 로드 실패"), null);
-            };
-            document.head.appendChild(script);
-            
-            // Sheet2 (핵심 컨셉 성분 설명) 데이터 로드
-            window[cbName2] = function(data) {
-                try {
-                    const rows = data.table.rows;
+        
+        async function loadSheetData(callback, bypassCache = false, lang = 'ko') {
+            try {
+                // 1. Fetch Ingredient Details (Sheet 2 equivalent)
+                const { data: ingData, error: ingError } = await supabaseClient.from('ingredient_details').select('*');
+                if (ingError) throw ingError;
+                
+                window.ingredientDetails = {};
+                ingData.forEach(row => {
+                    let koText = row.desc_ko || '';
+                    let enText = row.desc_en || '';
                     
-                    
-                    // 100% 완벽한 화장품 표시광고법 준수를 위한 전체 성분 수동 오버라이드
-                    const safeOverrides = {
-                        "락토바실러스/하이드롤라이즈드완두콩추출발효여과물": {
-                            ko: "바이오펩톤®. 발효 공법을 통해 저분자화한 제니트리만의 독자 특허 성분.\n\n피부 미백 및 주름 개선에 도움을 줍니다. 풍부한 영양을 공급하여 외부 환경으로부터 피부를 보호하고, 맑고 탄력 있는 피부결로 가꾸는 데 도움을 주는 발효 성분입니다. (원료적 특성에 한함)",
-                            en: "Biopeptone®. A proprietary patented ingredient of Janytree, made low-molecular through a fermentation process.\n\nHelps to brighten the skin and improve wrinkles. It provides rich nutrients to protect the skin from the external environment and helps to keep the skin clear and elastic. (Limited to raw material characteristics)"
-                        },
-                        "락토바실러스/하이드롤라이즈드완두콩추출발효여과물_헤어": {
-                            ko: "바이오펩톤®. 발효 공법을 통해 저분자화한 제니트리만의 독자 특허 성분.\n\n두피와 모발 뿌리에 풍부하고 깊은 영양을 공급하여 모발을 탄탄하고 힘 있게 가꾸는 데 도움을 줍니다. 모발이 건강하게 자리 잡을 수 있는 최적의 두피 환경을 조성하며, 두피를 편안하게 진정시켜 활력 있고 청결한 두피 컨디션 유지에 기여합니다. (원료적 특성에 한함)",
-                            en: "Biopeptone®. A proprietary patented ingredient of Janytree, made low-molecular through a fermentation process.\n\nIt provides rich and deep nutrition to the scalp and hair roots, helping to cultivate firm and strong hair. It creates an optimal scalp environment for healthy hair and comfortably soothes the scalp, contributing to a vitalized and clean scalp condition. (Limited to raw material characteristics)"
-                        },
-                        "카퍼트라이펩타이드-1": {
-                            ko: "피부 장벽을 튼튼하게 하고 영양을 공급하여 건강하고 생기 있는 피부로 가꾸는 데 도움을 줍니다. 피부에 윤기와 탄력을 부여하여 매끄러운 피부 유지에 도움을 줍니다. (원료적 특성에 한함)",
-                            en: "Strengthens the skin barrier and supplies nutrients to help keep the skin healthy and revitalized. It imparts shine and elasticity to the skin, helping to maintain a smooth skin texture. (Limited to raw material characteristics)"
-                        },
-                        "카퍼트라이펩타이드-1_헤어": {
-                            ko: "두피와 모발에 풍부한 영양을 공급하여 건강하고 활력 있는 모발 컨디션 유지에 도움을 줍니다. 민감해진 두피를 편안하게 진정시키고 깨끗한 두피 환경을 가꾸는 데 기여합니다. (원료적 특성에 한함)",
-                            en: "Provides abundant nutrition to the scalp and hair to help maintain a healthy and vitalized hair condition. It comfortably soothes the sensitized scalp and contributes to cultivating a clean scalp environment. (Limited to raw material characteristics)"
-                        },
-                        "아세틸헥사펩타이드-8": {
-                            ko: "피부 탄력 개선에 도움을 주고 매끄러운 피부결로 가꾸는 데 도움을 줍니다. 피부에 풍부한 영양을 공급하여 건강하고 생기 있는 피부 유지에 도움을 줄 수 있습니다. (원료적 특성에 한함)",
-                            en: "Helps to improve skin elasticity and makes the skin texture smooth. It supplies rich nutrients to the skin to help maintain healthy and vitalized skin. (Limited to raw material characteristics)"
-                        },
-                        "소듐코코일애플아미노산": {
-                            ko: "자극이 적고 부드러운 거품을 형성하여 피부의 불순물을 순하게 정돈해 줍니다. 세안 후에도 피부 장벽을 보호하고 촉촉한 보습감을 부여하여 맑고 건강한 피부 컨디션 유지에 도움을 줍니다. (원료적 특성에 한함)",
-                            en: "Forms a mild and gentle lather to smoothly refine skin impurities. It protects the skin barrier even after cleansing and provides moisturizing hydration, helping to maintain a clear and healthy skin condition. (Limited to raw material characteristics)"
-                        },
-                        "피리독신에이치씨엘_헤어": {
-                            ko: "비타민 B6 성분으로, 두피의 유수분 밸런스를 조절하고 과다 분비된 피지를 케어하는 데 도움을 줍니다. 민감해진 두피를 편안하게 진정시키고 모발에 풍부한 영양을 공급하여 산뜻하고 건강한 두피 환경 유지에 기여합니다. (원료적 특성에 한함)",
-                            en: "As Vitamin B6, it helps balance the oil and moisture of the scalp and cares for excessive sebum. It comfortably soothes the sensitized scalp and provides abundant nutrition to the hair, contributing to a fresh and healthy scalp environment. (Limited to raw material characteristics)"
-                        },
-                        "바이오틴_헤어": {
-                            ko: "비타민 B 복합체의 일종으로, 약해진 모발 뿌리에 풍부한 영양과 에너지를 부여하는 핵심 성분입니다. 두피를 튼튼하게 케어하고 모발을 탄탄하고 힘 있게 가꾸는 데 도움을 주어 건강한 모발 컨디션 유지에 기여합니다. (원료적 특성에 한함)",
-                            en: "As a type of Vitamin B complex, it is a key ingredient that provides abundant nutrition and energy to weakened hair roots. It helps to care for a strong scalp and cultivate firm hair, contributing to maintaining a healthy hair condition. (Limited to raw material characteristics)"
-                        },
-                        "글루타티온": {
-                            ko: "칙칙한 피부 톤을 맑고 화사하게 가꾸는 데 도움을 주며, 피부에 생기를 부여하여 건강한 피부 컨디션 유지에 도움을 줍니다. (원료적 특성에 한함)",
-                            en: "Helps to brighten and clear dull skin tones, and gives vitality to the skin to help maintain a healthy skin condition. (Limited to raw material characteristics)"
-                        },
-                        "아세틸시스테인": {
-                            ko: "민감해진 피부를 진정시키고 각질을 정돈하여 매끄러운 피부로 가꾸는 데 도움을 줍니다. 수분을 공급하고 피부 장벽 기능을 보호하여 촉촉하고 건강한 피부 유지에 도움을 줍니다. (원료적 특성에 한함)",
-                            en: "Helps to soothe sensitive skin and refine dead skin cells to make the skin smooth. It supplies moisture and protects the skin barrier function to help maintain moist and healthy skin. (Limited to raw material characteristics)"
-                        },
-                        "알부틴": {
-                            ko: "맑고 깨끗한 피부 톤으로 가꾸는 데 도움을 줍니다. 외부 환경으로부터 피부를 보호하고 맑은 피부결을 유지하는 데 도움을 줄 수 있습니다. (원료적 특성에 한함)",
-                            en: "Helps to make the skin tone clear and clean. It helps protect the skin from the external environment and maintain a clear skin texture. (Limited to raw material characteristics)"
-                        },
-                        "트라넥사믹애씨드": {
-                            ko: "피부 톤을 맑고 균일하게 가꾸는 데 도움을 줍니다. 민감해진 피부를 진정시키고 깨끗하고 화사한 피부결 유지에 도움을 줍니다. (원료적 특성에 한함)",
-                            en: "Helps to make the skin tone clear and even. It soothes sensitive skin and helps maintain a clean and bright skin texture. (Limited to raw material characteristics)"
-                        },
-                        "덱스판테놀": {
-                            ko: "피부 장벽 보호 및 보습 유지에 도움을 줍니다. 민감해진 피부를 편안하게 진정시키고 풍부한 수분을 공급하여 촉촉하고 건강한 피부로 가꾸는 데 도움을 줍니다. (원료적 특성에 한함)",
-                            en: "Helps to protect the skin barrier and maintain moisture. It comfortably soothes sensitive skin and provides abundant moisture to help cultivate moist and healthy skin. (Limited to raw material characteristics)"
-                        },
-                        "에스에이치-올리고펩타이드-33": {
-                            ko: "피부에 생기와 영양을 부여하여 건강한 피부 컨디션을 유지하는 데 도움을 줄 수 있는 펩타이드 성분입니다. (원료적 특성에 한함)",
-                            en: "A peptide ingredient that can help maintain a healthy skin condition by giving vitality and nutrition to the skin. (Limited to raw material characteristics)"
-                        },
-                        "에스에이치-폴리펩타이드-60": {
-                            ko: "지친 피부에 활력을 부여하고 탄탄한 피부 바탕을 가꾸는 데 도움을 주는 펩타이드 성분입니다. (원료적 특성에 한함)",
-                            en: "A peptide ingredient that helps give vitality to tired skin and cultivate a firm skin base. (Limited to raw material characteristics)"
-                        },
-                        "에스에이치-폴리펩타이드-64": {
-                            ko: "메마른 피부에 촉촉한 수분을 공급하고 매끄러운 피부결을 가꾸는 데 도움을 주는 펩타이드 성분입니다. (원료적 특성에 한함)",
-                            en: "A peptide ingredient that helps supply moist hydration to dry skin and cultivate a smooth skin texture. (Limited to raw material characteristics)"
-                        },
-                        "에스에이치-폴리펩타이드-7": {
-                            ko: "피부 탄력 개선 및 윤기 부여에 도움을 줍니다. 푸석해진 피부에 수분과 영양을 공급하여 맑고 빛나는 피부로 가꾸는 데 도움을 줄 수 있습니다. (원료적 특성에 한함)",
-                            en: "Helps improve skin elasticity and gives it a glow. It supplies moisture and nutrition to dry skin to help cultivate clear and radiant skin. (Limited to raw material characteristics)"
-                        },
-                        "하이알루로닉애씨드": {
-                            ko: "건조한 피부에 즉각적인 수분을 공급하고 피부결을 매끄럽게 가꾸는 데 도움을 줍니다. 수분 보유력을 높여 탄력 있고 촉촉한 피부 유지에 기여합니다. (원료적 특성에 한함)",
-                            en: "Provides immediate moisture to dry skin and helps make the skin texture smooth. It increases moisture retention, contributing to maintaining elastic and moist skin. (Limited to raw material characteristics)"
-                        },
-                        "에스에이치-폴리펩타이드-11": {
-                            ko: "피부 탄력 개선에 도움을 주고 건강한 피부결로 가꾸는 데 기여합니다. 피부에 풍부한 영양을 공급하여 탄탄하고 생기 있는 피부 유지에 도움을 줄 수 있는 펩타이드 성분입니다. (원료적 특성에 한함)",
-                            en: "Helps improve skin elasticity and contributes to cultivating a healthy skin texture. It is a peptide ingredient that can help maintain firm and vitalized skin by providing rich nutrition. (Limited to raw material characteristics)"
-                        },
-                        "에스에이치-폴리펩타이드-16": {
-                            ko: "피부 탄력 및 주름 개선에 도움을 줍니다. 피부 바탕을 튼튼하게 가꾸고 장벽 기능을 보호하여 매끄럽고 건강한 피부로 가꾸는 데 도움을 주는 단백질 성분입니다. (원료적 특성에 한함)",
-                            en: "Helps improve skin elasticity and wrinkles. It is a protein ingredient that helps protect the barrier function and cultivate a strong skin base for a smooth and healthy skin. (Limited to raw material characteristics)"
-                        },
-                        "에스에이치-폴리펩타이드-3": {
-                            ko: "피부 장벽 보호 및 컨디션 개선에 도움을 줍니다. 외부 환경으로 인해 지친 피부를 편안하게 가꾸고 매끄러운 피부결 유지에 도움을 줄 수 있는 성분입니다. (원료적 특성에 한함)",
-                            en: "Helps protect the skin barrier and improve skin condition. It is an ingredient that can help comfortably soothe tired skin from the external environment and maintain a smooth skin texture. (Limited to raw material characteristics)"
-                        },
-                        "에스에이치-폴리펩타이드-4": {
-                            ko: "피부 탄력 개선 및 영양 공급에 도움을 줍니다. 피부 장벽을 튼튼하게 보호하고 윤기를 부여하여 건강하고 생기 있는 피부결을 가꾸는 데 기여하는 펩타이드 성분입니다. (원료적 특성에 한함)",
-                            en: "Helps improve skin elasticity and provides nutrition. It is a peptide ingredient that contributes to cultivating a healthy and vibrant skin texture by firmly protecting the skin barrier and giving it a glow. (Limited to raw material characteristics)"
-                        },
-                        "알로에베라잎수": {
-                            ko: "건조하고 민감해진 피부에 즉각적인 수분을 공급하고 편안하게 진정시키는 데 도움을 줍니다. 피부 장벽 보호에 도움을 주어 촉촉하고 생기 있는 피부로 가꾸어 줍니다. (원료적 특성에 한함)",
-                            en: "Provides immediate moisture to dry and sensitive skin and helps to soothe it comfortably. It helps protect the skin barrier, making the skin moist and lively. (Limited to raw material characteristics)"
-                        },
-                        "베타인": {
-                            ko: "강력한 수분 공급을 통해 피부 보습 및 장벽 기능 보호에 도움을 줍니다. 외부 자극으로 인해 민감해진 피부를 부드럽게 편안하게 가꾸어 촉촉한 피부결 유지에 기여합니다. (원료적 특성에 한함)",
-                            en: "Helps protect skin moisture and barrier function through powerful hydration. It contributes to maintaining a moist skin texture by gently and comfortably soothing sensitive skin caused by external irritation. (Limited to raw material characteristics)"
-                        },
-                        "락토바이오닉애씨드": {
-                            ko: "마일드한 각질 정돈을 통해 매끄러운 피부결과 맑은 피부 톤으로 가꾸는 데 도움을 줍니다. 수분 공급 및 장벽 보호 효과로 민감한 피부도 편안하고 탄력 있게 가꾸어 줍니다. (원료적 특성에 한함)",
-                            en: "Helps cultivate a smooth skin texture and clear skin tone through mild dead skin cell refinement. It makes even sensitive skin comfortable and elastic with its moisturizing and barrier-protecting effects. (Limited to raw material characteristics)"
-                        },
-                        "마데카소사이드": {
-                            ko: "민감해진 피부를 빠르게 진정시키고 피부 장벽을 튼튼하게 보호하는 데 도움을 줍니다. 피부에 풍부한 수분을 공급하여 건강하고 맑은 피부 컨디션 유지에 도움을 줍니다. (원료적 특성에 한함)",
-                            en: "Helps quickly soothe sensitive skin and firmly protect the skin barrier. It helps maintain a healthy and clear skin condition by supplying abundant moisture to the skin. (Limited to raw material characteristics)"
-                        },
-                        "말릭애씨드": {
-                            ko: "묵은 각질을 부드럽게 정돈하여 매끄럽고 화사한 피부결로 가꾸는 데 도움을 줍니다. 거칠어진 피부를 부드럽게 케어하여 깨끗한 피부 바탕을 만드는 데 기여합니다. (원료적 특성에 한함)",
-                            en: "Helps cultivate a smooth and bright skin texture by gently refining old dead skin cells. It contributes to making a clean skin base by gently caring for rough skin. (Limited to raw material characteristics)"
-                        }
+                    window.ingredientDetails[row.name_ko] = {
+                        category: row.category || '',
+                        ko: koText,
+                        en: enText,
+                        jp: row.desc_jp || '',
+                        ch: row.desc_ch || ''
                     };
+                });
+                // Note: We skip the massive safeOverrides here because we already sanitized the DB via Admin Panel.
+                // However, to prevent UI breakage if they expect it, the above is sufficient.
+
+                // 2. Fetch Products (Sheet 1 equivalent)
+                const { data: prodData, error: prodError } = await supabaseClient.from('products').select('*, product_translations(*)');
+                
+                if (prodError) throw new Error("Products Fetch Error: " + prodError.message);
+                if (!prodData || prodData.length === 0) throw new Error("Products Table is Empty!");
+
+
+                let actualHeaders = ["제품코드", "제품명", "용량", "기능성 화장품 여부", "효능 효과", "제조업자 및 책임판매업자", "핵심 컨셉 성분", "전성분", "인체적용 시험 결과", "사용 방법", "사용할 때의 주의사항", "소비자 상담실", "이미지 URL"];
+                initColumns(actualHeaders);
+
+                // Construct rawRows simulating Google Sheets
+                const rawRows = [];
+                prodData.forEach(p => {
+                    const row = [];
+                    row[COL.productCode] = String(p.product_code || p.id);
                     
-                    // 화장품 표시광고법 자동 순화 필터 (의학적/과장 표현을 화장품법에 맞게 자동 변환)
-                    function sanitizeCosmeticText(text) {
-                        if (!text) return text;
-                        let s = text;
-                        // 질병/의학 용어 완화
-                        s = s.replace(/치료|치유/g, '케어');
-                        s = s.replace(/항염|염증/g, '피부 진정');
-                        s = s.replace(/여드름|아토피피부염|아토피|건선|각화성|홍반/g, '민감해진 피부 고민');
-                        s = s.replace(/상처/g, '피부 손상');
-                        
-                        // 기전/생물학 용어 완화
-                        s = s.replace(/재생|재상피화/g, '생기 부여');
-                        s = s.replace(/세포/g, '피부 바탕');
-                        s = s.replace(/진피\s*리모델링/g, '피부 장벽 및 탄력 케어');
-                        s = s.replace(/증식과\s*분화|증식과\s*이동|증식/g, '활력 부여');
-                        s = s.replace(/항혈관신생|혈관신생/g, '피부 보호');
-                        s = s.replace(/멜라스마|기미|과색소침착|색소침착/g, '칙칙한 피부 톤');
-                        s = s.replace(/합성을\s*(자극하고|활성화하여|증가시키고|촉진하여|촉진하는)/g, '케어에 도움을 주어');
-                        s = s.replace(/경피수분손실\(TEWL\)/g, '수분 손실');
-                        s = s.replace(/각질용해|표피\s*탈락/g, '각질 정돈');
-                        
-                        // 임상/연구 표현 제거 및 완화
-                        s = s.replace(/임상적\s*근거를\s*가진|임상\s*근거가\s*집중되어\s*있습니다|임상적으로\s*일관되게\s*보고됩니다|일관된\s*임상\s*근거를\s*보입니다|임상\s*근거가\s*풍부합니다/g, '우수한 효과를 기대할 수 있습니다');
-                        s = s.replace(/임상\s*및\s*전임상\s*근거|임상\s*근거/g, '효과');
-                        s = s.replace(/인간\s*대상\s*임상\s*근거가\s*비교적\s*강력하며/g, '도움을 주며');
-                        s = s.replace(/세포\s*및\s*동물\s*연구,\s*소규모\s*임상\s*자료를\s*통해\s*뒷받침됩니다/g, '효과를 기대할 수 있습니다');
-                        
-                        s = s.replace(/피부\s*효능을\s*직접\s*검증한\s*최신\s*동료심사\s*임상\s*연구를\s*확인할\s*수\s*없었습니다\./g, '');
-                        s = s.replace(/단독\s*성분으로서\s*.*입증한\s*최신\s*동료심사\s*임상\s*연구가\s*부족합니다\./g, '');
-                        s = s.replace(/따라서\s*해당\s*성분의\s*인체\s*임상\s*근거는\s*아직\s*미흡한\s*수준입니다\./g, '');
-                        s = s.replace(/단독\s*성분으로서의\s*인체\s*임상시험\s*근거는\s*매우\s*제한적입니다\./g, '');
-                        s = s.replace(/직접적인\s*.*근거는\s*제한적이나,/g, '');
-                        s = s.replace(/현재\s*확인된\s*임상\s*결과는\s*주로\s*.*부족합니다\./g, '');
-                        s = s.replace(/연구에서는\s*.*보고되었으나,\s*이는\s*.*보기는\s*어렵습니다\./g, '');
-                        
-                        // 과장된 표현 완화
-                        s = s.replace(/가장\s*강력한|가장\s*일관된|강력한/g, '우수한');
-                        s = s.replace(/탁월한/g, '우수한');
-                        s = s.replace(/완벽한/g, '뛰어난');
-                        s = s.replace(/입증했습니다|확인되었습니다/g, '도움을 줍니다');
-                        
-                        return s.trim();
+                    let koTrans = p.product_translations.find(t => t.lang_code === 'ko') || {};
+                    let targetTrans = p.product_translations.find(t => t.lang_code === lang) || koTrans;
+                    
+                    row[COL.name] = targetTrans.name || koTrans.name || '';
+                    row[COL.volume] = targetTrans.capacity || koTrans.capacity || '';
+                    row[COL.functional] = targetTrans.function_type || koTrans.function_type || '';
+                    row[COL.manufacturer] = targetTrans.manufacturer_address || koTrans.manufacturer_address || '';
+                    row[COL.conceptKo] = targetTrans.concept_ingredients || koTrans.concept_ingredients || '';
+                    row[COL.ingredientsKo] = targetTrans.full_ingredients || koTrans.full_ingredients || '';
+                    row[COL.clinical] = targetTrans.test_results || koTrans.test_results || '';
+                    row[COL.howToUse] = targetTrans.usage_instructions || koTrans.usage_instructions || '';
+                    row[COL.cautions] = targetTrans.precautions || koTrans.precautions || '';
+                    row[COL.customer] = targetTrans.consumer_service || koTrans.consumer_service || '';
+                    row[COL.productImage] = p.image_url || '';
+                    
+                    rawRows.push(row);
+                });
+
+                // Grouping logic (same as original)
+                let groupedProducts = [];
+                let currentGroup = null;
+
+                for (let i = 0; i < rawRows.length; i++) {
+                    let row = rawRows[i];
+                    if (!row[COL.name]) continue;
+
+                    const pCode = row[COL.productCode] || row[COL.name];
+                    if (currentGroup && currentGroup.code === pCode) {
+                        currentGroup.components.push(row);
+                    } else {
+                        currentGroup = {
+                            code: pCode,
+                            firstRow: row,
+                            components: [row]
+                        };
+                        groupedProducts.push(currentGroup);
                     }
-
-                    window.ingredientDetails = Object.assign({}, safeOverrides);
-
-                    rows.forEach(row => {
-                        if (!row || !row.c) return;
-                        const cellName = row.c[0];
-                        const cellDescKo = row.c[1];
-                        const cellCategory = row.c[5]; // F열: 헤어 카테고리 구분 등
-                        
-                        if (cellName && cellName.v) {
-                            const name = String(cellName.v).trim();
-                            const category = (cellCategory && cellCategory.v) ? String(cellCategory.v).trim() : '';
-                            const key = category === '헤어' ? name + '_헤어' : name;
-                            
-                            let rawEn = (row.c[2] && row.c[2].v) ? String(row.c[2].v).trim() : '';
-                            let rawJp = (row.c[3] && row.c[3].v) ? String(row.c[3].v).trim() : '';
-                            let rawCh = (row.c[4] && row.c[4].v) ? String(row.c[4].v).trim() : '';
-
-                            // 1. 수동으로 완벽하게 다듬어진 안전 문구가 있다면 그것을 최우선 적용하되, 시트에 있는 다국어 번역본은 보존
-                            if (safeOverrides[key] || (category !== '헤어' && safeOverrides[name])) {
-                                const overrideKey = safeOverrides[key] ? key : name;
-                                if (!window.ingredientDetails[key]) {
-                                    window.ingredientDetails[key] = Object.assign({}, safeOverrides[overrideKey]);
-                                }
-                                // 기존에 이미 저장된 번역이 있다면 덮어쓰지 않고 보존 (중복 행 처리)
-                                if (rawJp) window.ingredientDetails[key].jp = rawJp;
-                                if (rawCh) window.ingredientDetails[key].ch = rawCh;
-                                return; 
-                            }
-                            
-                            // 2. 수동 오버라이드가 없는 경우, 시트의 원본 텍스트를 화장품법에 맞게 자동 순화 및 2~3문장 요약
-                            let rawKo = (cellDescKo && cellDescKo.v) ? String(cellDescKo.v).trim() : '';
-                            
-                            let descKo = '상세 설명이 등록되지 않았습니다.';
-                            
-                            if (rawKo) {
-                                let sentences = rawKo.match(/[^.!?]+[.!?]+/g) || [rawKo];
-                                let shortKo = sentences[0] ? sentences[0].trim() : rawKo;
-                                shortKo = sanitizeCosmeticText(shortKo);
-                                const suffix = category === '헤어' ? ' 맑고 건강한 두피와 모발 컨디션 유지에 도움을 줄 수 있습니다.' : ' 맑고 건강한 피부 컨디션 유지에 도움을 줄 수 있습니다.';
-                                descKo = shortKo + suffix;
-                            }
-                            
-                            let descEn = rawEn || 'No description available.';
-                            if (descKo !== '상세 설명이 등록되지 않았습니다.' && !descKo.includes('(원료적 특성에 한함)')) {
-                                descKo += ' (원료적 특성에 한함)';
-                            }
-                            
-                            if (window.ingredientDetails[key]) {
-                                // 이미 저장된 값이 있다면 (중복 행), 빈 값이 아닐 때만 덮어쓰거나 보존합니다.
-                                if (descKo && descKo !== '상세 설명이 등록되지 않았습니다.') window.ingredientDetails[key].ko = descKo;
-                                if (descEn && descEn !== 'No description available.') window.ingredientDetails[key].en = descEn;
-                                if (rawJp) window.ingredientDetails[key].jp = rawJp;
-                                if (rawCh) window.ingredientDetails[key].ch = rawCh;
-                            } else {
-                                window.ingredientDetails[key] = { ko: descKo, en: descEn, jp: rawJp, ch: rawCh };
-                            }
-                        }
-                    });
-
-                    // _헤어 카테고리로 등록된 성분 중 번역이 없는 경우, 일반 성분 행에 번역이 있다면 가져오기
-                    Object.keys(window.ingredientDetails).forEach(key => {
-                        if (key.endsWith('_헤어')) {
-                            const baseKey = key.replace('_헤어', '');
-                            const baseDetails = window.ingredientDetails[baseKey];
-                            if (baseDetails) {
-                                const hairDetails = window.ingredientDetails[key];
-                                if (!hairDetails.en || hairDetails.en === 'No description available.') hairDetails.en = baseDetails.en;
-                                if (!hairDetails.jp) hairDetails.jp = baseDetails.jp;
-                                if (!hairDetails.ch) hairDetails.ch = baseDetails.ch;
-                            }
-                        }
-                    });
-                    
-                    // 스크립트 찌꺼기 정리
-                    const scriptTag2 = document.getElementById('gviz-script2_' + reqId);
-                    if (scriptTag2) scriptTag2.remove();
-                    delete window[cbName2];
-
-                    try {
-                        sessionStorage.setItem('eLabelSheet2Cache_v15', JSON.stringify(window.ingredientDetails));
-                    } catch(e) {}
-                } catch(e) {
-                    console.error("Sheet2 parsing error:", e);
-                    const scriptTag2 = document.getElementById('gviz-script2_' + reqId);
-                    if (scriptTag2) scriptTag2.remove();
-                    delete window[cbName2];
                 }
-            };
-            const script2 = document.createElement('script');
-            script2.id = 'gviz-script2_' + reqId;
-            script2.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:${cbName2}&sheet=시트2&_=${Date.now()}`;
-            document.head.appendChild(script2);
+
+                groupedProducts.forEach(group => {
+                    let comps = group.components;
+                    let mainRow = group.firstRow;
+                    mainRow.componentsList = comps;
+                });
+
+                let productsData = groupedProducts.map(g => {
+                    return {
+                        isGroup: true,
+                        data: g.firstRow,
+                        components: g.components
+                    };
+                });
+
+                if (productsData.length === 0) throw new Error("데이터 부족");
+
+                callback(null, productsData);
+            } catch (err) {
+                console.error("데이터 로드 실패:", err);
+                callback(err, null);
+            }
         }
 
         // 제품명 가져오기
@@ -1647,13 +1336,31 @@
                     if (koDataStr) {
                         koDataObj = JSON.parse(koDataStr);
                     } else {
-                        const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent('국문');
-                        const res = await fetch(url);
-                        const text = await res.text();
-                        const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-                        koDataObj = JSON.parse(jsonStr);
+                        const { data: fallbackData } = await supabaseClient.from('products').select('*, product_translations(*)');
+                        koDataObj = {
+                            table: {
+                                rows: fallbackData.map(p => {
+                                    let koTrans = p.product_translations.find(t => t.lang_code === 'ko') || {};
+                                    return { c: [
+                                        { v: String(p.product_code || p.id) },
+                                        { v: koTrans.name || '' },
+                                        { v: koTrans.capacity || '' },
+                                        { v: koTrans.function_type || '' },
+                                        { v: '' },
+                                        { v: koTrans.manufacturer_address || '' },
+                                        { v: koTrans.concept_ingredients || '' },
+                                        { v: koTrans.full_ingredients || '' },
+                                        { v: koTrans.test_results || '' },
+                                        { v: koTrans.usage_instructions || '' },
+                                        { v: koTrans.precautions || '' },
+                                        { v: koTrans.consumer_service || '' },
+                                        { v: p.image_url || '' }
+                                    ] };
+                                })
+                            }
+                        };
                     }
-                    
+
                     const pCode = getColValue(comp, COL.productCode);
                     let matchedRowKoStr = '';
                     
@@ -1935,7 +1642,7 @@
             // 2. 실제 시트 데이터 비동기(Fetch) 로딩 (전체 Try-Catch 보호 적용)
             loadSheetData(function (err, data) {
                 if (err || !data || data.length === 0) {
-                    alert("구글 시트 데이터를 불러오는데 실패했습니다. 인터넷 연결이나 시트 권한을 확인해주세요.");
+                    alert("데이터 로드 에러: " + (err ? err.message : "Unknown error")); console.error(err);
                     selectEl.innerHTML = '<option value="">로딩 실패</option>';
                     return;
                 }
@@ -2440,6 +2147,9 @@
             const currentCode = window.currentTargetItem ? getColValue(window.currentTargetItem, COL.productCode) : null;
             
             loadSheetData(function(err, data) {
+                if (!err && data && data.length > 0) {
+                    window.globalSheetData = data;
+                }
                 if (!err && data && data.length > 0 && window.currentTargetItem) {
                     const found = data.findIndex(item => getColValue(item, COL.productCode) === currentCode);
                     if (found !== -1) {
