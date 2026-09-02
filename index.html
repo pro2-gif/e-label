@@ -965,7 +965,7 @@
                 return lines[0] || '';
             };
 
-            const comps = item.components || item.componentsList;
+            const comps = item.components || (item.components || item.componentsList);
             if (item.isGroup && comps && comps.length > 1) {
                 const allNames = comps.map(c => getSingleName(c[COL.name] || ''));
                 const commonPrefix = getCommonPrefix(allNames);
@@ -1568,23 +1568,23 @@
             const pNameEl = document.getElementById('product-name');
             let pName = getProductDisplayName(item, lang);
             let commonPrefixGlobal = '';
-            if (item.componentsList && item.componentsList.length > 1) {
-                const allNames = item.componentsList.map(c => getProductDisplayName(c, lang));
+            if ((item.components || item.componentsList) && (item.components || item.componentsList).length > 1) {
+                const allNames = (item.components || item.componentsList).map(c => getProductDisplayName(c, lang));
                 commonPrefixGlobal = getCommonPrefix(allNames);
             }
             pNameEl.textContent = pName;
 
             // 서브탭 렌더링
             const tabsContainer = document.getElementById('sub-tabs-container');
-            if (item.componentsList && item.componentsList.length > 1) {
+            if ((item.components || item.componentsList) && (item.components || item.componentsList).length > 1) {
                 tabsContainer.style.display = 'flex';
                 tabsContainer.innerHTML = '';
                 
                 // 첫 렌더링 플래그 (비동기 처리 중 UI 깜빡임 방지)
                 let isFirstRender = true;
                 
-                for (let i = 0; i < item.componentsList.length; i++) {
-                    const comp = item.componentsList[i];
+                for (let i = 0; i < (item.components || item.componentsList).length; i++) {
+                    const comp = (item.components || item.componentsList)[i];
                     const btn = document.createElement('button');
                     let rawName = getColValue(comp, COL.componentName);
                     if (!rawName) rawName = 'Step ' + (i + 1);
