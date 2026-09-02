@@ -196,8 +196,8 @@ window.addEventListener("unhandledrejection", function(e) {
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-sm font-medium">설명 (국문)</label>
-                            <button @click="autoTranslate('ingredient', 'ko')" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm">
-                                <span class="mr-1 text-yellow-500">✨</span> 화장품법 검수 (Gemini)
+                            <button @click="autoTranslate('ingredient', 'ko')" :disabled="loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm disabled:opacity-50">
+                                <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate ? '검수 중...' : '화장품법 검수 (Gemini)' }}
                             </button>
                         </div>
                         <textarea v-model="ingredientForm.desc_ko" class="w-full border p-2 rounded h-20"></textarea>
@@ -205,8 +205,8 @@ window.addEventListener("unhandledrejection", function(e) {
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-sm font-medium">설명 (영문)</label>
-                            <button @click="autoTranslate('ingredient', 'en')" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm">
-                                <span class="mr-1 text-yellow-500">✨</span> Gemini Flash
+                            <button @click="autoTranslate('ingredient', 'en')" :disabled="loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm disabled:opacity-50">
+                                <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate ? '번역 중...' : 'Gemini Flash' }}
                             </button>
                         </div>
                         <textarea v-model="ingredientForm.desc_en" class="w-full border p-2 rounded h-20"></textarea>
@@ -214,8 +214,8 @@ window.addEventListener("unhandledrejection", function(e) {
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-sm font-medium">설명 (일본어)</label>
-                            <button @click="autoTranslate('ingredient', 'jp')" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm">
-                                <span class="mr-1 text-yellow-500">✨</span> Gemini Flash
+                            <button @click="autoTranslate('ingredient', 'jp')" :disabled="loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm disabled:opacity-50">
+                                <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate ? '번역 중...' : 'Gemini Flash' }}
                             </button>
                         </div>
                         <textarea v-model="ingredientForm.desc_jp" class="w-full border p-2 rounded h-20"></textarea>
@@ -223,8 +223,8 @@ window.addEventListener("unhandledrejection", function(e) {
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-sm font-medium">설명 (중국어)</label>
-                            <button @click="autoTranslate('ingredient', 'ch')" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm">
-                                <span class="mr-1 text-yellow-500">✨</span> Gemini Flash
+                            <button @click="autoTranslate('ingredient', 'ch')" :disabled="loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm disabled:opacity-50">
+                                <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate ? '번역 중...' : 'Gemini Flash' }}
                             </button>
                         </div>
                         <textarea v-model="ingredientForm.desc_ch" class="w-full border p-2 rounded h-20"></textarea>
@@ -277,8 +277,8 @@ window.addEventListener("unhandledrejection", function(e) {
                                  {{ {ko:'국문', en:'영문', jp:'일본어', ch:'중국어'}[l] }}
                             </div>
                         </div>
-                        <button v-if="currentLangTab === 'jp' || currentLangTab === 'ch'" @click="autoTranslate('product')" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm">
-                            <span class="mr-1 text-yellow-500">✨</span> Gemini Flash
+                        <button v-if="currentLangTab === 'jp' || currentLangTab === 'ch'" @click="autoTranslate('product')" :disabled="loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm disabled:opacity-50">
+                            <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate ? '번역 중...' : 'Gemini Flash' }}
                         </button>
                     </div>
 
@@ -356,7 +356,9 @@ window.addEventListener("unhandledrejection", function(e) {
                         init: true,
                         login: false,
                         products: false,
-                        save: false
+                        image: false,
+                        save: false,
+                        translate: false
                     },
                     login: {
                         email: '',
@@ -556,7 +558,7 @@ window.addEventListener("unhandledrejection", function(e) {
                         localStorage.setItem('GEMINI_API_KEY', apiKey);
                     }
                     
-                    this.loading.save = true;
+                    this.loading.translate = true;
                     try {
                         let promptText = '';
                         
