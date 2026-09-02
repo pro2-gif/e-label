@@ -1586,8 +1586,7 @@
                 for (let i = 0; i < (item.components || item.componentsList).length; i++) {
                     const comp = (item.components || item.componentsList)[i];
                     const btn = document.createElement('button');
-                    let rawName = getColValue(comp, COL.componentName);
-                    if (!rawName) rawName = 'Step ' + (i + 1);
+                    let rawName = getProductDisplayName(comp, lang);
                     
                     // 구성품명이 부모 제품명을 포함하는 경우, 부모 제품명 뒤에서 강제 줄바꿈(<br>) 처리
                     const parentName = commonPrefixGlobal || getColValue(window.currentTargetItem, COL.name);
