@@ -858,7 +858,11 @@
                     let koText = row.desc_ko || '';
                     let enText = row.desc_en || '';
                     
-                    window.ingredientDetails[row.name_ko] = {
+                    let key = row.name_ko;
+                    if (row.category && row.category.includes('헤어')) {
+                        key = row.name_ko + '_헤어';
+                    }
+                    window.ingredientDetails[key] = {
                         category: row.category || '',
                         ko: koText,
                         en: enText,
