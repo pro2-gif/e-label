@@ -198,7 +198,7 @@ window.addEventListener("unhandledrejection", function(e) {
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-sm font-medium">설명 (국문)</label>
-                            <button @click="autoTranslate('ingredient', 'ko')" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm disabled:opacity-50">
+                            <button @click="autoTranslate('ingredient', 'ko')" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === 'ko'}">
                                 <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === 'ko' ? '검수 중...' : '화장품법 검수 (Gemini)' }}
                             </button>
                         </div>
@@ -207,7 +207,7 @@ window.addEventListener("unhandledrejection", function(e) {
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-sm font-medium">설명 (영문)</label>
-                            <button @click="autoTranslate('ingredient', 'en')" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm disabled:opacity-50">
+                            <button @click="autoTranslate('ingredient', 'en')" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === 'en'}">
                                 <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === 'en' ? '번역 중...' : 'Gemini Flash' }}
                             </button>
                         </div>
@@ -216,7 +216,7 @@ window.addEventListener("unhandledrejection", function(e) {
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-sm font-medium">설명 (일본어)</label>
-                            <button @click="autoTranslate('ingredient', 'jp')" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm disabled:opacity-50">
+                            <button @click="autoTranslate('ingredient', 'jp')" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === 'jp'}">
                                 <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === 'jp' ? '번역 중...' : 'Gemini Flash' }}
                             </button>
                         </div>
@@ -225,7 +225,7 @@ window.addEventListener("unhandledrejection", function(e) {
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-sm font-medium">설명 (중국어)</label>
-                            <button @click="autoTranslate('ingredient', 'ch')" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm disabled:opacity-50">
+                            <button @click="autoTranslate('ingredient', 'ch')" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === 'ch'}">
                                 <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === 'ch' ? '번역 중...' : 'Gemini Flash' }}
                             </button>
                         </div>
@@ -280,7 +280,7 @@ window.addEventListener("unhandledrejection", function(e) {
                                  {{ {ko:'국문', en:'영문', jp:'일본어', ch:'중국어'}[l] }}
                             </div>
                         </div>
-                        <button v-if="currentLangTab !== 'ko'" @click="autoTranslate('product', currentLangTab)" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm disabled:opacity-50">
+                        <button v-if="currentLangTab !== 'ko'" @click="autoTranslate('product', currentLangTab)" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === currentLangTab}">
                             <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === currentLangTab ? '번역 중...' : 'Gemini Flash' }}
                         </button>
                     </div>
