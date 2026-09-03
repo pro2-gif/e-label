@@ -1065,7 +1065,8 @@
 
                 if (codeParam) {
                     const found = data.findIndex(item => {
-                        const codeVal = getColValue(item, COL.productCode) || '';
+                        let codeVal = getColValue(item, COL.productCode) || '';
+                        if (codeVal.includes('#')) codeVal = codeVal.split('#')[0].trim();
                         return codeVal.toLowerCase() === codeParam.toLowerCase();
                     });
                     if (found !== -1) {
