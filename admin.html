@@ -89,7 +89,10 @@ window.addEventListener("unhandledrejection", function(e) {
                     
                     <a href="index.html" class="block text-gray-300 hover:text-white underline mb-3 text-center bg-gray-700 hover:bg-gray-600 rounded py-1 transition" style="text-decoration: none;">🏠 홈화면으로 이동</a>
                     <p class="truncate mb-2 text-gray-400">{{ session.user.email }}</p>
-                    <button @click="handleLogout" class="text-gray-300 hover:text-white underline">로그아웃</button>
+                    <div class="flex justify-between items-center">
+                        <button @click="handleLogout" class="text-gray-300 hover:text-white underline">로그아웃</button>
+                        <button @click="resetApiKey" class="text-xs text-gray-400 hover:text-yellow-400 underline" title="번역 오류 시 클릭하여 새 키를 입력하세요">API키 초기화</button>
+                    </div>
                 </div>
             </div>
 
@@ -413,6 +416,10 @@ window.addEventListener("unhandledrejection", function(e) {
                         this.loadProducts();
                     }
                     this.loading.login = false;
+                },
+                async resetApiKey() {
+                    localStorage.removeItem('GEMINI_API_KEY');
+                    alert('Gemini API 키가 기기에서 삭제되었습니다. 다음 번역 시 새로운 키를 입력할 수 있습니다.');
                 },
                 async handleLogout() {
                     await supabaseClient.auth.signOut();
