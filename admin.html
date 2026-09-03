@@ -182,8 +182,8 @@ window.addEventListener("unhandledrejection", function(e) {
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
-                <div class="p-6">
-                    <p class="text-gray-300 text-sm whitespace-pre-line leading-relaxed">{{ alertModal.message }}</p>
+                <div class="p-6 max-h-[60vh] overflow-y-auto">
+                    <p class="text-gray-300 text-sm whitespace-pre-wrap break-all leading-relaxed">{{ alertModal.message }}</p>
                 </div>
                 <div class="px-5 py-4 flex justify-center">
                     <button @click="alertModal.show = false" class="w-full py-2.5 bg-[#305CDE] text-white text-sm rounded-lg hover:bg-blue-600 font-medium transition-colors shadow-lg">확인</button>
@@ -680,7 +680,18 @@ Input: ${sourceText}`;
                         }
                         
                         if (!response.ok) {
-                            throw new Error('API 오류: ' + response.status + ' - ' + errText);
+                            let parsedErr = errText;
+                            try {
+                                const j = JSON.parse(errText);
+                                if (j.error && j.error.message) parsedErr = j.error.message;
+                            } catch(ex) {}
+                            
+                            // 429 쿼터 초과 시 더 친절한 메시지 제공
+                            if (response.status === 429) {
+                                throw new Error('구글 서버 요청 한도를 초과했습니다 (429 Quota Exceeded).\n잠시 후 다시 시도해 주세요.\n\n상세: ' + parsedErr);
+                            }
+                            
+                            throw new Error('API 오류: ' + response.status + ' - ' + parsedErr);
                         }
                         
                         const data = await response.json();
