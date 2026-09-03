@@ -173,6 +173,24 @@ window.addEventListener("unhandledrejection", function(e) {
         </div>
 
         
+        <!-- 공통 알림 모달 (팝업) -->
+        <div v-if="alertModal.show" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[9999] p-4 backdrop-blur-sm transition-opacity">
+            <div class="bg-[#1F2328] rounded-xl shadow-2xl w-full max-w-sm overflow-hidden border border-gray-700">
+                <div class="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-gray-800">
+                    <h3 class="text-base font-bold text-white">{{ alertModal.title }}</h3>
+                    <button @click="alertModal.show = false" class="text-gray-400 hover:text-white transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-300 text-sm whitespace-pre-line leading-relaxed">{{ alertModal.message }}</p>
+                </div>
+                <div class="px-5 py-4 flex justify-center">
+                    <button @click="alertModal.show = false" class="w-full py-2.5 bg-[#305CDE] text-white text-sm rounded-lg hover:bg-blue-600 font-medium transition-colors shadow-lg">확인</button>
+                </div>
+            </div>
+        </div>
+
         <!-- 핵심 성분 에디터 모달 -->
         <div v-if="ingredientModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-full flex flex-col overflow-hidden">
@@ -383,6 +401,7 @@ window.addEventListener("unhandledrejection", function(e) {
                         isEdit: false
                     },
                     currentLangTab: 'ko',
+                    alertModal: { show: false, title: '', message: '' },
                     formData: { id: null, product_code: '', image_url: '', shop_url: '', translations: { ko: {}, en: {}, jp: {}, ch: {} } }
                 }
             },
@@ -402,6 +421,11 @@ window.addEventListener("unhandledrejection", function(e) {
                 }
             },
             methods: {
+                showAlert(title, message) {
+                    this.alertModal.title = title;
+                    this.alertModal.message = message;
+                    this.alertModal.show = true;
+                },
                 async handleLogin() {
                     this.loading.login = true;
                     this.login.error = null;
@@ -650,12 +674,17 @@ Input: ${sourceText}`;
                         if (type === 'product') {
                             const translated = JSON.parse(resultText);
                             Object.assign(this.formData.translations[lang], translated[lang]);
-                            alert('✨ 제미나이 번역 완료! 하단의 [저장하기]를 잊지 마세요.');
+                            this.showAlert('✅ 번역 완료', '제미나이 번역이 완료되었습니다.\n하단의 [저장하기] 버튼을 꼭 눌러서 변경사항을 저장해 주세요.');
                         } else {
-                            if (lang === 'ko') this.ingredientForm.desc_ko = resultText;
-                            else if (lang === 'en') this.ingredientForm.desc_en = resultText;
-                            else if (lang === 'jp') this.ingredientForm.desc_jp = resultText;
-                            else if (lang === 'ch') this.ingredientForm.desc_ch = resultText;
+                            if (lang === 'ko') {
+                                this.ingredientForm.desc_ko = resultText;
+                                this.showAlert('✅ 검수 완료', '한국 화장품법 가이드라인에 따른 문안 검수 및 수정이 완료되었습니다.\n내용을 확인하신 후 하단의 [저장하기]를 눌러주세요.');
+                            } else {
+                                if (lang === 'en') this.ingredientForm.desc_en = resultText;
+                                else if (lang === 'jp') this.ingredientForm.desc_jp = resultText;
+                                else if (lang === 'ch') this.ingredientForm.desc_ch = resultText;
+                                this.showAlert('✅ 번역 완료', '선택하신 언어로 성분 번역이 성공적으로 완료되었습니다.\n내용을 확인하신 후 하단의 [저장하기]를 눌러주세요.');
+                            }
                         }
                     } catch (e) {
                         console.error(e);
