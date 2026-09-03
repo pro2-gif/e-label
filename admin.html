@@ -186,7 +186,10 @@ window.addEventListener("unhandledrejection", function(e) {
                         </div>
                         <div>
                             <label class="block text-sm font-bold mb-1">분류 (카테고리)</label>
-                            <input type="text" v-model="ingredientForm.category" class="w-full border p-2 rounded" placeholder="예: 일반, 헤어 등">
+                            <select v-model="ingredientForm.category" class="w-full border p-2 rounded bg-white">
+                                <option value="일반">일반</option>
+                                <option value="헤어">헤어</option>
+                            </select>
                         </div>
                     </div>
                     
@@ -427,7 +430,7 @@ window.addEventListener("unhandledrejection", function(e) {
                     if (ing) {
                         this.ingredientForm = { ...ing };
                     } else {
-                        this.ingredientForm = { id: null, name_ko: '', category: '', desc_ko: '', desc_en: '', desc_jp: '', desc_ch: '' };
+                        this.ingredientForm = { id: null, name_ko: '', category: '일반', desc_ko: '', desc_en: '', desc_jp: '', desc_ch: '' };
                     }
                     this.ingredientModal = true;
                 },

@@ -875,7 +875,7 @@
 
                 // 2. Fetch Products (Sheet 1 equivalent)
                 const { data: prodData, error: prodError } = await supabaseClient.from('products').select('*, product_translations(*)');
-                if (prodData) prodData.sort((a, b) => (a.product_code || '').localeCompare(b.product_code || ''));
+                // if (prodData) prodData.sort((a, b) => (a.product_code || '').localeCompare(b.product_code || '')); // Removed to match admin order
                 
                 if (prodError) throw new Error("Products Fetch Error: " + prodError.message);
                 if (!prodData || prodData.length === 0) throw new Error("Products Table is Empty!");
