@@ -402,6 +402,7 @@ window.addEventListener("unhandledrejection", function(e) {
                     },
                     currentLangTab: 'ko',
                     alertModal: { show: false, title: '', message: '' },
+                    abortController: null,
                     formData: { id: null, product_code: '', image_url: '', shop_url: '', translations: { ko: {}, en: {}, jp: {}, ch: {} } }
                 }
             },
@@ -466,6 +467,11 @@ window.addEventListener("unhandledrejection", function(e) {
                     this.ingredientModal = true;
                 },
                 closeIngredientModal() {
+                    if (this.abortController) {
+                        this.abortController.abort();
+                        this.abortController = null;
+                    }
+                    this.loading.translate = false;
                     this.ingredientModal = false;
                 },
                 async saveIngredient() {
@@ -556,6 +562,11 @@ window.addEventListener("unhandledrejection", function(e) {
                     this.modal.product = true;
                 },
                 closeProductModal() {
+                    if (this.abortController) {
+                        this.abortController.abort();
+                        this.abortController = null;
+                    }
+                    this.loading.translate = false;
                     this.modal.product = false;
                 },
                 
@@ -595,6 +606,10 @@ window.addEventListener("unhandledrejection", function(e) {
                         localStorage.setItem('GEMINI_API_KEY', apiKey);
                     }
                     
+                    if (this.abortController) {
+                        this.abortController.abort();
+                    }
+                    this.abortController = new AbortController();
                     this.loading.translate = lang;
                     try {
                         let promptText = '';
@@ -645,7 +660,8 @@ Input: ${sourceText}`;
                             response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-3.6-flash:generateContent?key=' + apiKey, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+                                body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] }),
+                                signal: this.abortController.signal
                             });
                             
                             if (response.ok) break;
@@ -694,15 +710,23 @@ Input: ${sourceText}`;
                             }
                         }
                     } catch (e) {
-                        console.error(e);
-                        alert('작업 중 오류가 발생했습니다: ' + e.message);
+                        if (e.name === 'AbortError') {
+                            console.log('Translation aborted by user.');
+                            return;
+                        }
                         
+                        console.error(e);
+                        this.showAlert('❌ 오류 발생', '작업 중 통신 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.\n\n' + e.message);
                         
                         if (e.message.includes('API_KEY_INVALID') || e.message.includes('400') || e.message.includes('403')) {
                             localStorage.removeItem('GEMINI_API_KEY');
                         }
+                    } finally {
+                        if (this.loading.translate === lang) {
+                            this.loading.translate = false;
+                        }
+                        this.abortController = null;
                     }
-                    this.loading.translate = false;
                 },
 
                 async saveProduct() {
