@@ -618,7 +618,7 @@ Input: ${sourceText}`;
                         let errText = '';
                         
                         while (retries > 0) {
-                            response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash:generateContent?key=' + apiKey, {
+                            response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=' + apiKey, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
