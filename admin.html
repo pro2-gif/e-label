@@ -700,13 +700,13 @@ Input: ${sourceText}`;
                         if (type === 'product') {
                             const translated = JSON.parse(resultText);
                             Object.assign(this.formData.translations[lang], translated[lang]);
-                            this.showAlert('✅ 번역 완료', '제미나이 번역이 완료되었습니다. 하단의 [저장하기] 버튼을 꼭 눌러서 변경사항을 저장해 주세요.');
+                            this.showAlert('✅ 번역 완료', '제미나이 번역이 완료되었습니다.\n하단의 [저장하기] 버튼을 꼭 눌러서 변경사항을 저장해 주세요.');
                         } else {
                             if (lang === 'ko') {
                                 let finalKo = resultText.trim();
                                 if (!finalKo.includes('원료적 특성에 한함')) finalKo += ' (원료적 특성에 한함)';
                                 this.ingredientForm.desc_ko = finalKo;
-                                this.showAlert('✅ 검수 완료', '한국 화장품법 가이드라인에 따른 문안 검수 및 수정이 완료되었습니다. 내용을 확인하신 후 하단의 [저장하기]를 눌러주세요.');
+                                this.showAlert('✅ 검수 완료', '한국 화장품법 가이드라인에 따른 문안 검수 및 수정이 완료되었습니다.\n내용을 확인하신 후 하단의 [저장하기]를 눌러주세요.');
                             } else {
                                 let finalTrans = resultText.trim();
                                 if (lang === 'en' && !finalTrans.includes('properties of the ingredients') && !finalTrans.includes('raw material')) finalTrans += ' (Limited to the properties of the ingredients)';
@@ -716,7 +716,7 @@ Input: ${sourceText}`;
                                 if (lang === 'en') this.ingredientForm.desc_en = finalTrans;
                                 else if (lang === 'jp') this.ingredientForm.desc_jp = finalTrans;
                                 else if (lang === 'ch') this.ingredientForm.desc_ch = finalTrans;
-                                this.showAlert('✅ 번역 완료', '번역이 성공적으로 완료되었습니다. 내용을 확인하신 후 하단의 [저장하기]를 눌러주세요.');
+                                this.showAlert('✅ 번역 완료', '번역이 성공적으로 완료되었습니다.\n내용을 확인하신 후 하단의 [저장하기]를 눌러주세요.');
                             }
                         }
                     } catch (e) {
