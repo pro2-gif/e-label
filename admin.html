@@ -495,7 +495,6 @@ window.addEventListener("unhandledrejection", function(e) {
                             if (error) throw error;
                         }
                         
-                        alert('저장되었습니다.');
                         this.closeIngredientModal();
                         this.loadIngredients();
                     } catch (e) {
@@ -778,7 +777,7 @@ Input: ${sourceText}`;
                             this.modal.isEdit = true;
                         }
                         
-                        alert('저장되었습니다.');
+                        this.closeProductModal();
                         this.loadProducts();
                         
                     } catch (e) {
