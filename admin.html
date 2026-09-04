@@ -671,7 +671,7 @@ Input: ${sourceText}`;
                                 if (match && retries > 0) {
                                     const retrySeconds = Math.ceil(parseFloat(match[1])) + 2; // add 2 sec buffer
                                     console.warn(`API 429 에러 발생. ${retrySeconds}초 후 재시도합니다...`);
-                                    this.showAlert('⏳ 구글 서버 쿨타임 대기 중', '1분당 무료 사용 횟수(20회)를 초과하여 구글 서버가 잠시 대기 중입니다.\n약 ' + retrySeconds + '초 뒤에 자동으로 번역이 시작되니 끄지 말고 기다려주세요!\n(기다리기 싫으시다면 구글 클라우드에 카드를 등록해 유료 전환이 필요합니다.)');
+                                    this.showAlert('⏳ 구글 API 한도 초과 대기 중', '구글 무료 API 사용 한도(20회)를 초과하여 대기 중입니다.\n(구글 에러 메시지에 따라 약 ' + retrySeconds + '초 뒤에 자동으로 재시도합니다.)\n\n※ 주의: 만약 재시도 후에도 계속 실패한다면 일일 제한(하루 20회)에 걸린 것이므로 내일까지 기다리시거나 구글 클라우드에 카드를 등록해 유료로 전환하셔야 합니다.');
                                     await new Promise(r => setTimeout(r, retrySeconds * 1000));
                                     retries--; // We can retry after waiting the exact time
                                     continue;
