@@ -904,6 +904,7 @@
                     row[COL.cautions] = targetTrans.precautions || koTrans.precautions || '';
                     row[COL.customer] = targetTrans.consumer_service || koTrans.consumer_service || '';
                     row[COL.productImage] = p.image_url || '';
+                    row.realConceptKo = koTrans.concept_ingredients || '';
                     
                     rawRows.push(row);
                 });
@@ -1367,93 +1368,9 @@
             const foreignNames = rawConceptKo ? rawConceptKo.split(/[,、，﹑・･]/).map(s => s.trim()).filter(Boolean) : [];
             let koNames = foreignNames;
             
-            if (lang !== 'ko' && foreignNames.length > 0) {
-                try {
-                    const cacheKey = 'eLabelDataCache_v14_ko';
-                    let koDataStr = sessionStorage.getItem(cacheKey);
-                    let koDataObj = null;
-                    
-                    if (koDataStr) {
-                        koDataObj = JSON.parse(koDataStr);
-                    } else {
-                        const { data: fallbackData } = await supabaseClient.from('products').select('*, product_translations(*)');
-                        koDataObj = {
-                            table: {
-                                rows: fallbackData.map(p => {
-                                    let koTrans = p.product_translations.find(t => t.lang_code === 'ko') || {};
-                                    return { c: [
-                                        { v: String(p.product_code || p.id) },
-                                        { v: koTrans.name || '' },
-                                        { v: koTrans.capacity || '' },
-                                        { v: koTrans.function_type || '' },
-                                        { v: '' },
-                                        { v: koTrans.manufacturer_address || '' },
-                                        { v: koTrans.concept_ingredients || '' },
-                                        { v: koTrans.full_ingredients || '' },
-                                        { v: koTrans.test_results || '' },
-                                        { v: koTrans.usage_instructions || '' },
-                                        { v: koTrans.precautions || '' },
-                                        { v: koTrans.consumer_service || '' },
-                                        { v: p.image_url || '' }
-                                    ] };
-                                })
-                            }
-                        };
-                    }
-
-                    const pCode = getColValue(comp, COL.productCode);
-                    let matchedRowKoStr = '';
-                    
-                    if (koDataObj && pCode) {
-                        let targetData = koDataObj.data;
-                        let kCols = [];
-                        if (targetData) {
-                            kCols = koDataObj.cols.map(c => (c || '').replace(/[\s_\(\)\[\]-]/g, '').toLowerCase());
-                        } else if (koDataObj.table) {
-                            let hRow = koDataObj.table.cols.map(c => (c.label || '').replace(/[\s_\(\)\[\]-]/g, '').toLowerCase());
-                            let rows = koDataObj.table.rows;
-                            if (hRow.every(h => !h) && rows.length > 0 && rows[0].c && rows[0].c[0] && String(rows[0].c[0].v).includes("제품명")) {
-                                hRow = rows[0].c.map(cell => (cell ? String(cell.v || '') : '').replace(/[\s_\(\)\[\]-]/g, '').toLowerCase());
-                                rows = rows.slice(1);
-                            }
-                            kCols = hRow;
-                            targetData = rows.map(r => r.c.map(cell => cell ? String(cell.v || '') : ''));
-                        }
-                        
-                        const kCodeIdx = kCols.findIndex(h => h.includes('제품코드') || h.includes('식별코드'));
-                        const kConceptIdx = kCols.findIndex(h => h.includes('핵심컨셉성분') || h.includes('컨셉성분') || (h.includes('핵심성분') && !h.includes('영문')));
-                        
-                        if (kCodeIdx !== -1 && kConceptIdx !== -1) {
-                            if (koDataObj.data) {
-                                // 캐시된 데이터 (Grouped object)
-                                const matchedGroup = targetData.find(row => row && String(getColValue(row, kCodeIdx)) === String(pCode));
-                                if (matchedGroup) {
-                                    if (matchedGroup.components && matchedGroup.components.length > compIdx) {
-                                        matchedRowKoStr = String(getColValue(matchedGroup.components[compIdx], kConceptIdx) || '');
-                                    } else {
-                                        matchedRowKoStr = String(getColValue(matchedGroup, kConceptIdx) || '');
-                                    }
-                                }
-                            } else {
-                                // 실시간 데이터 (Raw array)
-                                const matchedRows = targetData.filter(row => row && String(row[kCodeIdx]) === String(pCode));
-                                if (matchedRows.length > compIdx) {
-                                    matchedRowKoStr = String(matchedRows[compIdx][kConceptIdx] || '');
-                                } else if (matchedRows.length > 0) {
-                                    matchedRowKoStr = String(matchedRows[0][kConceptIdx] || '');
-                                }
-                            }
-                        }
-                    }
-                    
-                    if (matchedRowKoStr) {
-                        koNames = matchedRowKoStr.split(/[,、，﹑・･]/).map(s => s.trim()).filter(Boolean);
-                    }
-                } catch(e) {
-                    console.error('Failed to map Korean ingredient names', e);
-                }
+            if (lang !== 'ko' && comp.realConceptKo) {
+                koNames = comp.realConceptKo.split(/[,、，﹑・･]/).map(s => s.trim()).filter(Boolean);
             }
-
             for (let idx = 0; idx < foreignNames.length; idx++) {
                 const displayName = foreignNames[idx];
                 const koName = koNames[idx] || displayName;
