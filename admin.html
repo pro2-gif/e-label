@@ -666,10 +666,22 @@ Input: ${sourceText}`;
                             if (response.ok) break;
                             
                             errText = await response.text();
-                            if (response.status === 503 || response.status === 429) {
+                            if (response.status === 429) {
+                                const match = errText.match(/Please retry in ([\d\.]+)s/);
+                                if (match && retries > 0) {
+                                    const retrySeconds = Math.ceil(parseFloat(match[1])) + 2; // add 2 sec buffer
+                                    console.warn(`API 429 에러 발생. ${retrySeconds}초 후 재시도합니다...`);
+                                    this.showAlert('⏳ 구글 서버 쿨타임 대기 중', '1분당 무료 사용 횟수(20회)를 초과하여 구글 서버가 잠시 대기 중입니다.\n약 ' + retrySeconds + '초 뒤에 자동으로 번역이 시작되니 끄지 말고 기다려주세요!\n(기다리기 싫으시다면 구글 클라우드에 카드를 등록해 유료 전환이 필요합니다.)');
+                                    await new Promise(r => setTimeout(r, retrySeconds * 1000));
+                                    retries--; // We can retry after waiting the exact time
+                                    continue;
+                                } else {
+                                    break; // If no retry time provided or out of retries, just fail
+                                }
+                            } else if (response.status === 503) {
                                 retries--;
                                 if (retries > 0) {
-                                    console.warn(`API ${response.status} 에러 발생. ${delay}ms 후 재시도합니다...`);
+                                    console.warn(`API 503 에러 발생. ${delay}ms 후 재시도합니다...`);
                                     await new Promise(r => setTimeout(r, delay));
                                     delay *= 2; // Exponential backoff
                                 }
