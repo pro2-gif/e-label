@@ -12,8 +12,8 @@
                 extend: {
                     colors: {
                         jt: {
-                            charcoal: '#1F2328',
-                            blue: '#305CDE',
+                            charcoal: 'var(--color-primary)',
+                            blue: 'var(--color-accent)',
                         }
                     }
                 }
@@ -26,17 +26,17 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        body { font-family: 'Pretendard', sans-serif; background-color: #f3f4f6; }
-        .tab-container { display: flex; gap: 0.25rem; background: #e5e7eb; padding: 0.25rem; border-radius: 0.5rem; }
-        .tab-btn { padding: 0.35rem 1rem; cursor: pointer; border-radius: 0.375rem; font-size: 0.875rem; color: #4b5563; font-weight: 500; transition: all 0.2s; }
-        .tab-btn:hover { color: #1F2328; }
-        .tab-btn.active { background: white; color: #305CDE; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--color-fill-hover); }
+        .tab-container { display: flex; gap: 0.25rem; background: var(--color-border); padding: 0.25rem; border-radius: 0.5rem; }
+        .tab-btn { padding: 0.35rem 1rem; cursor: pointer; border-radius: 0.375rem; font-size: 0.875rem; color: var(--color-text-secondary); font-weight: 500; transition: all 0.2s; }
+        .tab-btn:hover { color: var(--color-primary); }
+        .tab-btn.active { background: white; color: var(--color-accent); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         [v-cloak] { display: none !important; }
     </style>
     <link rel='stylesheet' href='https://design.janytree.com/jt-tokens.css'>
 </head>
 <body>
-<div id='global-error' style='display:none; color:red; padding: 20px; border: 2px solid red; background: #fee; margin: 20px;'></div>
+<div id='global-error' style='display:none; color:red; padding: 20px; border: 2px solid red; background: var(--color-error-bg); margin: 20px;'></div>
 <script>
 window.onerror = function(msg, src, lineno, colno, err) {
   document.getElementById('global-error').style.display = 'block';
@@ -186,7 +186,7 @@ window.addEventListener("unhandledrejection", function(e) {
         
         <!-- 공통 알림 모달 (팝업) -->
         <div v-if="alertModal.show" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[9999] p-4 backdrop-blur-sm transition-opacity">
-            <div class="bg-[#1F2328] rounded-xl shadow-2xl w-full max-w-sm overflow-hidden border border-gray-700">
+            <div class="bg-[var(--color-primary)] rounded-xl shadow-2xl w-full max-w-sm overflow-hidden border border-gray-700">
                 <div class="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-gray-800">
                     <h3 class="text-base font-bold text-white">{{ alertModal.title }}</h3>
                     <button @click="alertModal.show = false" class="text-gray-400 hover:text-white transition-colors">
@@ -197,7 +197,7 @@ window.addEventListener("unhandledrejection", function(e) {
                     <p class="text-gray-300 text-sm whitespace-pre-wrap break-all leading-relaxed">{{ alertModal.message }}</p>
                 </div>
                 <div class="px-5 py-4 flex justify-center">
-                    <button @click="alertModal.show = false" class="w-full py-2.5 bg-[#305CDE] text-white text-sm rounded-lg hover:bg-blue-600 font-medium transition-colors shadow-lg">확인</button>
+                    <button @click="alertModal.show = false" class="w-full py-2.5 bg-[var(--color-accent)] text-white text-sm rounded-lg hover:bg-blue-600 font-medium transition-colors shadow-lg">확인</button>
                 </div>
             </div>
         </div>

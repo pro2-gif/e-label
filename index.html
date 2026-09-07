@@ -41,7 +41,7 @@
             font-size: 13px;
             font-weight: 700;
             letter-spacing: 0.15em;
-            color: #6b7280;
+            color: var(--color-text-secondary);
             text-transform: uppercase;
             margin-bottom: 8px;
         }
@@ -49,20 +49,20 @@
         .qr-maker-header h1 {
             font-size: 26px;
             font-weight: 800;
-            color: #111827;
-            background: linear-gradient(135deg, #111827, #4b5563);
+            color: var(--color-text);
+            background: linear-gradient(135deg, var(--color-text), var(--color-text-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .qr-maker-header p {
             font-size: 14px;
-            color: #6b7280;
+            color: var(--color-text-secondary);
             margin-top: 8px;
         }
 
         .qr-card {
-            background: #ffffff;
+            background: var(--color-bg-container);
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             padding: 32px;
@@ -75,7 +75,7 @@
         .select-label {
             font-size: 13px;
             font-weight: 600;
-            color: #6b7280;
+            color: var(--color-text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.08em;
             align-self: flex-start;
@@ -85,9 +85,9 @@
             width: 100%;
             padding: 14px 16px;
             border-radius: 12px;
-            border: 2px solid #e5e7eb;
-            background-color: #f9fafb;
-            color: #111827;
+            border: 2px solid var(--color-border);
+            background-color: var(--color-bg-layout);
+            color: var(--color-text);
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
@@ -97,14 +97,14 @@
         }
 
         .product-select-full:focus {
-            border-color: #c4b3a6;
+            border-color: var(--color-primary);
             box-shadow: 0 0 0 3px rgba(196, 179, 166, 0.3);
         }
 
         .qr-canvas-wrapper {
-            background: #fff;
+            background: var(--color-bg-container);
             border-radius: 16px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--color-border);
             padding: 20px;
             display: flex;
             flex-direction: column;
@@ -117,12 +117,12 @@
 
         .qr-canvas-wrapper:hover {
             transform: scale(1.02);
-            border-color: #c4b3a6;
+            border-color: var(--color-primary);
         }
 
         .qr-click-hint {
             font-size: 12px;
-            color: #000000;
+            color: var(--color-text);
             font-weight: 600;
             margin-top: -8px;
             margin-bottom: 8px;
@@ -131,7 +131,7 @@
         .qr-product-title {
             font-size: 17px;
             font-weight: 800;
-            color: #111827;
+            color: var(--color-text);
             text-align: center;
             letter-spacing: -0.01em;
         }
@@ -146,7 +146,7 @@
             display: none;
             /* 사용자 요청으로 주소 텍스트 숨김 */
             font-size: 11px;
-            color: #9ca3af;
+            color: var(--color-text-secondary);
             word-break: break-all;
             text-align: center;
             padding: 0 8px;
@@ -155,8 +155,8 @@
         .btn-download {
             flex: 1;
             padding: 14px 8px;
-            background: #ebe4dd;
-            color: #6b5f54;
+            background: var(--color-border);
+            color: var(--color-text-secondary);
             border: none;
             border-radius: 12px;
             font-size: 13px;
@@ -187,9 +187,9 @@
         }        /* 컨셉 성분 뱃지 스타일 */
         .concept-badge {
             display: inline-block;
-            background: #faf5f0;
-            color: #5c4d43;
-            border: 1px solid #e8ddcf;
+            background: var(--color-bg-layout);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
             padding: 5px 11px;
             border-radius: 20px;
             font-size: 13px;
@@ -243,18 +243,18 @@
             background: none;
             border: none;
             font-size: 20px;
-            color: #6b7280;
+            color: var(--color-text-secondary);
             cursor: pointer;
         }
         #modal-ing-name {
             margin-top: 0;
-            color: #1f2937;
+            color: var(--color-text);
             font-size: 18px;
             font-weight: 700;
             margin-bottom: 12px;
         }
         #modal-ing-desc {
-            color: #4b5563;
+            color: var(--color-text-secondary);
             font-size: 14px;
             line-height: 1.5;
             margin: 0;
@@ -275,7 +275,7 @@
 <body>
 
     <!-- Admin Button -->
-    <a href="admin.html" style="position: fixed; top: 16px; right: 16px; background: #1f2937; color: white; padding: 8px 16px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999;">
+    <a href="admin.html" style="position: fixed; top: 16px; right: 16px; background: var(--color-text); color: white; padding: 8px 16px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999;">
         ⚙️ 관리자 모드
     </a>
 
@@ -327,7 +327,7 @@
                     <span id="maker-btn-png">QR 다운로드 (.png)</span>
                 </button>
                 <button id="btn-download-svg" class="btn-download"
-                    style="background: #c4b3a6; color: #ffffff;">
+                    style="background: var(--color-primary); color: var(--color-on-primary);">
                     <span class="material-icons" style="font-size:18px;">download</span>
                     <span id="maker-btn-svg">QR 다운로드 (.svg)</span>
                 </button>
@@ -351,7 +351,7 @@
 
         <!-- 오류 화면 -->
         <div id="error-screen" class="error-screen" style="display:none;">
-            <span class="material-icons" style="font-size:48px;color:#dc2626;">error_outline</span>
+            <span class="material-icons" style="font-size:48px;color:var(--color-error-text);">error_outline</span>
             <h2>제품 정보를 찾을 수 없습니다</h2>
             <p id="error-msg">올바른 QR 코드로 다시 시도해 주세요.</p>
         </div>
@@ -365,7 +365,7 @@
                 <!-- 서브탭 컨테이너 (위치 이동) -->
                 <div id="sub-tabs-container" style="display:none; width: 100%; max-width: 600px; padding: 0 16px; margin: 0 auto; gap: 8px; box-sizing: border-box; justify-content: center; flex-wrap: nowrap;"></div>
 
-                <div id="product-image-wrapper" style="display:none; width: 100%; max-width: 442px; margin: 0 auto; border-radius: 24px; border: 1px solid #eaddd3; box-shadow: 0 10px 30px rgba(0,0,0,0.08); background-color: #ffffff; box-sizing: border-box; aspect-ratio: 1/1; position: relative;">
+                <div id="product-image-wrapper" style="display:none; width: 100%; max-width: 442px; margin: 0 auto; border-radius: 24px; border: 1px solid var(--color-border); box-shadow: 0 10px 30px rgba(0,0,0,0.08); background-color: var(--color-on-primary); box-sizing: border-box; aspect-ratio: 1/1; position: relative;">
                     <div style="position: absolute; top: 16px; left: 16px; right: 16px; bottom: 16px; display: flex; justify-content: center; align-items: center;">
                         <img id="product-image" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block; border-radius: 12px;" />
                     </div>
@@ -397,7 +397,7 @@
                             <td id="val-manufacturer"></td>
                         </tr>
                         <tr id="row-concept-ingredients" style="display:none;">
-                            <th id="label-concept-ingredients">✨ 핵심 컨셉 성분<br><span style="font-size:11px; font-weight:normal; color:#6b7280;">💡 터치하여 특징 보기</span></th>
+                            <th id="label-concept-ingredients">✨ 핵심 컨셉 성분<br><span style="font-size:11px; font-weight:normal; color:var(--color-text-secondary);">💡 터치하여 특징 보기</span></th>
                             <td id="val-concept-ingredients"></td>
                         </tr>
                         <!-- 인체적용시험 결과 행 -->
@@ -434,7 +434,7 @@
                         <img src="https://img.youtube.com/vi/OU6d0UGLrUM/hqdefault.jpg" alt="YouTube Video" style="width: 100%; height: 100%; object-fit: cover; display: block;">
                         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
                             <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                                <svg style="width: 56px; height: 56px; color: #ff0000; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                                <svg style="width: 56px; height: 56px; color: var(--color-error-text); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
                                 <span id="label-watch-youtube" style="color: white; font-weight: 700; font-size: 15px; background: rgba(0,0,0,0.7); padding: 6px 14px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">YouTube에서 동영상 보기</span>
                             </div>
                         </div>
@@ -443,30 +443,30 @@
 
                 <!-- 브랜드 링크 섹션 -->
                 <div class="brand-links" style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
-                    <a href="https://janytree.com/" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: #ffffff; border-radius: 12px; text-decoration: none; border: 1px solid #eaddd3; color: #3e332c; font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
+                    <a href="https://janytree.com/" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1px solid var(--color-border); color: var(--color-accent); font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <span class="material-icons" style="color: #9c8471;">language</span>
+                            <span class="material-icons" style="color: var(--color-border-strong);">language</span>
                             <span id="label-social-website">홈페이지</span>
                         </div>
-                        <span class="material-icons" style="color: #c4b3a6; font-size: 18px;">open_in_new</span>
+                        <span class="material-icons" style="color: var(--color-primary); font-size: 18px;">open_in_new</span>
                     </a>
-                    <a href="https://www.youtube.com/@janytree" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: #ffffff; border-radius: 12px; text-decoration: none; border: 1px solid #eaddd3; color: #3e332c; font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
+                    <a href="https://www.youtube.com/@janytree" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1px solid var(--color-border); color: var(--color-accent); font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="color: #ff0000; display: flex; align-items: center;">
+                            <span style="color: var(--color-error-text); display: flex; align-items: center;">
                                 <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
                             </span>
                             <span id="label-social-youtube">유튜브</span>
                         </div>
-                        <span class="material-icons" style="color: #c4b3a6; font-size: 18px;">open_in_new</span>
+                        <span class="material-icons" style="color: var(--color-primary); font-size: 18px;">open_in_new</span>
                     </a>
-                    <a href="https://www.instagram.com/janytree_official/" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: #ffffff; border-radius: 12px; text-decoration: none; border: 1px solid #eaddd3; color: #3e332c; font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
+                    <a href="https://www.instagram.com/janytree_official/" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1px solid var(--color-border); color: var(--color-accent); font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <span style="display: flex; align-items: center; width: 24px; height: 24px;">
                                 <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" style="width: 20px; height: 20px; margin: 0 auto;">
                             </span>
                             <span id="label-social-instagram">인스타그램</span>
                         </div>
-                        <span class="material-icons" style="color: #c4b3a6; font-size: 18px;">open_in_new</span>
+                        <span class="material-icons" style="color: var(--color-primary); font-size: 18px;">open_in_new</span>
                     </a>
                 </div>
             </div>
@@ -474,7 +474,7 @@
 
         <!-- 하단 고정 영역 -->
         <footer class="bottom-fixed" id="bottom-footer" style="display:none;">
-            <button id="btn-home" class="buy-btn" style="background:#ebe4dd; color:#6b5f54; ">돌아가기</button>
+            <button id="btn-home" class="buy-btn" style="background:var(--color-border); color:var(--color-text-secondary); ">돌아가기</button>
             </footer>
     </div>
 
@@ -482,7 +482,7 @@
     <div id="clinical-modal" class="modal-overlay">
         <div class="modal-content" style="width: 95%; max-width: 800px; padding-bottom: 2rem; max-height: 90vh; overflow-y: auto;">
             <button class="modal-close" onclick="closeClinicalModal(event)">&times;</button>
-            <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 mt-2 shadow-sm" id="clinical-icon-bg" style="background-color: #f3f4f6;">
+            <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 mt-2 shadow-sm" id="clinical-icon-bg" style="background-color: var(--color-fill-hover);">
                 <span id="clinical-modal-icon" style="font-size: 2rem;">📋</span>
             </div>
             <h3 id="clinical-modal-title" class="text-xl font-bold text-gray-900 mb-4 text-center">인체적용시험 결과</h3>
@@ -660,12 +660,12 @@
                 displayName = enName;
             } else if (currentLang !== 'ko') {
                 const srcName = enName || koName;
-                nameEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
+                nameEl.innerHTML = '<span style="color:var(--color-text-secondary);">Translating...</span>';
                 displayName = await translateText(srcName, currentLang, enName ? 'en' : 'ko');
             }
             nameEl.textContent = displayName;
             
-            descEl.innerHTML   = '<span style="color:#9ca3af;">판 정보를 불러오는 중입니다...</span>';
+            descEl.innerHTML   = '<span style="color:var(--color-text-secondary);">판 정보를 불러오는 중입니다...</span>';
             modalEl.classList.add('show');
 
             // 0단계: Sheet2 데이터 우선 확인 (가장 최우선 순위)
@@ -675,7 +675,7 @@
                     if (sheetInfo[currentLang] && sheetInfo[currentLang] !== '상세 설명이 등록되지 않았습니다.' && sheetInfo[currentLang] !== 'No description available.') {
                         descEl.textContent = appendDisclaimer(sheetInfo[currentLang], currentLang);
                     } else if (sheetInfo.ko && sheetInfo.ko !== '상세 설명이 등록되지 않았습니다.') {
-                        descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
+                        descEl.innerHTML = '<span style="color:var(--color-text-secondary);">Translating...</span>';
                         // 표시광고법에 맞게 순화된 국문(ko)을 기반으로 모든 언어를 실시간 번역
                         const translatedDesc = await translateText(sheetInfo.ko, currentLang, 'ko');
                         descEl.textContent = appendDisclaimer(translatedDesc, currentLang);
@@ -694,7 +694,7 @@
                 let fb = fallback;
                 if (currentLang !== 'ko') {
                     // 다국어 모드일 경우 구글 번역 API로 통째로 번역
-                    descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
+                    descEl.innerHTML = '<span style="color:var(--color-text-secondary);">Translating...</span>';
                     const translatedFb = await translateText(fb, currentLang, 'ko');
                     descEl.textContent = appendDisclaimer(translatedFb, currentLang);
                 } else {
@@ -742,7 +742,7 @@
                     summary = summary.trim();
                     
                     if (currentLang !== 'ko' && currentLang !== 'en') {
-                        descEl.innerHTML = '<span style="color:#9ca3af;">Translating...</span>';
+                        descEl.innerHTML = '<span style="color:var(--color-text-secondary);">Translating...</span>';
                         summary = await translateText(summary, currentLang, 'en');
                     }
                     descEl.textContent = appendDisclaimer(summary, currentLang);
@@ -825,10 +825,10 @@
             videoTitle: { ko: "🎬 제니트리 소개 영상", en: "🎬 Janytree Introduction Video", jp: "🎬 ジェニツリー紹介動画", ch: "🎬 Janytree 介绍视频" },
             watchYoutube: { ko: "YouTube에서 동영상 보기", en: "Watch video on YouTube", jp: "YouTubeで動画を見る", ch: "在YouTube上观看视频" },
             concept: { 
-                ko: "핵심 컨셉 성분<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">터치하여 특징 보기</span>", 
-                en: "Key Ingredients<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">Click for details</span>",
-                jp: "核心コンセプト成分<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">タップして詳細を見る</span>",
-                ch: "核心成分<br><span style=\"font-size:11px; font-weight:normal; color:#6b7280;\">点击查看详情</span>"
+                ko: "핵심 컨셉 성분<br><span style=\"font-size:11px; font-weight:normal; color:var(--color-text-secondary);\">터치하여 특징 보기</span>", 
+                en: "Key Ingredients<br><span style=\"font-size:11px; font-weight:normal; color:var(--color-text-secondary);\">Click for details</span>",
+                jp: "核心コンセプト成分<br><span style=\"font-size:11px; font-weight:normal; color:var(--color-text-secondary);\">タップして詳細を見る</span>",
+                ch: "核心成分<br><span style=\"font-size:11px; font-weight:normal; color:var(--color-text-secondary);\">点击查看详情</span>"
             },
             socialWebsite: { ko: "홈페이지", en: "Website", jp: "ホームページ", ch: "主页" },
             socialYoutube: { ko: "유튜브", en: "YouTube", jp: "YouTube", ch: "YouTube" },
@@ -1337,7 +1337,7 @@
                         const div = document.createElement('div');
                         if (res.imageUrl) {
                             div.style.cursor = 'pointer';
-                            div.style.color = '#866d5b';
+                            div.style.color = 'var(--color-text-secondary)';
                             div.style.textDecoration = 'underline';
                             div.title = lang === 'ko' ? '클릭하여 결과 이미지 보기' : 'Click to view results image';
                             div.innerHTML = res.text + ' 🔍';
@@ -1345,12 +1345,12 @@
                                 document.getElementById('clinical-modal-title').textContent = uiLabels.clinicalTitle[lang];
                                 document.getElementById('btn-clinical-close').textContent = uiLabels.clinicalClose[lang];
                                 const descElem = document.getElementById('clinical-modal-desc');
-                                descElem.innerHTML = `<div class="mb-4 font-semibold text-gray-800">${res.text}</div><img src="${res.imageUrl}" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; display: block; margin-top: 15px;" alt="인체적용시험 결과 이미지" onerror="this.onerror=null; this.parentElement.innerHTML+='<br><span class=\'text-sm text-red-500\'>이미지를 불러올 수 없습니다. 링크를 확인해주세요.</span>'; this.style.display='none';">`;
+                                descElem.innerHTML = `<div class="mb-4 font-semibold text-gray-800">${res.text}</div><img src="${res.imageUrl}" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid var(--color-border); display: block; margin-top: 15px;" alt="인체적용시험 결과 이미지" onerror="this.onerror=null; this.parentElement.innerHTML+='<br><span class=\'text-sm text-red-500\'>이미지를 불러올 수 없습니다. 링크를 확인해주세요.</span>'; this.style.display='none';">`;
                                 document.getElementById('clinical-modal').classList.add('show');
                             };
                         } else {
                             div.innerHTML = res.text;
-                            div.style.color = '#4b5563';
+                            div.style.color = 'var(--color-text-secondary)';
                         }
                         if (idx > 0) div.style.marginTop = '6px';
                         valClinical.appendChild(div);
@@ -1474,7 +1474,7 @@
                     btn.style.padding = '0';
                     btn.style.cursor = 'pointer';
                     btn.title = '이 항목 듣기';
-                    btn.innerHTML = '<span class="material-icons" style="font-size:18px; color:#c4b3a6; vertical-align:-3px; transition: color 0.2s;">volume_up</span>';
+                    btn.innerHTML = '<span class="material-icons" style="font-size:18px; color:var(--color-primary); vertical-align:-3px; transition: color 0.2s;">volume_up</span>';
                     btn.onclick = (e) => window.playItemTts(itemId, e);
                     
                     if (itemId === 'concept-ingredients') {
@@ -1533,9 +1533,9 @@
                     // 인라인 스타일 (JT 디자인 토큰 컬러 활용 가능시 클래스로 대체)
                     btn.style.padding = '10px 20px';
                     btn.style.borderRadius = '30px';
-                    btn.style.border = '1.5px solid #c4b3a6';
-                    btn.style.background = '#ffffff';
-                    btn.style.color = '#6b5f54';
+                    btn.style.border = '1.5px solid var(--color-primary)';
+                    btn.style.background = 'var(--color-bg-container)';
+                    btn.style.color = 'var(--color-text-secondary)';
                     btn.style.fontWeight = '700';
                     btn.style.fontSize = '15px';
                     btn.style.cursor = 'pointer';
@@ -1549,13 +1549,13 @@
                     
                     btn.onclick = async () => {
                         Array.from(tabsContainer.children).forEach(b => {
-                            b.style.background = '#ffffff';
-                            b.style.color = '#6b5f54';
-                            b.style.borderColor = '#c4b3a6';
+                            b.style.background = 'var(--color-bg-container)';
+                            b.style.color = 'var(--color-text-secondary)';
+                            b.style.borderColor = 'var(--color-primary)';
                         });
-                        btn.style.background = '#3e332c';
-                        btn.style.color = '#ffffff';
-                        btn.style.borderColor = '#3e332c';
+                        btn.style.background = 'var(--color-accent)';
+                        btn.style.color = 'var(--neutral-0)';
+                        btn.style.borderColor = 'var(--color-accent)';
                         
                         if (!isFirstRender) {
                             const tableContainer = document.querySelector('.table-container');
@@ -1576,9 +1576,9 @@
                 
                 // 활성화 스타일 적용 (onClick은 데이터 중복 렌더링을 막기 위해 직접 스타일만 제어)
                 const firstBtn = tabsContainer.children[0];
-                firstBtn.style.background = '#3e332c';
-                firstBtn.style.color = '#ffffff';
-                firstBtn.style.borderColor = '#3e332c';
+                firstBtn.style.background = 'var(--color-accent)';
+                firstBtn.style.color = 'var(--neutral-0)';
+                firstBtn.style.borderColor = 'var(--color-accent)';
                 isFirstRender = false;
                 
             } else {
@@ -1645,7 +1645,7 @@
                     if (window.currentTargetItem) {
                         document.getElementById('maker-container').style.display = 'none';
                         document.getElementById('viewer-container').style.display = 'block';
-                        document.body.style.background = '#f9fafb';
+                        document.body.style.background = 'var(--color-bg-layout)';
                         renderLabel(window.currentTargetItem, currentLang);
                         
                         // 뒤로가기 처리를 위해 pushState 추가
@@ -1748,7 +1748,7 @@
             // img 태그로 즉시 렌더링
             container.innerHTML = `
         <img src="${currentQrUrl}" alt="QR Code" style="width:200px; height:200px; margin-bottom:10px; border-radius:8px;" />
-        <p id="maker-click-hint" style="font-size:12px; color:#000000; font-weight:600; margin-top:0px; margin-bottom:5px;">${uiLabels.makerClickHint[currentLang]}</p>
+        <p id="maker-click-hint" style="font-size:12px; color:var(--color-text); font-weight:600; margin-top:0px; margin-bottom:5px;">${uiLabels.makerClickHint[currentLang]}</p>
     `;
         }
 
@@ -1824,7 +1824,7 @@
                 } else {
                     window.isItemTtsPaused = true;
                     window.speechSynthesis.pause();
-                    if (btnIcon) btnIcon.style.color = '#c4b3a6';
+                    if (btnIcon) btnIcon.style.color = 'var(--color-primary)';
                 }
                 return;
             }
@@ -1836,7 +1836,7 @@
             window.isItemTtsPaused = false;
             
             document.querySelectorAll('.item-tts-btn span').forEach(icon => {
-                icon.style.color = '#c4b3a6';
+                icon.style.color = 'var(--color-primary)';
             });
 
             const mainTtsBtn = document.getElementById('btn-tts');
@@ -1897,11 +1897,11 @@
             
             utterance.onstart = () => { if (btnIcon) btnIcon.style.color = 'red'; };
             utterance.onend = () => { 
-                if (btnIcon) btnIcon.style.color = '#c4b3a6'; 
+                if (btnIcon) btnIcon.style.color = 'var(--color-primary)'; 
                 if (window.currentItemTtsId === itemId) window.currentItemTtsId = null;
             };
             utterance.onerror = () => { 
-                if (btnIcon) btnIcon.style.color = '#c4b3a6'; 
+                if (btnIcon) btnIcon.style.color = 'var(--color-primary)'; 
                 if (window.currentItemTtsId === itemId) window.currentItemTtsId = null;
             };
 
@@ -2019,7 +2019,7 @@
         if (urlParams.has('product') || urlParams.has('code') || urlParams.has('c') || window.location.pathname.includes('/r/')) {
             // 뷰어 모드 실행
             document.getElementById('viewer-container').style.display = 'block';
-            document.body.style.background = '#f9fafb';
+            document.body.style.background = 'var(--color-bg-layout)';
             
             // 구매하기 버튼 등은 하단에서 글로벌로 등록됨
 
