@@ -638,7 +638,7 @@ window.addEventListener("unhandledrejection", function(e) {
                             
                             const targetLangName = lang === 'en' ? 'English' : lang === 'jp' ? 'Japanese' : 'Chinese (Simplified)';
                             promptText = `You are an expert cosmetics translator. Translate the following JSON data from Korean into highly natural and professional ${targetLangName}.
-CRITICAL INSTRUCTION 1: For 'concept_ingredients' and 'full_ingredients', you MUST translate them strictly using the authoritative cosmetic ingredient databases:
+CRITICAL INSTRUCTION 1: For 'concept_ingredients' and 'full_ingredients', you MUST NEVER literally translate them word-for-word (직역 절대 금지). You MUST ONLY use the exact official standard names from the following authoritative cosmetic ingredient databases:
 - For English: Use INCI names based on Cosing (https://ec.europa.eu/growth/tools-databases/cosing/).
 - For Chinese: Use the standard names from SFDAChina (https://www.sfdachina.com/cosmetics/INCI_Search.asp).
 - For Japanese: Use the standard names from JCIA (https://www.jcia.org/user/business/ingredients/namelist).
