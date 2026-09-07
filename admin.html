@@ -234,7 +234,7 @@ window.addEventListener("unhandledrejection", function(e) {
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-sm font-medium">설명 (국문)</label>
                             <button @click="autoTranslate('ingredient', 'ko')" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === 'ko'}">
-                                <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === 'ko' ? '검수 중...' : '화장품법 검수 (Gemini)' }}
+                                <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === 'ko' ? '검수 중...' : '화장품법 검수 (AI)' }}
                             </button>
                         </div>
                         <textarea v-model="ingredientForm.desc_ko" class="w-full border p-2 rounded h-20"></textarea>
@@ -733,7 +733,7 @@ Input: ${sourceText}`;
                         if (type === 'product') {
                             const translated = JSON.parse(resultText);
                             Object.assign(this.formData.translations[lang], translated[lang]);
-                            this.showAlert('✅ 번역 완료', '제미나이 번역이 완료되었습니다.\n하단의 [저장하기] 버튼을 꼭 눌러서 변경사항을 저장해 주세요.');
+                            this.showAlert('✅ 번역 완료', '번역이 완료되었습니다.\n하단의 [저장하기] 버튼을 꼭 눌러서 변경사항을 저장해 주세요.');
                         } else {
                             if (lang === 'ko') {
                                 let finalKo = resultText.trim();
