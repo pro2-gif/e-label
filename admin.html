@@ -644,7 +644,8 @@ CRITICAL INSTRUCTION 1: For 'concept_ingredients' and 'full_ingredients', you MU
 - For Japanese: Use the standard names from JCIA (https://www.jcia.org/user/business/ingredients/namelist).
 - FALLBACK RULE: If you are not absolutely certain that an ingredient officially exists in the target language's database (e.g., it is a novel or unregistered ingredient), DO NOT invent a translation. You MUST leave it in its original English INCI name (or Korean if INCI is unknown).
 - EXCEPTION RULE 1: '카퍼트라이펩타이드-1' (Copper Tripeptide-1) MUST be translated to Chinese exactly as '三肽-1 铜' (NOT '铜三肽-1').
-- EXCEPTION RULE 2: '락토바실러스/하이드롤라이즈드완두콩추출발효여과물' (Lactobacillus/Hydrolyzed Pea Seed Extract Ferment Filtrate) MUST NOT be translated to Chinese. You MUST output it exactly as 'Lactobacillus/Hydrolyzed Pea Seed Extract Ferment Filtrate'.
+- EXCEPTION RULE 2: '락토바실러스/하이드롤라이즈드완두콩추출발효여과물' (Lactobacillus/Hydrolyzed Pea Seed Extract Ferment Filtrate) MUST NOT be translated to Chinese.
+- EXCEPTION RULE 3: ALL ingredients starting with 'sh-' (e.g., sh-Oligopeptide-1, sh-Polypeptide-9) MUST NOT be translated to Chinese. Output them exactly in English.
 CRITICAL INSTRUCTION 2: You MUST ALWAYS translate the company name '(주)제니트리' or '제니트리' strictly as 'JANYTREE INC.' exactly. Do not transliterate it.
 CRITICAL INSTRUCTION 3: You MUST ALWAYS translate the brand name '인투메디' strictly as 'INTOMEDI' exactly. Do not transliterate it.
 Return ONLY a valid JSON object with a single root key "${lang}". Do not include markdown code blocks.
