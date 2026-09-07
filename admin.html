@@ -243,7 +243,7 @@ window.addEventListener("unhandledrejection", function(e) {
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-sm font-medium">설명 (영문)</label>
                             <button @click="autoTranslate('ingredient', 'en')" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === 'en'}">
-                                <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === 'en' ? '번역 중...' : 'Gemini Flash' }}
+                                <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === 'en' ? '번역 중...' : 'AI 자동 번역' }}
                             </button>
                         </div>
                         <textarea v-model="ingredientForm.desc_en" class="w-full border p-2 rounded h-20"></textarea>
@@ -252,7 +252,7 @@ window.addEventListener("unhandledrejection", function(e) {
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-sm font-medium">설명 (일본어)</label>
                             <button @click="autoTranslate('ingredient', 'jp')" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === 'jp'}">
-                                <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === 'jp' ? '번역 중...' : 'Gemini Flash' }}
+                                <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === 'jp' ? '번역 중...' : 'AI 자동 번역' }}
                             </button>
                         </div>
                         <textarea v-model="ingredientForm.desc_jp" class="w-full border p-2 rounded h-20"></textarea>
@@ -261,7 +261,7 @@ window.addEventListener("unhandledrejection", function(e) {
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-sm font-medium">설명 (중국어)</label>
                             <button @click="autoTranslate('ingredient', 'ch')" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === 'ch'}">
-                                <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === 'ch' ? '번역 중...' : 'Gemini Flash' }}
+                                <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === 'ch' ? '번역 중...' : 'AI 자동 번역' }}
                             </button>
                         </div>
                         <textarea v-model="ingredientForm.desc_ch" class="w-full border p-2 rounded h-20"></textarea>
@@ -316,7 +316,7 @@ window.addEventListener("unhandledrejection", function(e) {
                             </div>
                         </div>
                         <button v-if="currentLangTab !== 'ko'" @click="autoTranslate('product', currentLangTab)" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === currentLangTab}">
-                            <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === currentLangTab ? '번역 중...' : 'Gemini Flash' }}
+                            <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === currentLangTab ? '번역 중...' : 'AI 자동 번역' }}
                         </button>
                     </div>
 
