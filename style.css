@@ -1,15 +1,15 @@
 /* style.css */
 :root {
-    --bg-color: #faf5f0;
-    --card-bg: #ffffff;
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --border-color: #e5e7eb;
-    --primary-color: #c4b3a6;
-    --primary-hover: #bda89b;
-    --danger-bg: #fef2f2;
-    --danger-text: #dc2626;
-    --danger-border: #fca5a5;
+    --bg-color: var(--color-bg-layout);
+    --card-bg: var(--color-bg-container);
+    --text-primary: var(--color-text);
+    --text-secondary: var(--color-text-secondary);
+    --border-color: var(--color-border);
+    --primary-color: var(--color-primary);
+    --primary-hover: var(--color-primary-hover);
+    --danger-bg: var(--color-error-bg);
+    --danger-text: var(--color-error-text);
+    --danger-border: var(--color-error-border);
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -22,7 +22,7 @@
 }
 
 body {
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    font-family: var(--font-base);
     background-color: var(--bg-color);
     color: var(--text-primary);
     line-height: 1.6;
@@ -47,7 +47,7 @@ body {
 
 .lang-switcher {
     display: flex;
-    background-color: #f3f4f6;
+    background-color: var(--color-fill-hover);
     border-radius: 8px;
     padding: 4px;
 }
@@ -92,11 +92,11 @@ body {
 }
 
 .icon-btn:hover {
-    background-color: #f3f4f6;
+    background-color: var(--color-fill-hover);
     color: var(--text-primary);
 }
 .icon-btn.playing {
-    color: #ef4444; /* Îπ®Í∞ÑÏÉâ ÌÖçÏä§Ìä∏/ÏïÑÏù¥ÏΩò */
+    color: var(--color-error-text); /* Îπ®Í∞ÑÏÉâ ÌÖçÏä§Ìä∏/ÏïÑÏù¥ÏΩò */
     animation: pulse-ring 1.5s infinite;
 }
 @keyframes pulse-ring {
@@ -119,7 +119,7 @@ body {
     margin-bottom: 24px;
     text-align: center;
     letter-spacing: -0.02em;
-    color: #111827;
+    color: var(--color-text);
     overflow-wrap: break-word;
     word-break: break-word;
     white-space: normal;
@@ -152,7 +152,7 @@ body {
 }
 
 .info-table th {
-    background-color: #fafafa;
+    background-color: var(--color-bg-layout);
     font-weight: 600;
     width: 30%;
     color: var(--text-secondary);
@@ -303,7 +303,7 @@ body {
 }
 
 .close-btn:hover {
-    background-color: #f3f4f6;
+    background-color: var(--color-fill-hover);
     color: var(--text-primary);
 }
 
@@ -318,7 +318,7 @@ body {
     width: 100%;
     border-radius: 8px;
     overflow: hidden;
-    background-color: #000;
+    background-color: var(--color-overlay);
     aspect-ratio: 16 / 9;
 }
 
@@ -402,7 +402,7 @@ body {
     justify-content: center;
     margin: 0 auto;
     padding: 10px 20px;
-    background-color: #f3f4f6;
+    background-color: var(--color-fill-hover);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -413,7 +413,7 @@ body {
 }
 
 .download-qr-btn:hover {
-    background-color: #e5e7eb;
+    background-color: var(--color-border);
 }
 
 /* Î°úÎî© ÌôîÎ©¥ */
@@ -424,15 +424,15 @@ body {
     justify-content: center;
     min-height: 60vh;
     gap: 16px;
-    color: #6b7280;
+    color: var(--color-text-secondary);
     font-size: 15px;
 }
 
 .loading-spinner {
     width: 44px;
     height: 44px;
-    border: 4px solid #e5e7eb;
-    border-top-color: #2563eb;
+    border: 4px solid var(--color-border);
+    border-top-color: var(--color-accent);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
@@ -456,12 +456,12 @@ body {
 .error-screen h2 {
     font-size: 20px;
     font-weight: 700;
-    color: #111827;
+    color: var(--color-text);
 }
 
 .error-screen p {
     font-size: 14px;
-    color: #6b7280;
+    color: var(--color-text-secondary);
 }
 
 
@@ -503,7 +503,7 @@ body {
     width: 100%;
     border-radius: 12px;
     overflow: hidden;
-    background-color: #000;
+    background-color: var(--color-overlay);
     aspect-ratio: 16 / 9;
     box-shadow: var(--shadow-sm);
 }
@@ -544,7 +544,7 @@ body {
     .info-table td {
         padding: 4px 20px 16px 20px;
     }
-    /* «ŸΩ… ƒ¡º¡ º∫∫– µÓ πˆ∆∞ ¿ßƒ° ¡∂¡§ */
+    /* ÔøΩŸΩÔøΩ ÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩ ÔøΩÔøΩ∆∞ ÔøΩÔøΩƒ° ÔøΩÔøΩÔøΩÔøΩ */
     .info-table th .item-tts-btn {
         float: right;
         margin-top: -2px;
