@@ -640,7 +640,7 @@ window.addEventListener("unhandledrejection", function(e) {
                             promptText = `You are an expert cosmetics translator. Translate the following JSON data from Korean into highly natural and professional ${targetLangName}.
 CRITICAL INSTRUCTION 1: For 'concept_ingredients' and 'full_ingredients', you MUST NEVER literally translate them word-for-word (직역 절대 금지). You MUST ONLY use the exact official standard names from the following authoritative cosmetic ingredient databases:
 - For English: Use INCI names based on Cosing (https://ec.europa.eu/growth/tools-databases/cosing/).
-- For Chinese: Use the standard names from SFDAChina (https://www.sfdachina.com/cosmetics/INCI_Search.asp).
+- For Chinese: Use the exact standard names from SFDAChina (https://www.sfdachina.com/cosmetics/INCI_Search.asp) and NIFDC (https://hzpsys.nifdc.org.cn/hzpGS/ysyhzpylml#).
 - For Japanese: Use the standard names from JCIA (https://www.jcia.org/user/business/ingredients/namelist).
 - FALLBACK RULE: If you are not absolutely certain that an ingredient officially exists in the target language's database (e.g., it is a novel or unregistered ingredient), DO NOT invent a translation. You MUST leave it in its original English INCI name (or Korean if INCI is unknown).
 - EXCEPTION RULE 1: '카퍼트라이펩타이드-1' (Copper Tripeptide-1) MUST be translated to Chinese exactly as '三肽-1 铜' (NOT '铜三肽-1').
