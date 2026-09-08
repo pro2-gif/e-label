@@ -622,6 +622,13 @@
         }
 
         window.openIngredientModal = async function(koName, enName, localName) {
+            // 영어 이름으로 렌더링되었는지 판별 (한자, 히라가나, 가타카나 포함 안 됨)
+            const isEnglishName = localName && !/[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]/.test(localName);
+            let targetLang = currentLang;
+            if (currentLang !== 'ko' && currentLang !== 'en' && isEnglishName) {
+                targetLang = 'en'; // 번역 실패로 원문(영어) 표기 시, 설명도 영어로 강제
+            }
+
             if (!koName) return;
 
             const modalEl = document.getElementById('ingredient-modal');
