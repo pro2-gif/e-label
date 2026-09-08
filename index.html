@@ -633,17 +633,33 @@
         }
 
         window.openIngredientModal = async function(koName, enName, localName) {
-            const modalEl   = document.getElementById('ingredient-modal');
-            const nameEl    = document.getElementById('modal-ing-name');
-            const descEl    = document.getElementById('modal-ing-desc');
+            if (!koName) return;
+
+            const modalEl = document.getElementById('ingredient-modal');
+            const titleKoEl = document.getElementById('ing-modal-title-ko');
+            const titleLocalEl = document.getElementById('ing-modal-title-local');
+            const descEl = document.getElementById('ing-modal-desc');
+
+            titleKoEl.textContent = koName;
+            titleLocalEl.textContent = (currentLang !== 'ko' && localName) ? localName : '';
+            descEl.textContent = 'Loading...';
+
+            modalEl.classList.add('show');
 
             // 제품명 기반 헤어 제품 판별 (에이치알 또는 헤어 포함)
-            const rawProductName = window.currentTargetItem ? getColValue(window.currentTargetItem, COL.name) : '';
+            const koProductName = window.currentTargetItem ? (window.currentTargetItem.data.realNameKo || getColValue(window.currentTargetItem, COL.name)) : '';
             const rawProductCode = window.currentTargetItem ? getColValue(window.currentTargetItem, COL.productCode) : '';
-            const isHairProduct = rawProductName.includes('에이치알') || rawProductName.includes('헤어') || rawProductCode === 'INTO-HP';
+            const isHairProduct = koProductName.includes('에이치알') || koProductName.includes('헤어') || rawProductCode === 'INTO-HP';
+            
             let lookupKey = koName;
-            if (isHairProduct && window.ingredientDetails && window.ingredientDetails[koName + '_헤어']) {
-                lookupKey = koName + '_헤어';
+            if (window.ingredientDetails) {
+                const cleanKoName = koName.replace(/\s+/g, '');
+                const dbKeys = Object.keys(window.ingredientDetails);
+                const matchedKey = dbKeys.find(k => k.replace(/\s+/g, '') === cleanKoName);
+                if (matchedKey) lookupKey = matchedKey;
+            }
+            if (isHairProduct && window.ingredientDetails && window.ingredientDetails[lookupKey + '_헤어']) {
+                lookupKey = lookupKey + '_헤어';
             }
 
             // 화면에 표시할 이름 결정 (현재 언어 모드 고려)
@@ -899,6 +915,7 @@
                     row[COL.cautions] = targetTrans.precautions || koTrans.precautions || '';
                     row[COL.customer] = targetTrans.consumer_service || koTrans.consumer_service || '';
                     row[COL.productImage] = p.image_url || '';
+                    row.realNameKo = koTrans.name || '';
                     row.realConceptKo = koTrans.concept_ingredients || '';
                     
                     rawRows.push(row);
@@ -1360,11 +1377,11 @@
             conceptContainer.innerHTML = '';
 
             const rawConceptKo = getColValue(comp, COL.conceptKo).trim();
-            const foreignNames = rawConceptKo ? rawConceptKo.split(/[,、，﹑・･]/).map(s => s.trim()).filter(Boolean) : [];
+            const foreignNames = rawConceptKo ? rawConceptKo.split(/[,、，﹑\n\|]/).map(s => s.trim()).filter(Boolean) : [];
             let koNames = foreignNames;
             
             if (lang !== 'ko' && comp.realConceptKo) {
-                koNames = comp.realConceptKo.split(/[,、，﹑・･]/).map(s => s.trim()).filter(Boolean);
+                koNames = comp.realConceptKo.split(/[,、，﹑\n\|]/).map(s => s.trim()).filter(Boolean);
             }
             for (let idx = 0; idx < foreignNames.length; idx++) {
                 const displayName = foreignNames[idx];
