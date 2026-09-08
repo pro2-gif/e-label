@@ -688,7 +688,8 @@
                         const translatedDesc = await translateText(sheetInfo.ko, targetLang, 'ko');
                         descEl.textContent = appendDisclaimer(translatedDesc, targetLang);
                     } else {
-                        descEl.textContent = appendDisclaimer(targetLang === 'en' ? 'No description available.' : '상세 설명이 등록되지 않았습니다.', targetLang);
+                        const emptyDescMsg = targetLang === 'en' ? 'No description available.' : targetLang === 'jp' ? '詳細説明が登録されていません。' : targetLang === 'ch' ? '未注册详细说明。' : '상세 설명이 등록되지 않았습니다.';
+                        descEl.textContent = appendDisclaimer(emptyDescMsg, targetLang);
                     }
                 } else {
                     descEl.textContent = appendDisclaimer(sheetInfo.ko || '상세 설명이 등록되지 않았습니다.', targetLang);
@@ -740,7 +741,7 @@
                     }
                     if (searchQuery) {
                         const enRes = await fetch(
-                            `https://${wikiLang === 'ko' ? 'en' : wikiLang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(searchQuery)}`,
+                            `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(searchQuery)}`,
                             { signal: AbortSignal.timeout(4000) }
                         ).catch(() => null);
 
@@ -762,10 +763,12 @@
                         descEl.textContent = appendDisclaimer(summary, targetLang);
                     }
                 } else {
-                    descEl.textContent = appendDisclaimer(targetLang === 'en' ? 'No detailed information found.' : '상세 정보를 찾을 수 없습니다.', targetLang);
+                    const notFoundMsg = targetLang === 'en' ? 'No detailed information found.' : targetLang === 'jp' ? '詳細情報が見つかりません。' : targetLang === 'ch' ? '未找到详细信息。' : '상세 정보를 찾을 수 없습니다.';
+                    descEl.textContent = appendDisclaimer(notFoundMsg, targetLang);
                 }
             } catch (err) {
-                descEl.textContent = appendDisclaimer(targetLang === 'en' ? 'Failed to load information.' : '정보를 불러오는데 실패했습니다.', targetLang);
+                const failedMsg = targetLang === 'en' ? 'Failed to load information.' : targetLang === 'jp' ? '情報の読み込みに失敗しました。' : targetLang === 'ch' ? '无法加载信息。' : '정보를 불러오는데 실패했습니다.';
+                descEl.textContent = appendDisclaimer(failedMsg, targetLang);
             }
         };
         window.closeIngredientModal = function(event) {
