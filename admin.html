@@ -114,7 +114,10 @@ window.addEventListener("unhandledrejection", function(e) {
                 <div v-if="currentMenu === 'products'" class="p-4 md:p-8">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-bold text-jt-charcoal">제품 관리</h2>
-                        <button @click="openProductModal()" class="bg-jt-blue text-white px-4 py-2 rounded shadow hover:bg-blue-700">새 제품 추가</button>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" v-model="searchProduct" placeholder="제품명 또는 코드 검색..." class="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-jt-blue w-48 md:w-64">
+                            <button @click="openProductModal()" class="bg-jt-blue text-white px-4 py-2 rounded shadow hover:bg-blue-700 whitespace-nowrap">새 제품 추가</button>
+                        </div>
                     </div>
                     
                     <div v-if="loading.products" class="text-gray-500">목록을 불러오는 중...</div>
@@ -149,7 +152,10 @@ window.addEventListener("unhandledrejection", function(e) {
                     
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-bold text-jt-charcoal">핵심 성분 관리</h2>
-                        <button @click="openIngredientModal()" class="bg-jt-blue text-white px-4 py-2 rounded shadow hover:bg-blue-700">새 성분 추가</button>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" v-model="searchIngredient" placeholder="성분명 검색..." class="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-jt-blue w-48 md:w-64">
+                            <button @click="openIngredientModal()" class="bg-jt-blue text-white px-4 py-2 rounded shadow hover:bg-blue-700 whitespace-nowrap">새 성분 추가</button>
+                        </div>
                     </div>
                     
                     <div v-if="loadingIngredients" class="text-gray-500">목록을 불러오는 중...</div>
@@ -411,7 +417,7 @@ window.addEventListener("unhandledrejection", function(e) {
                         product: false,
                         isEdit: false
                     },
-                    currentLangTab: 'ko',
+                    searchProduct: '', searchIngredient: '', currentLangTab: 'ko',
                     alertModal: { show: false, title: '', message: '' },
                     abortController: null,
                     formData: { id: null, product_code: '', image_url: '', shop_url: '', translations: { ko: {}, en: {}, jp: {}, ch: {} } }
