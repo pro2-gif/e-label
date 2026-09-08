@@ -377,15 +377,6 @@
                             <th id="label-functional">기능성 분류</th>
                             <td id="val-functional"></td>
                         </tr>
-                        <!-- 새로 추가되는 항목 -->
-                        <tr>
-                            <th id="label-batchno">제조번호</th>
-                            <td id="val-batchno"></td>
-                        </tr>
-                        <tr>
-                            <th id="label-expiration">사용기한</th>
-                            <td id="val-expiration"></td>
-                        </tr>
                         <tr>
                             <th id="label-manufacturer">제조업자 및 책임판매업자 / 주소</th>
                             <td id="val-manufacturer"></td>
@@ -516,8 +507,8 @@
             name: -1,
             volume: -1,
             functional: -1,
-            batchno: -1,
-            expiration: -1,
+            
+            
             manufacturer: -1,
             conceptKo: -1,
             conceptEn: -1,
@@ -542,9 +533,7 @@
                 if (h.includes('제품명')) COL.name = idx;
                 else if (h.includes('용량')) COL.volume = idx;
                 else if (h.includes('기능성분류')) COL.functional = idx;
-                else if (h.includes('제조번호')) COL.batchno = idx;
-                else if (h.includes('사용기한')) COL.expiration = idx;
-                else if (h.includes('제조업자') || h.includes('책임판매업자')) COL.manufacturer = idx;
+                                                else if (h.includes('제조업자') || h.includes('책임판매업자')) COL.manufacturer = idx;
                 else if (h.includes('핵심컨셉성분') && h.includes('영문')) {
                     COL.conceptEn = idx;
                     COL.conceptKo = idx; // 다국어(영문) 시트에서도 conceptKo로 접근할 수 있도록 폴백 설정
@@ -829,9 +818,7 @@
                 const uiLabels = {
             volume: { ko: "용량", en: "Volume", jp: "容量", ch: "容量" },
             functional: { ko: "기능성 분류", en: "Functional Classification", jp: "機能性分類", ch: "功能性分类" },
-            batchno: { ko: "제조번호", en: "Batch No.", jp: "製造番号", ch: "批号" },
-            expiration: { ko: "사용기한", en: "Expiration Date", jp: "使用期限", ch: "保质期" },
-            howToUse: { ko: "사용방법", en: "How to use", jp: "使用方法", ch: "使用方法" },
+                                    howToUse: { ko: "사용방법", en: "How to use", jp: "使用方法", ch: "使用方法" },
             manufacturer: { ko: "제조업자 및 책임판매업자 / 주소", en: "Manufacturer / Address", jp: "製造業者および責任販売業者 / 住所", ch: "制造商及责任销售商 / 地址" },
             ingredients: { ko: "전성분", en: "Ingredients", jp: "全成分", ch: "全成分" },
             cautions: { ko: "사용할 때의 주의사항", en: "Cautions", jp: "使用上の注意", ch: "使用注意事项" },
@@ -1273,9 +1260,7 @@
         async function updateComponentData(comp, lang, compIdx = 0) {
             let volume = getColValue(comp, COL.volume);
             let functional = getColValue(comp, COL.functional);
-            let batchno = getColValue(comp, COL.batchno);
-            let expiration = getColValue(comp, COL.expiration);
-            let manufacturer = getManufacturerDisplay(comp, lang);
+                                    let manufacturer = getManufacturerDisplay(comp, lang);
             let ingredients = lang === 'en' ? getColValue(comp, COL.ingredientsEn) : getColValue(comp, COL.ingredientsKo);
             let cautions = getColValue(comp, COL.cautions);
             let customer = getColValue(comp, COL.customer);
@@ -1306,11 +1291,9 @@
 
             document.getElementById('val-volume').textContent = volume;
             document.getElementById('val-functional').textContent = functional;
-            document.getElementById('val-batchno').textContent = batchno; 
-            document.getElementById('val-batchno').parentElement.style.display = batchno ? 'table-row' : 'none';
-            document.getElementById('val-expiration').textContent = expiration; 
-            document.getElementById('val-expiration').parentElement.style.display = expiration ? 'table-row' : 'none';
-            document.getElementById('val-manufacturer').textContent = manufacturer;
+             
+                         
+                        document.getElementById('val-manufacturer').textContent = manufacturer;
             document.getElementById('val-ingredients').textContent = ingredients;
 
             // 인체적용시험 결과 행 렌더링
@@ -1459,9 +1442,7 @@
             document.getElementById('label-functional').textContent = uiLabels.functional[lang];
             const conceptHeader = document.getElementById('label-concept-ingredients');
             if (conceptHeader) conceptHeader.innerHTML = uiLabels.concept[lang];
-            document.getElementById('label-batchno').textContent = uiLabels.batchno[lang];
-            document.getElementById('label-expiration').textContent = uiLabels.expiration[lang];
-            document.getElementById('label-how-to-use').textContent = uiLabels.howToUse[lang];
+                                    document.getElementById('label-how-to-use').textContent = uiLabels.howToUse[lang];
             document.getElementById('label-manufacturer').textContent = uiLabels.manufacturer[lang];
             document.getElementById('label-clinical').textContent = uiLabels.clinicalTitle[lang];
             document.getElementById('label-ingredients').textContent = uiLabels.ingredients[lang];
@@ -1480,7 +1461,7 @@
             if(lblSocialInstagram) lblSocialInstagram.textContent = uiLabels.socialInstagram[lang];
             document.getElementById('btn-home').textContent = uiLabels.homeBtn[lang];
 
-            const ttsItems = ['volume', 'functional', 'batchno', 'expiration', 'manufacturer', 'concept-ingredients', 'clinical', 'ingredients', 'how-to-use', 'cautions', 'customer'];
+            const ttsItems = ['volume', 'functional', 'manufacturer', 'concept-ingredients', 'clinical', 'ingredients', 'how-to-use', 'cautions', 'customer'];
             ttsItems.forEach(itemId => {
                 const th = document.getElementById('label-' + itemId);
                 if (th && !th.querySelector('.item-tts-btn')) {
@@ -1955,9 +1936,7 @@
             const productName = document.getElementById('product-name').textContent || '';
             const volume = document.getElementById('val-volume').textContent || '';
             const functional = document.getElementById('val-functional').textContent || '';
-            const batchno = document.getElementById('val-batchno').textContent || '';
-            const expiration = document.getElementById('val-expiration').textContent || '';
-            const manufacturer = document.getElementById('val-manufacturer').textContent || '';
+                                    const manufacturer = document.getElementById('val-manufacturer').textContent || '';
             const ingredients = document.getElementById('val-ingredients').textContent || '';
             const customer = document.getElementById('val-customer').textContent || '';
 
@@ -1990,8 +1969,6 @@
             let fullText = `${productName}. ` +
                 `${uiLabels.volume[currentLang]}, ${volume}. ` +
                 `${uiLabels.functional[currentLang]}, ${functional}. ` +
-                `${uiLabels.batchno[currentLang]}, ${batchno}. ` +
-                `${uiLabels.expiration[currentLang]}, ${expiration}. ` +
                 `${uiLabels.manufacturer[currentLang]}, ${manufacturer}. ` +
                 `${conceptTitle}, ${concept}. ` +
                 (clinical ? `${uiLabels.clinicalTitle[currentLang]}, ${clinical}. ` : '') +

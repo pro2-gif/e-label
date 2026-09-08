@@ -423,7 +423,29 @@ window.addEventListener("unhandledrejection", function(e) {
                     formData: { id: null, product_code: '', image_url: '', shop_url: '', translations: { ko: {}, en: {}, jp: {}, ch: {} } }
                 }
             },
+
+            computed: {
+                filteredProducts() {
+                    if (!this.searchProduct) return this.products;
+                    const s = this.searchProduct.toLowerCase();
+                    return this.products.filter(p => {
+                        const koTrans = p.product_translations && p.product_translations.find(t => t.lang_code === 'ko');
+                        const name = koTrans ? koTrans.name : '';
+                        const code = p.product_code || '';
+                        return name.toLowerCase().includes(s) || code.toLowerCase().includes(s);
+                    });
+                },
+                filteredIngredients() {
+                    if (!this.searchIngredient) return this.ingredients;
+                    const s = this.searchIngredient.toLowerCase();
+                    return this.ingredients.filter(i => {
+                        const name = i.name_ko || '';
+                        return name.toLowerCase().includes(s);
+                    });
+                }
+            },
             async mounted() {
+
                 // Check auth
                 const { data } = await supabaseClient.auth.getSession();
                 this.session = data.session;
