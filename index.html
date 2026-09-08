@@ -666,10 +666,12 @@
                 displayName = enName;
             } else if (targetLang !== 'ko') {
                 const srcName = enName || koName;
-                nameEl.innerHTML = '<span style="color:var(--color-text-secondary);">Translating...</span>';
+                titleLocalEl.innerHTML = '<span style="color:var(--color-text-secondary);">Translating...</span>';
                 displayName = await translateText(srcName, targetLang, enName ? 'en' : 'ko');
             }
-            nameEl.textContent = displayName;
+            if (targetLang !== 'ko') {
+                titleLocalEl.textContent = displayName;
+            }
             
             descEl.innerHTML   = '<span style="color:var(--color-text-secondary);">판 정보를 불러오는 중입니다...</span>';
             modalEl.classList.add('show');
