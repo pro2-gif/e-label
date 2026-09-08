@@ -131,7 +131,7 @@ window.addEventListener("unhandledrejection", function(e) {
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                <tr v-for="(p, index) in products" :key="p.id" class="hover:bg-gray-50">
+                                <tr v-for="(p, index) in filteredProducts" :key="p.id" class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ p.product_code }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ getKoName(p) }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -169,7 +169,7 @@ window.addEventListener("unhandledrejection", function(e) {
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                <tr v-for="ing in ingredients" :key="ing.id" class="hover:bg-gray-50">
+                                <tr v-for="ing in filteredIngredients" :key="ing.id" class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ ing.name_ko }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ing.category }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
