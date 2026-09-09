@@ -921,8 +921,8 @@
                     row[COL.cautions] = targetTrans.precautions || koTrans.precautions || '';
                     row[COL.customer] = targetTrans.consumer_service || koTrans.consumer_service || '';
                     row[COL.productImage] = p.image_url || '';
-                    row.realNameKo = koTrans.name || '';
-                    row.realConceptKo = koTrans.concept_ingredients || '';
+                    row.realNameKo = koTrans.name || p.product_name || '';
+                    row.realConceptKo = koTrans.concept_ingredients || p.key_ingredients || '';
                     
                     rawRows.push(row);
                 });
@@ -1382,9 +1382,14 @@
             const foreignNames = rawConceptKo ? rawConceptKo.split(/[,、，﹑\n\|]/).map(s => s.trim()).filter(Boolean) : [];
             let koNames = foreignNames;
             
-            if (lang !== 'ko' && comp.realConceptKo) {
-                koNames = comp.realConceptKo.split(/[,、，﹑\n\|]/).map(s => s.trim()).filter(Boolean);
+            let actualRealConceptKo = comp.realConceptKo || (comp.data && comp.data.realConceptKo) || '';
+            if (lang !== 'ko' && actualRealConceptKo) {
+                koNames = actualRealConceptKo.split(/[,、，﹑\n\|]/).map(s => s.trim()).filter(Boolean);
             }
+            
+            // 만약 길이가 안 맞으면 (예: 영문은 10개, 국문은 9개 등), koNames 배열이 짧아서 koNames[idx]가 undefined가 됨.
+            // 이 경우 koName이 영문(displayName)으로 떨어지고, 모달에서 성분 매칭이 실패하게 됨.
+            
             for (let idx = 0; idx < foreignNames.length; idx++) {
                 const displayName = foreignNames[idx];
                 const koName = koNames[idx] || displayName;
