@@ -373,7 +373,7 @@
                             <th id="label-volume">용량</th>
                             <td id="val-volume"></td>
                         </tr>
-                        <tr>
+                        <tr id="row-functional">
                             <th id="label-functional">기능성 분류</th>
                             <td id="val-functional"></td>
                         </tr>
@@ -1302,7 +1302,16 @@
             }
 
             document.getElementById('val-volume').textContent = volume;
-            document.getElementById('val-functional').textContent = functional;
+            
+            const functionalRow = document.getElementById('row-functional');
+            const valFunctional = document.getElementById('val-functional');
+            if (!functional || functional.trim() === '-' || functional.trim() === '') {
+                functionalRow.style.display = 'none';
+                valFunctional.textContent = '';
+            } else {
+                functionalRow.style.display = 'table-row';
+                valFunctional.textContent = functional;
+            }
              
                          
                         document.getElementById('val-manufacturer').textContent = manufacturer;
