@@ -116,7 +116,7 @@ window.addEventListener("unhandledrejection", function(e) {
                         <h2 class="text-2xl font-bold text-jt-charcoal">제품 관리</h2>
                         <div class="flex items-center space-x-2">
                             <input type="text" v-model="searchProduct" placeholder="제품명 또는 코드 검색..." class="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-jt-blue w-48 md:w-64">
-                            <button @click="openProductModal()" class="bg-jt-blue text-white px-4 py-2 rounded shadow hover:bg-blue-700 whitespace-nowrap">새 제품 추가</button>
+                            <button @click="openProductModal()" class="bg-jt-blue text-white px-4 py-2 rounded shadow hover:bg-blue-700 whitespace-nowrap">제품 추가</button>
                         </div>
                     </div>
                     
@@ -154,7 +154,7 @@ window.addEventListener("unhandledrejection", function(e) {
                         <h2 class="text-2xl font-bold text-jt-charcoal">핵심 성분 관리</h2>
                         <div class="flex items-center space-x-2">
                             <input type="text" v-model="searchIngredient" placeholder="성분명 검색..." class="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-jt-blue w-48 md:w-64">
-                            <button @click="openIngredientModal()" class="bg-jt-blue text-white px-4 py-2 rounded shadow hover:bg-blue-700 whitespace-nowrap">새 성분 추가</button>
+                            <button @click="openIngredientModal()" class="bg-jt-blue text-white px-4 py-2 rounded shadow hover:bg-blue-700 whitespace-nowrap">성분 추가</button>
                         </div>
                     </div>
                     
@@ -212,7 +212,7 @@ window.addEventListener("unhandledrejection", function(e) {
         <div v-if="ingredientModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-full flex flex-col overflow-hidden">
                 <div class="p-4 border-b flex justify-between items-center bg-gray-50">
-                    <h3 class="text-lg font-bold">{{ ingredientForm.id ? '성분 수정' : '새 성분 추가' }}</h3>
+                    <h3 class="text-lg font-bold">{{ ingredientForm.id ? '성분 수정' : '성분 추가' }}</h3>
                     <button @click="closeIngredientModal" class="text-gray-500 hover:text-black">&times;</button>
                 </div>
                 
@@ -286,7 +286,7 @@ window.addEventListener("unhandledrejection", function(e) {
         <div v-if="modal.product" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-full flex flex-col overflow-hidden">
                 <div class="p-4 border-b flex justify-between items-center bg-gray-50">
-                    <h3 class="text-lg font-bold">{{ modal.isEdit ? '제품 수정' : '새 제품 추가' }}</h3>
+                    <h3 class="text-lg font-bold">{{ modal.isEdit ? '제품 수정' : '제품 추가' }}</h3>
                     <button @click="closeProductModal" class="text-gray-500 hover:text-black">&times;</button>
                 </div>
                 
