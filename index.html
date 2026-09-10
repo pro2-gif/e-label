@@ -369,7 +369,7 @@
             <div class="table-container">
                 <table class="info-table">
                     <tbody>
-                        <tr>
+                        <tr id="row-volume">
                             <th id="label-volume">용량</th>
                             <td id="val-volume"></td>
                         </tr>
@@ -377,7 +377,7 @@
                             <th id="label-functional">기능성 분류</th>
                             <td id="val-functional"></td>
                         </tr>
-                        <tr>
+                        <tr id="row-manufacturer">
                             <th id="label-manufacturer">제조업자 및 책임판매업자 / 주소</th>
                             <td id="val-manufacturer"></td>
                         </tr>
@@ -390,19 +390,19 @@
                             <th id="label-clinical">인체적용시험 결과</th>
                             <td id="val-clinical" class="whitespace-pre-wrap"></td>
                         </tr>
-                        <tr>
+                        <tr id="row-ingredients">
                             <th id="label-ingredients">전성분</th>
                             <td id="val-ingredients"></td>
                         </tr>
-                        <tr>
+                        <tr id="row-how-to-use">
                             <th id="label-how-to-use">사용방법</th>
                             <td id="val-how-to-use"></td>
                         </tr>
-                        <tr>
+                        <tr id="row-cautions">
                             <th id="label-cautions">사용할 때의 주의사항</th>
                             <td id="val-cautions"></td>
                         </tr>
-                        <tr>
+                        <tr id="row-customer">
                             <th id="label-customer">소비자 상담</th>
                             <td id="val-customer"></td>
                         </tr>
@@ -1269,7 +1269,21 @@
         // =====================================================
         // ■ 라벨 데이터 화면 렌더링
         // =====================================================
+
         async function updateComponentData(comp, lang, compIdx = 0) {
+            function updateRowDisplay(rowId, valId, value) {
+                const row = document.getElementById(rowId);
+                const valElem = document.getElementById(valId);
+                if (!row || !valElem) return;
+                if (!value || value.trim() === '-' || value.trim() === '') {
+                    row.style.display = 'none';
+                    valElem.textContent = '';
+                } else {
+                    row.style.display = 'table-row';
+                    valElem.textContent = value;
+                }
+            }
+
             let volume = getColValue(comp, COL.volume);
             let functional = getColValue(comp, COL.functional);
                                     let manufacturer = getManufacturerDisplay(comp, lang);
@@ -1301,27 +1315,16 @@
                 }
             }
 
-            document.getElementById('val-volume').textContent = volume;
-            
-            const functionalRow = document.getElementById('row-functional');
-            const valFunctional = document.getElementById('val-functional');
-            if (!functional || functional.trim() === '-' || functional.trim() === '') {
-                functionalRow.style.display = 'none';
-                valFunctional.textContent = '';
-            } else {
-                functionalRow.style.display = 'table-row';
-                valFunctional.textContent = functional;
-            }
-             
-                         
-                        document.getElementById('val-manufacturer').textContent = manufacturer;
-            document.getElementById('val-ingredients').textContent = ingredients;
+            updateRowDisplay('row-volume', 'val-volume', volume);
+            updateRowDisplay('row-functional', 'val-functional', functional);
+            updateRowDisplay('row-manufacturer', 'val-manufacturer', manufacturer);
+            updateRowDisplay('row-ingredients', 'val-ingredients', ingredients);
 
             // 인체적용시험 결과 행 렌더링
             let clinicalText = getColValue(comp, COL.clinical);
 
             const clinicalRow = document.getElementById('row-clinical');
-            if (clinicalText) {
+            if (clinicalText && clinicalText.trim() !== '-' && clinicalText.trim() !== '') {
                 clinicalRow.style.display = 'table-row';
                 const valClinical = document.getElementById('val-clinical');
                 valClinical.innerHTML = '';
@@ -1416,13 +1419,19 @@
                 conceptRow.style.display = 'none';
             }
 
-            document.getElementById('val-cautions').textContent = cautions;
-            document.getElementById('val-customer').textContent = customer;
+            updateRowDisplay('row-cautions', 'val-cautions', cautions);
+            updateRowDisplay('row-customer', 'val-customer', customer);
 
             // 사용방법
             const originalHowToUse = getColValue(comp, COL.howToUse);
+            const rowHowToUse = document.getElementById('row-how-to-use');
             const valHowToUseEl = document.getElementById('val-how-to-use');
             valHowToUseEl.innerHTML = '';
+            
+            if (!originalHowToUse || originalHowToUse.trim() === '-' || originalHowToUse.trim() === '') {
+                rowHowToUse.style.display = 'none';
+            } else {
+                rowHowToUse.style.display = 'table-row';
 
             const warnMatch = originalHowToUse.match(/\*\s*(주의사항|注意事項|cautions?|caution)\s*[:：]\s*/i);
             
@@ -1445,6 +1454,7 @@
             } else {
                 valHowToUseEl.style.whiteSpace = 'pre-line';
                 valHowToUseEl.textContent = originalHowToUse;
+            }
             }
         }
 
