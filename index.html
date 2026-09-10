@@ -609,7 +609,7 @@
         function appendDisclaimer(text, lang) {
             if (!text || typeof text !== 'string') return text;
             if (text.includes('상세 설명이 등록되지 않았습니다') || text.includes('No detailed information found') || text.includes('No description available') || text.includes('Translating') || text.includes('정보를 찾을 수 없습니다') || text.includes('오류가 발생')) return text;
-            if (text.includes('(원료적 특성에 한함)') || text.includes('원료적 특성') || text.includes('原料特性') || text.includes('raw material')) return text;
+            if (text.includes('원료적 특성') || text.includes('원료적특성') || text.includes('原料特性') || text.includes('原料の特性') || text.includes('raw material') || text.includes('Raw material')) return text;
             
             let disclaimer = '';
             if (lang === 'ko') disclaimer = '(원료적 특성에 한함)';
