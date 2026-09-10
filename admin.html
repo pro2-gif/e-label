@@ -132,9 +132,9 @@ window.addEventListener("unhandledrejection", function(e) {
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 <tr v-for="(p, index) in filteredProducts" :key="p.id" class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">{{ p.product_code }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-normal text-gray-900">{{ p.product_code }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">{{ getKoName(p) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-normal">
                                         <button @click="openProductModal(p)" class="text-jt-blue hover:underline mr-3">수정</button>
                                         <button @click="deleteProduct(p)" class="text-red-500 hover:underline">삭제</button>
                                     </td>
@@ -170,9 +170,9 @@ window.addEventListener("unhandledrejection", function(e) {
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 <tr v-for="ing in filteredIngredients" :key="ing.id" class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">{{ ing.name_ko }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-normal text-gray-900">{{ ing.name_ko }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">{{ ing.category }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-normal">
                                         <button @click="openIngredientModal(ing)" class="text-jt-blue hover:underline mr-3">수정</button>
                                         <button @click="deleteIngredient(ing)" class="text-red-500 hover:underline">삭제</button>
                                     </td>
