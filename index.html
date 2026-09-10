@@ -1273,7 +1273,7 @@
             let volume = getColValue(comp, COL.volume);
             let functional = getColValue(comp, COL.functional);
                                     let manufacturer = getManufacturerDisplay(comp, lang);
-            let ingredients = lang === 'en' ? getColValue(comp, COL.ingredientsEn) : getColValue(comp, COL.ingredientsKo);
+            let ingredients = getColValue(comp, COL.ingredientsKo);
             let cautions = getColValue(comp, COL.cautions);
             let customer = getColValue(comp, COL.customer);
 
@@ -1309,9 +1309,7 @@
             document.getElementById('val-ingredients').textContent = ingredients;
 
             // 인체적용시험 결과 행 렌더링
-            const clinicalKoText = getColValue(comp, COL.clinical);
-            const clinicalEnText = getColValue(comp, COL.clinicalEn);
-            let clinicalText = (lang !== 'ko' && clinicalEnText) ? clinicalEnText : clinicalKoText;
+            let clinicalText = getColValue(comp, COL.clinical);
 
             const clinicalRow = document.getElementById('row-clinical');
             if (clinicalText) {
