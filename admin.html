@@ -357,7 +357,7 @@ window.addEventListener("unhandledrejection", function(e) {
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-1">인체적용시험</label>
-                            <input type="text" v-model="formData.translations[l].test_results" class="w-full border p-2 rounded">
+                            <textarea v-model="formData.translations[l].test_results" rows="3" class="w-full border p-2 rounded"></textarea>
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-1">사용방법</label>
