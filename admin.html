@@ -125,16 +125,16 @@ window.addEventListener("unhandledrejection", function(e) {
                         <table class="min-w-full">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">제품코드</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">제품명 (국문)</th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">관리</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">제품코드</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">제품명 (국문)</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">관리</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 <tr v-for="(p, index) in filteredProducts" :key="p.id" class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ p.product_code }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ getKoName(p) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">{{ p.product_code }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">{{ getKoName(p) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <button @click="openProductModal(p)" class="text-jt-blue hover:underline mr-3">수정</button>
                                         <button @click="deleteProduct(p)" class="text-red-500 hover:underline">삭제</button>
                                     </td>
@@ -163,16 +163,16 @@ window.addEventListener("unhandledrejection", function(e) {
                         <table class="min-w-full">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">성분명 (국문)</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">분류(카테고리)</th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">관리</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">성분명 (국문)</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">분류(카테고리)</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">관리</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 <tr v-for="ing in filteredIngredients" :key="ing.id" class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ ing.name_ko }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ing.category }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">{{ ing.name_ko }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">{{ ing.category }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <button @click="openIngredientModal(ing)" class="text-jt-blue hover:underline mr-3">수정</button>
                                         <button @click="deleteIngredient(ing)" class="text-red-500 hover:underline">삭제</button>
                                     </td>
