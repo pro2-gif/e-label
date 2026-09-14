@@ -294,7 +294,13 @@
     <!-- ========================================== -->
     <div id="maker-container" class="qr-maker-wrapper">
         <div class="qr-maker-header">
-            <p id="maker-brand-logo" class="brand-logo">인투메디 (INTOMEDI)</p>
+            <!-- 브랜드 로고 (QR 메이커 화면) -->
+            <div style="text-align: center; margin-bottom: 16px;">
+                <span class="jt-logo" style="height: 28px; display: inline-flex; align-items: center;">
+                    <img src="https://design.janytree.com/brand/logo/logo-h.svg" alt="JANYTREE INC." class="on-light" style="height: 28px; width: auto;">
+                    <img src="https://design.janytree.com/brand/logo/logo-h-light.svg" alt="" aria-hidden="true" class="on-dark" style="height: 28px; width: auto; display: none;">
+                </span>
+            </div>
             <h1 id="maker-title">e-Label QR 코드</h1>
             <p id="maker-desc">제품을 선택하면 QR 코드가 즉시 생성됩니다.<br>QR 코드를 클릭하면 바로 제품 정보를 확인할 수 있습니다.</p>
         </div>
@@ -334,6 +340,13 @@
     <!-- 2. 전자라벨 뷰어 모드 (스캔 또는 클릭 시)    -->
     <!-- ========================================== -->
     <div id="viewer-container">
+        <!-- 브랜드 로고 (고객 뷰어 최상단) -->
+        <div style="text-align: center; padding: 24px 0 16px;">
+            <span class="jt-logo" style="height: 28px; display: inline-flex; align-items: center;">
+                <img src="https://design.janytree.com/brand/logo/logo-h.svg" alt="JANYTREE INC." class="on-light" style="height: 28px; width: auto;">
+                <img src="https://design.janytree.com/brand/logo/logo-h-light.svg" alt="" aria-hidden="true" class="on-dark" style="height: 28px; width: auto; display: none;">
+            </span>
+        </div>
         <!-- 상단 컨트롤러 -->
         
 
@@ -2062,7 +2075,7 @@
         // 글로벌 언어 업데이트 함수
         function updateGlobalLangUI(lang) {
             const get = id => document.getElementById(id);
-            if(get('maker-brand-logo')) get('maker-brand-logo').innerHTML = uiLabels.makerBrand[lang];
+            // if(get('maker-brand-logo')) get('maker-brand-logo').innerHTML = uiLabels.makerBrand[lang];
             if(get('maker-title')) get('maker-title').innerHTML = uiLabels.makerTitle[lang];
             if(get('maker-desc')) get('maker-desc').innerHTML = uiLabels.makerDesc[lang];
             if(get('maker-select-label')) get('maker-select-label').innerHTML = uiLabels.makerSelect[lang];
