@@ -649,8 +649,13 @@
             const titleLocalEl = document.getElementById('ing-modal-title-local');
             const descEl = document.getElementById('ing-modal-desc');
 
-            titleKoEl.textContent = koName;
-            titleLocalEl.textContent = (currentLang !== 'ko' && localName) ? localName : '';
+            if (currentLang === 'ko') {
+                titleKoEl.textContent = koName;
+                titleLocalEl.style.display = 'none';
+            } else {
+                titleKoEl.textContent = localName || koName;
+                titleLocalEl.style.display = 'none';
+            }
             descEl.textContent = 'Loading...';
 
             modalEl.classList.add('show');
