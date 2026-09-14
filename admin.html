@@ -58,7 +58,9 @@ window.addEventListener("unhandledrejection", function(e) {
         <!-- 로그인 화면 -->
         <div v-else-if="!session" class="flex items-center justify-center min-h-screen bg-gray-100">
             <div class="bg-white p-8 rounded-lg shadow-md w-96">
-                <h1 class="text-2xl font-bold mb-6 text-center text-jt-charcoal">E-Label 관리자 로그인</h1>
+                <div class="flex justify-center mb-6">
+                    <img src="https://design.janytree.com/brand/logo/logo-v.svg" alt="JANYTREE INC." style="height: 56px; width: auto;">
+                </div>
                 <form @submit.prevent="handleLogin">
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-1">이메일</label>
@@ -82,7 +84,9 @@ window.addEventListener("unhandledrejection", function(e) {
             <!-- 사이드바 (모바일은 상단 네비게이션) -->
             <div class="w-full md:w-64 bg-jt-charcoal text-white flex flex-col flex-shrink-0">
                 <div class="p-3 md:p-6 text-lg md:text-xl font-bold border-b border-gray-700 flex justify-between items-center">
-                    <span>E-Label Admin</span>
+                    <span class="jt-logo" style="height: 28px; display: inline-flex; align-items: center;">
+                        <img src="https://design.janytree.com/brand/logo/logo-h-light.svg" alt="JANYTREE INC." style="height: 28px; width: auto;">
+                    </span>
                     <a href="index.html" class="md:hidden text-xs bg-gray-700 px-2 py-1 rounded text-white no-underline hover:text-white" style="text-decoration: none;">🏠 홈</a>
                 </div>
                 <nav class="flex flex-row md:flex-col md:flex-1 p-2 md:p-4 gap-2 md:gap-0 md:space-y-2 overflow-x-auto">
