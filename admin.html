@@ -318,11 +318,11 @@ window.addEventListener("unhandledrejection", function(e) {
                     
                     <div class="flex justify-between items-center mb-4">
                         <div class="tab-container">
-                            <div v-for="l in ['ko', 'en', 'jp', 'ch']" :key="l" 
+                            <div v-for="l in ['ko', 'en', 'jp', 'ch', 'tw']" :key="l" 
                                  @click="currentLangTab = l"
                                  class="tab-btn"
                                  :class="{ active: currentLangTab === l }">
-                                 {{ {ko:'국문', en:'영문', jp:'일본어', ch:'중국어'}[l] }}
+                                 {{ {ko:'국문', en:'영문', jp:'일본어', ch:'중국어(간체)', tw:'중국어(HK)'}[l] }}
                             </div>
                         </div>
                         <button v-if="currentLangTab !== 'ko'" @click="autoTranslate('product', currentLangTab)" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === currentLangTab}">
@@ -332,7 +332,7 @@ window.addEventListener("unhandledrejection", function(e) {
 
 
 
-                    <div v-for="l in ['ko', 'en', 'jp', 'ch']" :key="l" v-show="currentLangTab === l" class="space-y-4">
+                    <div v-for="l in ['ko', 'en', 'jp', 'ch', 'tw']" :key="l" v-show="currentLangTab === l" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium mb-1">제품명 ({{l}})</label>
                             <input type="text" v-model="formData.translations[l].name" class="w-full border p-2 rounded">
@@ -574,7 +574,7 @@ window.addEventListener("unhandledrejection", function(e) {
                 },
                 getEmptyFormData() {
                     const trans = {};
-                    ['ko', 'en', 'jp', 'ch'].forEach(l => {
+                    ['ko', 'en', 'jp', 'ch', 'tw'].forEach(l => {
                         trans[l] = { name: '', capacity: '', function_type: '', manufacturer_address: '', concept_ingredients: '', full_ingredients: '', test_results: '', usage_instructions: '', precautions: '', consumer_service: '' };
                     });
                     return { id: null, product_code: '', image_url: '', shop_url: '', translations: trans };
@@ -584,7 +584,7 @@ window.addEventListener("unhandledrejection", function(e) {
                     if (product) {
                         this.modal.isEdit = true;
                         const trans = {};
-                        ['ko', 'en', 'jp', 'ch'].forEach(l => {
+                        ['ko', 'en', 'jp', 'ch', 'tw'].forEach(l => {
                             const t = product.product_translations.find(x => x.lang_code === l) || {};
                             trans[l] = { 
                                 name: t.name || '', capacity: t.capacity || '', function_type: t.function_type || '', 
@@ -830,7 +830,7 @@ Input: ${sourceText}`;
                         }
                         
                         // 2. Save Translations
-                        const transUpserts = ['ko', 'en', 'jp', 'ch'].map(l => ({
+                        const transUpserts = ['ko', 'en', 'jp', 'ch', 'tw'].map(l => ({
                             product_id: productId,
                             lang_code: l,
                             ...this.formData.translations[l]
