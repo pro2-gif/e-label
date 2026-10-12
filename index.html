@@ -281,6 +281,7 @@
                 <button id="btn-en" class="lang-btn">EN</button>
                 <button id="btn-jp" class="lang-btn">JP</button>
                 <button id="btn-ch" class="lang-btn">CH</button>
+                <button id="btn-tw" class="lang-btn">TW</button>
             </div>
             <div class="barrier-free-actions">
                 <button id="btn-tts" class="icon-btn" title="음성 안내(TTS)">
@@ -844,35 +845,35 @@
 
         // 다국어 UI 라벨
                 const uiLabels = {
-            volume: { ko: "용량", en: "Volume", jp: "容量", ch: "容量" },
-            functional: { ko: "기능성 분류", en: "Functional Classification", jp: "機能性分類", ch: "功能性分类" },
-                                    howToUse: { ko: "사용방법", en: "How to use", jp: "使用方法", ch: "使用方法" },
-            manufacturer: { ko: "제조업자 및 책임판매업자 / 주소", en: "Manufacturer / Address", jp: "製造業者および責任販売業者 / 住所", ch: "制造商及责任销售商 / 地址" },
-            ingredients: { ko: "전성분", en: "Ingredients", jp: "全成分", ch: "全成分" },
-            cautions: { ko: "사용할 때의 주의사항", en: "Cautions", jp: "使用上の注意", ch: "使用注意事项" },
-            customer: { ko: "소비자 상담", en: "Customer Service", jp: "お客様相談", ch: "客户服务" },
-            homeBtn: { ko: "돌아가기", en: "Go Back", jp: "戻る", ch: "返回" },
-            clinicalTitle: { ko: "인체적용시험 결과", en: "Clinical Test Results", jp: "人体適用試験結果", ch: "人体应用试验结果" },
-            clinicalClose: { ko: "닫기", en: "Close", jp: "閉じる", ch: "关闭" },
-            videoTitle: { ko: "🎬 제니트리 소개 영상", en: "🎬 Janytree Introduction Video", jp: "🎬 Janytree 紹介動画", ch: "🎬 Janytree 介绍视频" },
-            watchYoutube: { ko: "YouTube에서 동영상 보기", en: "Watch video on YouTube", jp: "YouTubeで動画を見る", ch: "在YouTube上观看视频" },
+            volume: { ko: "용량", en: "Volume", jp: "容量", ch: "容量", tw: "容量" },
+            functional: { ko: "기능성 분류", en: "Functional Classification", jp: "機能性分類", ch: "功能性分类", tw: "功能性分类" },
+                                    howToUse: { ko: "사용방법", en: "How to use", jp: "使用方法", ch: "使用方法", tw: "使用方法" },
+            manufacturer: { ko: "제조업자 및 책임판매업자 / 주소", en: "Manufacturer / Address", jp: "製造業者および責任販売業者 / 住所", ch: "制造商及责任销售商 / 地址", tw: "制造商及责任销售商 / 地址" },
+            ingredients: { ko: "전성분", en: "Ingredients", jp: "全成分", ch: "全成分", tw: "全成分" },
+            cautions: { ko: "사용할 때의 주의사항", en: "Cautions", jp: "使用上の注意", ch: "使用注意事项", tw: "使用注意事项" },
+            customer: { ko: "소비자 상담", en: "Customer Service", jp: "お客様相談", ch: "客户服务", tw: "客户服务" },
+            homeBtn: { ko: "돌아가기", en: "Go Back", jp: "戻る", ch: "返回", tw: "返回" },
+            clinicalTitle: { ko: "인체적용시험 결과", en: "Clinical Test Results", jp: "人体適用試験結果", ch: "人体应用试验结果", tw: "人体应用试验结果" },
+            clinicalClose: { ko: "닫기", en: "Close", jp: "閉じる", ch: "关闭", tw: "关闭" },
+            videoTitle: { ko: "🎬 제니트리 소개 영상", en: "🎬 Janytree Introduction Video", jp: "🎬 Janytree 紹介動画", ch: "🎬 Janytree 介绍视频", tw: "🎬 Janytree 介绍视频" },
+            watchYoutube: { ko: "YouTube에서 동영상 보기", en: "Watch video on YouTube", jp: "YouTubeで動画を見る", ch: "在YouTube上观看视频", tw: "在YouTube上观看视频" },
             concept: { 
                 ko: "핵심 컨셉 성분<br><span style=\"font-size:11px; font-weight:normal; color:var(--color-text-secondary);\">클릭하여 특징 보기</span>", 
                 en: "Key Ingredients<br><span style=\"font-size:11px; font-weight:normal; color:var(--color-text-secondary);\">Click for details</span>",
                 jp: "核心コンセプト成分<br><span style=\"font-size:11px; font-weight:normal; color:var(--color-text-secondary);\">クリックして詳細を見る</span>",
-                ch: "核心成分<br><span style=\"font-size:11px; font-weight:normal; color:var(--color-text-secondary);\">点击查看详情</span>"
+                ch: "核心成分<br><span style=\"font-size:11px; font-weight:normal; color:var(--color-text-secondary);\">点击查看详情</span>", tw: "核心成分<br><span style=\"font-size:11px; font-weight:normal; color:var(--color-text-secondary);\">點擊查看詳情</span>"
             },
-            socialWebsite: { ko: "홈페이지", en: "Website", jp: "Website", ch: "Website" },
-            socialYoutube: { ko: "유튜브", en: "YouTube", jp: "YouTube", ch: "YouTube" },
-            socialInstagram: { ko: "인스타그램", en: "Instagram", jp: "Instagram", ch: "Instagram" },
-            makerBrand: { ko: "인투메디 (INTOMEDI)", en: "INTOMEDI", jp: "INTOMEDI", ch: "INTOMEDI" },
-            makerTitle: { ko: "e-Label QR 코드", en: "e-Label QR Code", jp: "e-Label QRコード", ch: "e-Label 二维码" },
-            makerDesc: { ko: "제품을 선택하면 QR 코드가 즉시 생성됩니다.<br>QR 코드를 클릭하면 바로 제품 정보를 확인할 수 있습니다.", en: "Select a product to generate a QR code instantly.<br>Click the QR code to view the product information.", jp: "製品を選択するとQRコードが即座に生成されます。<br>QRコードをクリックするとすぐに製品情報を確認できます。", ch: "选择产品后即可立即生成二维码。<br>点击二维码即可查看产品信息。" },
-            makerSelect: { ko: "제품 선택", en: "Select Product", jp: "製品選択", ch: "选择产品" },
-            makerEmptyTitle: { ko: "제품을 선택해 주세요", en: "Please select a product", jp: "製品を選択してください", ch: "请选择产品" },
-            makerBtnPng: { ko: "QR 다운로드 (.png)", en: "Download QR (.png)", jp: "QRダウンロード (.png)", ch: "下载二维码 (.png)" },
-            makerBtnSvg: { ko: "QR 다운로드 (.svg)", en: "Download QR (.svg)", jp: "QRダウンロード (.svg)", ch: "下载二维码 (.svg)" },
-            makerClickHint: { ko: "👉 클릭하여 라벨 정보 바로 보기", en: "👉 Click to view label info", jp: "👉 クリックしてラベル情報を確認", ch: "👉 点击查看标签信息" }
+            socialWebsite: { ko: "홈페이지", en: "Website", jp: "Website", ch: "Website", tw: "Website" },
+            socialYoutube: { ko: "유튜브", en: "YouTube", jp: "YouTube", ch: "YouTube", tw: "YouTube" },
+            socialInstagram: { ko: "인스타그램", en: "Instagram", jp: "Instagram", ch: "Instagram", tw: "Instagram" },
+            makerBrand: { ko: "인투메디 (INTOMEDI)", en: "INTOMEDI", jp: "INTOMEDI", ch: "INTOMEDI", tw: "INTOMEDI" },
+            makerTitle: { ko: "e-Label QR 코드", en: "e-Label QR Code", jp: "e-Label QRコード", ch: "e-Label 二维码", tw: "e-Label QR碼" },
+            makerDesc: { ko: "제품을 선택하면 QR 코드가 즉시 생성됩니다.<br>QR 코드를 클릭하면 바로 제품 정보를 확인할 수 있습니다.", en: "Select a product to generate a QR code instantly.<br>Click the QR code to view the product information.", jp: "製品を選択するとQRコードが即座に生成されます。<br>QRコードをクリックするとすぐに製品情報を確認できます。", ch: "选择产品后即可立即生成二维码。<br>点击二维码即可查看产品信息。", tw: "選擇產品後即可立即生成QR碼。<br>點擊QR碼即可查看產品資訊。" },
+            makerSelect: { ko: "제품 선택", en: "Select Product", jp: "製品選択", ch: "选择产品", tw: "選擇產品" },
+            makerEmptyTitle: { ko: "제품을 선택해 주세요", en: "Please select a product", jp: "製品を選択してください", ch: "请选择产品", tw: "請選擇產品" },
+            makerBtnPng: { ko: "QR 다운로드 (.png)", en: "Download QR (.png)", jp: "QRダウンロード (.png)", ch: "下载二维码 (.png)", tw: "下載QR碼 (.png)" },
+            makerBtnSvg: { ko: "QR 다운로드 (.svg)", en: "Download QR (.svg)", jp: "QRダウンロード (.svg)", ch: "下载二维码 (.svg)", tw: "下載QR碼 (.svg)" },
+            makerClickHint: { ko: "👉 클릭하여 라벨 정보 바로 보기", en: "👉 Click to view label info", jp: "👉 クリックしてラベル情報を確認", ch: "👉 点击查看标签信息", tw: "👉 點擊查看標籤資訊" }
         };
 
         // =====================================================
@@ -900,7 +901,8 @@
                         ko: koText,
                         en: enText,
                         jp: row.desc_jp || '',
-                        ch: row.desc_ch || ''
+                        ch: row.desc_ch || '',
+                        tw: row.desc_tw || ''
                     };
                 });
                 // Note: We skip the massive safeOverrides here because we already sanitized the DB via Admin Panel.
@@ -1071,7 +1073,7 @@
                 currentLang = langParam;
                 updateGlobalLangUI(currentLang);
                 
-                ['ko', 'en', 'jp', 'ch'].forEach(lang => {
+                ['ko', 'en', 'jp', 'ch', 'tw'].forEach(lang => {
                     const btn = document.getElementById('btn-' + lang);
                     if (btn) {
                         if (lang === currentLang) btn.classList.add('active');
@@ -1701,6 +1703,7 @@
                         if (currentLang === 'en') langParam = '&l=e';
                         else if (currentLang === 'jp') langParam = '&l=j';
                         else if (currentLang === 'ch') langParam = '&l=c';
+                        else if (currentLang === 'tw') langParam = '&l=t';
                         window.history.pushState(null, '', `?c=${encodeURIComponent(code)}${langParam}`);
                     }
                 });
@@ -2180,6 +2183,7 @@
         document.getElementById('btn-en').addEventListener('click', () => switchLanguage('en'));
         document.getElementById('btn-jp').addEventListener('click', () => switchLanguage('jp'));
         document.getElementById('btn-ch').addEventListener('click', () => switchLanguage('ch'));
+        document.getElementById('btn-tw').addEventListener('click', () => switchLanguage('tw'));
 
         // =====================================================
         // 글로벌 버튼 리스너 (구매하기, 돌아가기, TTS)
