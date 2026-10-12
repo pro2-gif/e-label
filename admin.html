@@ -706,12 +706,15 @@ Input: ${sourceText}`;
                         }
 
                         let response;
-                        let retries = 3;
+                        let retries = 5;
                         let delay = 2000;
                         let errText = '';
+                        let fallbackModels = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+                        let currentModelIndex = 0;
                         
                         while (retries > 0) {
-                            response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-3.6-flash:generateContent?key=' + apiKey, {
+                            let currentModel = fallbackModels[currentModelIndex];
+                            response = await fetch('https://generativelanguage.googleapis.com/v1/models/' + currentModel + ':generateContent?key=' + apiKey, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] }),
@@ -735,8 +738,16 @@ Input: ${sourceText}`;
                                 }
                             } else if (response.status === 503) {
                                 retries--;
+                                console.warn(`API 503 에러 발생 (${currentModel} 서버 포화).`);
+                                // 503 에러 시 다음 예비 모델로 즉시 전환
+                                if (currentModelIndex < fallbackModels.length - 1) {
+                                    currentModelIndex++;
+                                    console.warn(`예비 모델 ${fallbackModels[currentModelIndex]}로 전환하여 즉시 재시도합니다...`);
+                                    continue; // 대기 없이 바로 다른 모델로 시도
+                                }
+                                
                                 if (retries > 0) {
-                                    console.warn(`API 503 에러 발생. ${delay}ms 후 재시도합니다...`);
+                                    console.warn(`모든 예비 모델 포화. ${delay}ms 후 재시도합니다...`);
                                     await new Promise(r => setTimeout(r, delay));
                                     delay *= 2; // Exponential backoff
                                 }
