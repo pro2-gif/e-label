@@ -709,7 +709,7 @@ Input: ${sourceText}`;
                         let retries = 5;
                         let delay = 2000;
                         let errText = '';
-                        let fallbackModels = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+                        let fallbackModels = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash'];
                         let currentModelIndex = 0;
                         
                         while (retries > 0) {
@@ -736,9 +736,9 @@ Input: ${sourceText}`;
                                 } else {
                                     break; // If no retry time provided or out of retries, just fail
                                 }
-                            } else if (response.status === 503) {
+                            } else if (response.status === 503 || response.status === 404) {
                                 retries--;
-                                console.warn(`API 503 에러 발생 (${currentModel} 서버 포화).`);
+                                console.warn(`API 에러 (${response.status}) 발생 (${currentModel}).`);
                                 // 503 에러 시 다음 예비 모델로 즉시 전환
                                 if (currentModelIndex < fallbackModels.length - 1) {
                                     currentModelIndex++;
