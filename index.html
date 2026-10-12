@@ -2140,7 +2140,7 @@
             const ttsBtn = document.getElementById('btn-tts');
             if (ttsBtn) ttsBtn.classList.remove('playing');
             currentLang = lang;
-            ['ko', 'en', 'jp', 'ch'].forEach(l => {
+            ['ko', 'en', 'jp', 'ch', 'tw'].forEach(l => {
                 const btn = document.getElementById('btn-' + l);
                 if (btn) {
                     if (l === currentLang) btn.classList.add('active');
