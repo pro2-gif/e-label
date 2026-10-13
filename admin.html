@@ -718,8 +718,9 @@ Input: ${sourceText}`;
                         let retries = 5;
                         let delay = 2000;
                         let errText = '';
-                        let fallbackModels = ['gemini-1.5-pro', 'gemini-1.5-flash'];
+                        let fallbackModels = ['gemini-3.8-flash', 'gemini-3.8-pro', 'gemini-3.6-flash', 'gemini-3.5-flash'];
                         let currentModelIndex = 0;
+                        let triedAutoDiscovery = false;
                         
                         while (retries > 0) {
                             let currentModel = fallbackModels[currentModelIndex];
@@ -744,11 +745,34 @@ Input: ${sourceText}`;
                             } else if (response.status === 503 || response.status === 404) {
                                 retries--;
                                 console.warn(`API 에러 (${response.status}) 발생 (${currentModel}).`);
-                                // 503 에러 시 다음 예비 모델로 즉시 전환
                                 if (currentModelIndex < fallbackModels.length - 1) {
                                     currentModelIndex++;
                                     console.warn(`예비 모델 ${fallbackModels[currentModelIndex]}로 전환하여 즉시 재시도합니다...`);
-                                    continue; // 대기 없이 바로 다른 모델로 시도
+                                    continue;
+                                }
+                                
+                                // 모든 기본 모델이 404/503일 때 구글 서버에서 현재 활성화된 모델을 실시간 자동 탐색
+                                if (!triedAutoDiscovery) {
+                                    triedAutoDiscovery = true;
+                                    try {
+                                        console.warn('사용 가능한 최신 구글 모델을 실시간으로 검색합니다...');
+                                        const listRes = await fetch('https://generativelanguage.googleapis.com/v1/models?key=' + apiKey);
+                                        if (listRes.ok) {
+                                            const listData = await listRes.json();
+                                            const available = (listData.models || [])
+                                                .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+                                                .map(m => m.name.replace(/^models\//, ''))
+                                                .filter(name => !fallbackModels.includes(name));
+                                            if (available.length > 0) {
+                                                console.warn('발견된 활성 모델:', available);
+                                                fallbackModels.push(...available);
+                                                currentModelIndex++;
+                                                continue;
+                                            }
+                                        }
+                                    } catch(e) {
+                                        console.error('모델 자동 탐색 실패:', e);
+                                    }
                                 }
                                 
                                 if (retries > 0) {
@@ -757,7 +781,7 @@ Input: ${sourceText}`;
                                     delay *= 2; // Exponential backoff
                                 }
                             } else {
-                                break; // Don't retry on 400, 403, 404
+                                break; // Don't retry on 400, 403
                             }
                         }
                         
@@ -768,13 +792,8 @@ Input: ${sourceText}`;
                                 if (j.error && j.error.message) parsedErr = j.error.message;
                             } catch(ex) {}
                             
-                            // 429 쿼터 초과 시 더 친절한 메시지 제공
                             if (response.status === 429) {
-                                throw new Error('구글 서버 요청 한도를 초과했습니다 (429 Quota Exceeded).\n잠시 후 다시 시도해 주세요.\n\n상세: ' + parsedErr);
-                            }
-                            
-                            if (response.status === 429) {
-                                throw new Error('구글 무료 API 일일 제공량을 모두 소진했습니다.\n사용하신 API 키의 오늘자 번역 한도가 꽉 찼습니다.\n\n해결 방법:\n1. 내일(약 15시간 뒤) 다시 시도\n2. 구글 AI 스튜디오에서 새로운 API 키를 발급받아 index.html 및 admin.html 에 교체');
+                                throw new Error('구글 무료 API 일일 제공량을 모두 소진했습니다.\n사용하신 API 키의 오늘자 번역 한도가 꽉 찼습니다.\n\n해결 방법:\n1. 내일(약 15~24시간 뒤) 다시 시도\n2. 구글 AI 스튜디오에서 새로운 API 키를 발급받아 화면 좌측 하단 [API키 초기화]를 눌러 교체');
                             }
                             throw new Error('API 오류: ' + response.status + ' - ' + parsedErr);
                         }
