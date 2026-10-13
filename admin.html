@@ -729,7 +729,7 @@ Input: ${sourceText}`;
                         let retries = 6;
                         let delay = 2000;
                         let errText = '';
-                        let fallbackModels = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+                        let fallbackModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-3.8-flash'];
                         let currentModelIndex = 0;
                         let triedAutoDiscovery = false;
                         
@@ -762,20 +762,21 @@ Input: ${sourceText}`;
                                     continue;
                                 }
                                 
-                                // 모든 기본 모델이 404/503일 때 구글 v1beta 서버에서 현재 활성화된 모델을 실시간 자동 탐색
+                                // 모든 기본 모델이 404/503일 때 구글 v1beta 서버에서 현재 활성화된 순수 텍스트 모델만 실시간 자동 탐색
                                 if (!triedAutoDiscovery) {
                                     triedAutoDiscovery = true;
                                     try {
-                                        console.warn('사용 가능한 최신 구글 모델을 실시간으로 검색합니다...');
+                                        console.warn('사용 가능한 최신 구글 텍스트 모델을 실시간으로 검색합니다...');
                                         const listRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + apiKey);
                                         if (listRes.ok) {
                                             const listData = await listRes.json();
                                             const available = (listData.models || [])
                                                 .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
                                                 .map(m => m.name.replace(/^models\//, ''))
+                                                .filter(name => !name.includes('tts') && !name.includes('audio') && !name.includes('imagen') && !name.includes('embed') && !name.includes('embedding'))
                                                 .filter(name => !fallbackModels.includes(name));
                                             if (available.length > 0) {
-                                                console.warn('발견된 활성 모델:', available);
+                                                console.warn('발견된 활성 텍스트 모델:', available);
                                                 fallbackModels.push(...available);
                                                 currentModelIndex++;
                                                 continue;
@@ -791,8 +792,13 @@ Input: ${sourceText}`;
                                     await new Promise(r => setTimeout(r, delay));
                                     delay *= 2; // Exponential backoff
                                 }
+                            } else if (response.status === 400 && currentModelIndex < fallbackModels.length - 1) {
+                                retries--;
+                                console.warn(`API 400 에러 (${currentModel}). 다음 예비 모델로 넘어갑니다...`);
+                                currentModelIndex++;
+                                continue;
                             } else {
-                                break; // Don't retry on 400, 403
+                                break; // Don't retry on 403
                             }
                         }
                         
