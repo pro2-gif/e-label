@@ -278,7 +278,7 @@ window.addEventListener("unhandledrejection", function(e) {
                     </div>
                     <div>
                         <div class="flex justify-between items-center mb-1">
-                            <label class="block text-sm font-medium">설명 (CH(HK))</label>
+                            <label class="block text-sm font-medium">설명 (CH-번체)</label>
                             <button @click="autoTranslate('ingredient', 'tw')" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === 'tw'}">
                                 <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === 'tw' ? '번역 중...' : 'AI 자동 번역' }}
                             </button>
@@ -331,7 +331,7 @@ window.addEventListener("unhandledrejection", function(e) {
                                  @click="currentLangTab = l"
                                  class="tab-btn"
                                  :class="{ active: currentLangTab === l }">
-                                 {{ {ko:'국문', en:'영문', jp:'일본어', ch:'중국어(간체)', tw:'중국어(HK)'}[l] }}
+                                 {{ {ko:'국문', en:'영문', jp:'일본어', ch:'중국어(간체)', tw:'중국어(번체)'}[l] }}
                             </div>
                         </div>
                         <button v-if="currentLangTab !== 'ko'" @click="autoTranslate('product', currentLangTab)" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === currentLangTab}">
@@ -343,7 +343,7 @@ window.addEventListener("unhandledrejection", function(e) {
 
                     <div v-for="l in ['ko', 'en', 'jp', 'ch', 'tw']" :key="l" v-show="currentLangTab === l" class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium mb-1">제품명 ({{ {ko:"KO", en:"EN", jp:"JP", ch:"CH-간체", tw:"CH(HK)"}[l] }})</label>
+                            <label class="block text-sm font-medium mb-1">제품명 ({{ {ko:"KO", en:"EN", jp:"JP", ch:"CH-간체", tw:"CH-번체"}[l] }})</label>
                             <input type="text" v-model="formData.translations[l].name" class="w-full border p-2 rounded">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
