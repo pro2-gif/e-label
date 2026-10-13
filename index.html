@@ -1451,7 +1451,7 @@
             } else {
                 rowHowToUse.style.display = 'table-row';
 
-            const warnMatch = originalHowToUse.match(/\*\s*(주의사항|注意事項|cautions?|caution)\s*[:：]\s*/i);
+            const warnMatch = originalHowToUse.match(/[*＊]?\s*(주의사항|注意事項|注意事项|cautions?|caution)\s*[:：]\s*/i);
             
             if (warnMatch) {
                 const parts = [
