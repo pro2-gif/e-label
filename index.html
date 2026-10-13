@@ -628,6 +628,7 @@
             else if (lang === 'en') disclaimer = '(Limited to raw material characteristics)';
             else if (lang === 'jp') disclaimer = '（原料の特性に限る）';
             else if (lang === 'ch') disclaimer = '(仅限原料特性)';
+            else if (lang === 'tw') disclaimer = '(僅限原料特性)';
             else disclaimer = '(원료적 특성에 한함)';
             
             return text.trim() + ' ' + disclaimer;
@@ -705,7 +706,7 @@
                         const translatedDesc = await translateText(sheetInfo.ko, targetLang, 'ko');
                         descEl.textContent = appendDisclaimer(translatedDesc, targetLang);
                     } else {
-                        const emptyDescMsg = targetLang === 'en' ? 'No description available.' : targetLang === 'jp' ? '詳細説明が登録されていません。' : targetLang === 'ch' ? '未注册详细说明。' : '상세 설명이 등록되지 않았습니다.';
+                        const emptyDescMsg = targetLang === 'en' ? 'No description available.' : targetLang === 'jp' ? '詳細説明が登録されていません。' : targetLang === 'ch' ? '未注册详细说明。' : targetLang === 'tw' ? '未註冊詳細說明。' : '상세 설명이 등록되지 않았습니다.';
                         descEl.textContent = appendDisclaimer(emptyDescMsg, targetLang);
                     }
                 } else {
@@ -881,7 +882,7 @@
         // 크롬 브라우저의 로컬 환경(file://) CORS 차단을 완벽하게 우회하여 데이터를 가져옵니다.
         // =====================================================
         
-        async function loadSheetData(callback, bypassCache = false, lang = 'ko') {
+        async function loadSheetData(callback, bypassCache = false, lang = currentLang) {
             try {
                 // 1. Fetch Ingredient Details (Sheet 2 equivalent)
                 const { data: ingData, error: ingError } = await supabaseClient.from('ingredient_details').select('*');
@@ -1068,8 +1069,9 @@
             if (langParamRaw === 'e') langParam = 'en';
             else if (langParamRaw === 'j') langParam = 'jp';
             else if (langParamRaw === 'c') langParam = 'ch';
+            else if (langParamRaw === 't') langParam = 'tw';
 
-            if (langParam && ['ko', 'en', 'jp', 'ch'].includes(langParam)) {
+            if (langParam && ['ko', 'en', 'jp', 'ch', 'tw'].includes(langParam)) {
                 currentLang = langParam;
                 updateGlobalLangUI(currentLang);
                 
@@ -1242,6 +1244,7 @@
             let tl = targetLang;
             if (targetLang === "jp") tl = "ja";
             if (targetLang === "ch") tl = "zh-CN";
+            if (targetLang === "tw") tl = "zh-TW";
             if (!text || text.trim() === '') return text;
             const cacheKey = text + '_' + tl + '_' + sourceLang;
             if (translationCache[cacheKey]) return translationCache[cacheKey];
@@ -2158,6 +2161,7 @@
             const currentCode = window.currentTargetItem ? getColValue(window.currentTargetItem, COL.productCode) : null;
             
             loadSheetData(function(err, data) {
+
                 if (!err && data && data.length > 0) {
                     window.globalSheetData = data;
                 }
