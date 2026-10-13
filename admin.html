@@ -726,16 +726,16 @@ Input: ${sourceText}`;
                         }
 
                         let response;
-                        let retries = 5;
+                        let retries = 6;
                         let delay = 2000;
                         let errText = '';
-                        let fallbackModels = ['gemini-3.8-flash', 'gemini-3.8-pro', 'gemini-3.6-flash', 'gemini-3.5-flash'];
+                        let fallbackModels = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
                         let currentModelIndex = 0;
                         let triedAutoDiscovery = false;
                         
                         while (retries > 0) {
                             let currentModel = fallbackModels[currentModelIndex];
-                            response = await fetch('https://generativelanguage.googleapis.com/v1/models/' + currentModel + ':generateContent?key=' + apiKey, {
+                            response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + currentModel + ':generateContent?key=' + apiKey, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] }),
@@ -762,12 +762,12 @@ Input: ${sourceText}`;
                                     continue;
                                 }
                                 
-                                // 모든 기본 모델이 404/503일 때 구글 서버에서 현재 활성화된 모델을 실시간 자동 탐색
+                                // 모든 기본 모델이 404/503일 때 구글 v1beta 서버에서 현재 활성화된 모델을 실시간 자동 탐색
                                 if (!triedAutoDiscovery) {
                                     triedAutoDiscovery = true;
                                     try {
                                         console.warn('사용 가능한 최신 구글 모델을 실시간으로 검색합니다...');
-                                        const listRes = await fetch('https://generativelanguage.googleapis.com/v1/models?key=' + apiKey);
+                                        const listRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + apiKey);
                                         if (listRes.ok) {
                                             const listData = await listRes.json();
                                             const available = (listData.models || [])
