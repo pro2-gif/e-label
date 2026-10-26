@@ -376,6 +376,17 @@
                         <img id="product-image" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block; border-radius: 12px;" />
                     </div>
                 </div>
+
+                <!-- 상단 카탈로그 바로보기 버튼 -->
+                <div id="catalog-btn-wrapper" style="display:none; width: 100%; max-width: 442px; margin: 0 auto; box-sizing: border-box;">
+                    <a id="btn-product-catalog" href="#" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1.5px solid var(--color-accent); color: var(--color-accent); font-weight: 600; font-size: 14px; box-shadow: 0 2px 8px rgba(48,92,222,0.08); transition: all 0.2s;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-icons" style="color: var(--color-accent); font-size: 20px;">menu_book</span>
+                            <span id="label-catalog-btn">제품 카탈로그 보기 (PDF)</span>
+                        </div>
+                        <span class="material-icons" style="color: var(--color-accent); font-size: 18px;">open_in_new</span>
+                    </a>
+                </div>
             </div>
 
             <div class="table-container">
@@ -846,6 +857,7 @@
 
         // 다국어 UI 라벨
                 const uiLabels = {
+            catalogBtn: { ko: "제품 카탈로그 보기 (PDF)", en: "View Product Catalog (PDF)", jp: "製品カタログを見る (PDF)", ch: "查看产品目录 (PDF)", tw: "查看產品目錄 (PDF)" },
             volume: { ko: "용량", en: "Volume", jp: "容量", ch: "容量", tw: "容量" },
             functional: { ko: "기능성 분류", en: "Functional Classification", jp: "機能性分類", ch: "功能性分类", tw: "功能性分类" },
                                     howToUse: { ko: "사용방법", en: "How to use", jp: "使用方法", ch: "使用方法", tw: "使用方法" },
@@ -942,6 +954,7 @@
                     row[COL.productImage] = p.image_url || '';
                     row.realNameKo = koTrans.name || p.product_name || '';
                     row.realConceptKo = koTrans.concept_ingredients || p.key_ingredients || '';
+                    row.catalogUrl = targetTrans.catalog_url || '';
                     
                     rawRows.push(row);
                 });
@@ -958,10 +971,14 @@
                     let existingGroup = groupedProducts.find(g => g.code === pCode);
                     if (existingGroup) {
                         existingGroup.components.push(row);
+                        if (!existingGroup.catalogUrl && row.catalogUrl) {
+                            existingGroup.catalogUrl = row.catalogUrl;
+                        }
                     } else {
                         groupedProducts.push({
                             code: pCode,
                             firstRow: row,
+                            catalogUrl: row.catalogUrl || '',
                             components: [row]
                         });
                     }
@@ -1340,6 +1357,22 @@
             updateRowDisplay('row-functional', 'val-functional', functional);
             updateRowDisplay('row-manufacturer', 'val-manufacturer', manufacturer);
             updateRowDisplay('row-ingredients', 'val-ingredients', ingredients);
+
+            // 카탈로그 버튼 렌더링
+            const catalogUrl = comp.catalogUrl || (window.currentTargetItem && window.currentTargetItem.catalogUrl) || '';
+            const catalogBtnWrapper = document.getElementById('catalog-btn-wrapper');
+            const catalogBtn = document.getElementById('btn-product-catalog');
+            const catalogLabel = document.getElementById('label-catalog-btn');
+
+            if (catalogBtnWrapper && catalogBtn && catalogLabel) {
+                if (catalogUrl && catalogUrl.trim() !== '') {
+                    catalogBtnWrapper.style.display = 'block';
+                    catalogBtn.href = catalogUrl;
+                    catalogLabel.textContent = (uiLabels.catalogBtn && uiLabels.catalogBtn[lang]) || uiLabels.catalogBtn.ko;
+                } else {
+                    catalogBtnWrapper.style.display = 'none';
+                }
+            }
 
             // 인체적용시험 결과 행 렌더링
             let clinicalText = getColValue(comp, COL.clinical);

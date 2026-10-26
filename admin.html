@@ -327,14 +327,14 @@ window.addEventListener("unhandledrejection", function(e) {
                     
                     <div class="flex justify-between items-center mb-4">
                         <div class="tab-container">
-                            <div v-for="l in ['ko', 'en', 'jp', 'ch', 'tw']" :key="l" 
+                            <div v-for="l in ['ko', 'en', 'jp', 'ch', 'tw', 'catalog']" :key="l" 
                                  @click="currentLangTab = l"
                                  class="tab-btn"
                                  :class="{ active: currentLangTab === l }">
-                                 {{ {ko:'국문', en:'영문', jp:'일본어', ch:'중국어(간체)', tw:'중국어(번체)'}[l] }}
+                                 {{ {ko:'국문', en:'영문', jp:'일본어', ch:'중국어(간체)', tw:'중국어(번체)', catalog:'📖 카탈로그'}[l] }}
                             </div>
                         </div>
-                        <button v-if="currentLangTab !== 'ko'" @click="autoTranslate('product', currentLangTab)" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === currentLangTab}">
+                        <button v-if="currentLangTab !== 'ko' && currentLangTab !== 'catalog'" @click="autoTranslate('product', currentLangTab)" :disabled="!!loading.translate" class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-full hover:bg-indigo-100 flex items-center transition shadow-sm " :class="{'opacity-50': loading.translate === currentLangTab}">
                             <span class="mr-1 text-yellow-500">✨</span> {{ loading.translate === currentLangTab ? '번역 중...' : 'AI 자동 번역' }}
                         </button>
                     </div>
@@ -385,6 +385,50 @@ window.addEventListener("unhandledrejection", function(e) {
                             <input type="text" v-model="formData.translations[l].consumer_service" class="w-full border p-2 rounded">
                         </div>
                     </div>
+
+                    <!-- 카탈로그 관리 탭 -->
+                    <div v-show="currentLangTab === 'catalog'" class="space-y-4">
+                        <div class="p-3 bg-blue-50 border border-blue-100 rounded-lg text-xs text-blue-800 leading-relaxed">
+                            💡 <b>제품 카탈로그 등록 안내</b><br>
+                            언어별로 PDF 또는 카탈로그 이미지 파일을 업로드할 수 있습니다. 등록된 파일은 고객 화면에서 선택된 언어에 맞춰 상단 <b>[제품 카탈로그 보기]</b> 링크로 표시됩니다.
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div v-for="l in ['ko', 'en', 'jp', 'ch', 'tw']" :key="l" class="p-4 border rounded-xl bg-gray-50 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm font-bold text-gray-800">
+                                            {{ {ko:'국문 (KO)', en:'영문 (EN)', jp:'일본어 (JP)', ch:'중국어 간체 (ZH-CN)', tw:'중국어 번체 (ZH-TW)'}[l] }} 카탈로그
+                                        </span>
+                                        <span v-if="formData.translations[l] && formData.translations[l].catalog_url" class="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                            등록 완료
+                                        </span>
+                                        <span v-else class="text-[11px] font-normal text-gray-400">
+                                            미등록
+                                        </span>
+                                    </div>
+
+                                    <div class="mt-2">
+                                        <input type="file" accept=".pdf,image/*" @change="uploadCatalog($event, l)" class="w-full text-xs border p-2 rounded bg-white">
+                                    </div>
+
+                                    <div v-if="loading.catalog === l" class="mt-2 text-xs text-blue-600 font-medium flex items-center">
+                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        카탈로그 업로드 중...
+                                    </div>
+
+                                    <div v-if="formData.translations[l] && formData.translations[l].catalog_url" class="mt-3 p-2.5 bg-white border rounded-lg flex items-center justify-between">
+                                        <a :href="formData.translations[l].catalog_url" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center truncate max-w-[200px]" :title="formData.translations[l].catalog_url">
+                                            <span class="mr-1">📄</span> 카탈로그 열람 ↗
+                                        </a>
+                                        <button type="button" @click="formData.translations[l].catalog_url = ''" class="text-xs text-red-500 hover:text-red-700 hover:underline ml-2 whitespace-nowrap">
+                                            삭제
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="p-4 border-t bg-gray-50 flex justify-end space-x-3">
@@ -415,7 +459,8 @@ window.addEventListener("unhandledrejection", function(e) {
                         products: false,
                         image: false,
                         save: false,
-                        translate: false
+                        translate: false,
+                        catalog: false
                     },
                     login: {
                         email: '',
@@ -593,7 +638,7 @@ window.addEventListener("unhandledrejection", function(e) {
                 getEmptyFormData() {
                     const trans = {};
                     ['ko', 'en', 'jp', 'ch', 'tw'].forEach(l => {
-                        trans[l] = { name: '', capacity: '', function_type: '', manufacturer_address: '', concept_ingredients: '', full_ingredients: '', test_results: '', usage_instructions: '', precautions: '', consumer_service: '' };
+                        trans[l] = { name: '', capacity: '', function_type: '', manufacturer_address: '', concept_ingredients: '', full_ingredients: '', test_results: '', usage_instructions: '', precautions: '', consumer_service: '', catalog_url: '' };
                     });
                     return { id: null, product_code: '', image_url: '', shop_url: '', translations: trans };
                 },
@@ -609,7 +654,8 @@ window.addEventListener("unhandledrejection", function(e) {
                                 manufacturer_address: t.manufacturer_address || '', concept_ingredients: t.concept_ingredients || '', 
                                 full_ingredients: t.full_ingredients || '', test_results: t.test_results || '', 
                                 usage_instructions: t.usage_instructions || '', precautions: t.precautions || '', 
-                                consumer_service: t.consumer_service || '' 
+                                consumer_service: t.consumer_service || '',
+                                catalog_url: t.catalog_url || ''
                             };
                         });
                         this.formData = {
@@ -633,7 +679,6 @@ window.addEventListener("unhandledrejection", function(e) {
                     this.loading.translate = false;
                     this.modal.product = false;
                 },
-                
                 
                 async uploadImage(event) {
                     const file = event.target.files[0];
@@ -660,6 +705,36 @@ window.addEventListener("unhandledrejection", function(e) {
                         alert('이미지 업로드 실패: ' + error.message);
                     } finally {
                         this.loading.image = false;
+                    }
+                },
+                
+                async uploadCatalog(event, lang) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    
+                    this.loading.catalog = lang;
+                    try {
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = 'catalogs/' + Date.now() + '_' + Math.random().toString(36).substring(7) + '.' + fileExt;
+                        const filePath = fileName;
+                        
+                        const { error: uploadError } = await supabaseClient.storage
+                            .from('product-images')
+                            .upload(filePath, file);
+                            
+                        if (uploadError) throw uploadError;
+                        
+                        const { data } = supabaseClient.storage
+                            .from('product-images')
+                            .getPublicUrl(filePath);
+                            
+                        this.formData.translations[lang].catalog_url = data.publicUrl;
+                        this.showAlert('✅ 업로드 완료', `${{ko:'국문', en:'영문', jp:'일본어', ch:'중국어 간체', tw:'중국어 번체'}[lang]} 카탈로그 파일이 업로드되었습니다.\n모달 하단의 [저장하기] 버튼을 누르면 최종 반영됩니다.`);
+                    } catch (error) {
+                        alert('카탈로그 파일 업로드 실패: ' + error.message);
+                    } finally {
+                        this.loading.catalog = false;
+                        event.target.value = '';
                     }
                 },
                 async autoTranslate(type, lang = null) {
