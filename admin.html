@@ -418,8 +418,10 @@ window.addEventListener("unhandledrejection", function(e) {
                                     </div>
 
                                     <div v-if="formData.translations[l] && formData.translations[l].catalog_url" class="mt-3 p-2.5 bg-white border rounded-lg flex items-center justify-between">
-                                        <a :href="formData.translations[l].catalog_url" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center truncate max-w-[200px]" :title="formData.translations[l].catalog_url">
-                                            <span class="mr-1">📄</span> 카탈로그 열람 ↗
+                                        <a :href="formData.translations[l].catalog_url" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center truncate max-w-[240px]" :title="getFileName(formData.translations[l].catalog_url, l)">
+                                            <span class="mr-1">📄</span>
+                                            <span class="truncate">{{ getFileName(formData.translations[l].catalog_url, l) }}</span>
+                                            <span class="ml-1 text-[11px] text-blue-400">↗</span>
                                         </a>
                                         <button type="button" @click="formData.translations[l].catalog_url = ''" class="text-xs text-red-500 hover:text-red-700 hover:underline ml-2 whitespace-nowrap">
                                             삭제
@@ -708,15 +710,37 @@ window.addEventListener("unhandledrejection", function(e) {
                     }
                 },
                 
+                getFileName(url, lang = null) {
+                    if (!url) return '';
+                    try {
+                        const cleanUrl = url.split('?')[0];
+                        let name = cleanUrl.substring(cleanUrl.lastIndexOf('/') + 1);
+                        name = decodeURIComponent(name);
+                        
+                        // 타임스탬프 패턴 (예: 1730000000_) 제거
+                        let stripped = name.replace(/^\d+_/, '');
+                        
+                        // 예전 방식의 난수 파일명(예: abc123def.pdf)인 경우 의미 있는 언어별 파일명으로 표시
+                        if (/^[a-z0-9]{5,15}\.[a-zA-Z0-9]+$/i.test(stripped)) {
+                            const ext = stripped.split('.').pop();
+                            const langName = { ko: '국문', en: '영문', jp: '일본어', ch: '중국어간체', tw: '중국어번체' }[lang] || '카탈로그';
+                            return `${langName}_카탈로그.${ext}`;
+                        }
+                        
+                        return stripped || name;
+                    } catch (e) {
+                        return '카탈로그 파일 열람';
+                    }
+                },
+                
                 async uploadCatalog(event, lang) {
                     const file = event.target.files[0];
                     if (!file) return;
                     
                     this.loading.catalog = lang;
                     try {
-                        const fileExt = file.name.split('.').pop();
-                        const fileName = 'catalogs/' + Date.now() + '_' + Math.random().toString(36).substring(7) + '.' + fileExt;
-                        const filePath = fileName;
+                        const safeName = encodeURIComponent(file.name.replace(/\s+/g, '_'));
+                        const filePath = 'catalogs/' + Date.now() + '_' + safeName;
                         
                         const { error: uploadError } = await supabaseClient.storage
                             .from('product-images')
@@ -729,7 +753,7 @@ window.addEventListener("unhandledrejection", function(e) {
                             .getPublicUrl(filePath);
                             
                         this.formData.translations[lang].catalog_url = data.publicUrl;
-                        this.showAlert('✅ 업로드 완료', `${{ko:'국문', en:'영문', jp:'일본어', ch:'중국어 간체', tw:'중국어 번체'}[lang]} 카탈로그 파일이 업로드되었습니다.\n모달 하단의 [저장하기] 버튼을 누르면 최종 반영됩니다.`);
+                        this.showAlert('✅ 업로드 완료', `[${file.name}] 파일이 업로드되었습니다.\n모달 하단의 [저장하기] 버튼을 누르면 최종 반영됩니다.`);
                     } catch (error) {
                         alert('카탈로그 파일 업로드 실패: ' + error.message);
                     } finally {
