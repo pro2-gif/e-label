@@ -378,7 +378,7 @@
                 </div>
 
                 <!-- 상단 카탈로그 바로보기 버튼 -->
-                <div id="catalog-btn-wrapper" style="display:none; width: 100%; max-width: 442px; margin: 0 auto; box-sizing: border-box;">
+                <div id="catalog-btn-wrapper" style="display:none; width: 100%; max-width: 442px; margin: 16px auto 0; box-sizing: border-box;">
                     <a id="btn-product-catalog" href="#" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1.5px solid var(--color-accent); color: var(--color-accent); font-weight: 600; font-size: 14px; box-shadow: 0 2px 8px rgba(48,92,222,0.08); transition: all 0.2s;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="material-icons" style="color: var(--color-accent); font-size: 20px;">menu_book</span>
@@ -996,6 +996,7 @@
                     return {
                         isGroup: true,
                         data: g.firstRow,
+                        catalogUrl: g.catalogUrl || (g.firstRow && g.firstRow.catalogUrl) || '',
                         components: g.components
                     };
                 });
@@ -1358,8 +1359,19 @@
             updateRowDisplay('row-manufacturer', 'val-manufacturer', manufacturer);
             updateRowDisplay('row-ingredients', 'val-ingredients', ingredients);
 
-            // 카탈로그 버튼 렌더링
-            const catalogUrl = comp.catalogUrl || (window.currentTargetItem && window.currentTargetItem.catalogUrl) || '';
+            // 카탈로그 버튼 렌더링 (단일 상품 / 세트 상품 모든 계층 탐색)
+            const actualItem = (comp && comp.isGroup) ? comp.data : comp;
+            const currentTarget = window.currentTargetItem;
+            const currentTargetActual = (currentTarget && currentTarget.isGroup) ? currentTarget.data : currentTarget;
+
+            const catalogUrl = (comp && comp.catalogUrl)
+                || (actualItem && actualItem.catalogUrl)
+                || (comp && comp.components && comp.components[0] && comp.components[0].catalogUrl)
+                || (currentTarget && currentTarget.catalogUrl)
+                || (currentTargetActual && currentTargetActual.catalogUrl)
+                || '';
+
+            console.log('[DEBUG Catalog]', lang, 'catalogUrl:', catalogUrl);
             const catalogBtnWrapper = document.getElementById('catalog-btn-wrapper');
             const catalogBtn = document.getElementById('btn-product-catalog');
             const catalogLabel = document.getElementById('label-catalog-btn');
