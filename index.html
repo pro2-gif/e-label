@@ -180,6 +180,45 @@
             transform: translateY(0);
         }
 
+                /* 상단 제품 카탈로그 바로보기 카드 스타일 (하단 정보 테이블과 통일감 유지) */
+        .catalog-link-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 18px;
+            background-color: var(--color-on-primary);
+            border-radius: 12px;
+            text-decoration: none;
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+        }
+        .catalog-link-card:hover {
+            background-color: var(--color-bg-layout);
+            border-color: var(--color-border-strong, #CBD5E1);
+            color: var(--color-text);
+        }
+        .catalog-link-card .catalog-icon-left {
+            color: var(--color-text-secondary);
+            font-size: 20px;
+            transition: color 0.2s ease;
+        }
+        .catalog-link-card:hover .catalog-icon-left {
+            color: var(--color-text);
+        }
+        .catalog-link-card .catalog-icon-right {
+            color: var(--color-text-secondary);
+            font-size: 18px;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+        .catalog-link-card:hover .catalog-icon-right {
+            color: var(--color-text);
+            transform: translate(1px, -1px);
+        }
+
         /* 통합 뷰어용 전체 컨테이너 감추기 */
         #viewer-container,
         #maker-container {
@@ -379,12 +418,12 @@
 
                 <!-- 상단 카탈로그 바로보기 버튼 -->
                 <div id="catalog-btn-wrapper" style="display:none; width: 100%; max-width: 442px; margin: 16px auto 0; box-sizing: border-box;">
-                    <a id="btn-product-catalog" href="#" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1.5px solid var(--color-accent); color: var(--color-accent); font-weight: 600; font-size: 14px; box-shadow: 0 2px 8px rgba(48,92,222,0.08); transition: all 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="material-icons" style="color: var(--color-accent); font-size: 20px;">menu_book</span>
+                    <a id="btn-product-catalog" href="#" target="_blank" class="catalog-link-card">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="material-icons catalog-icon-left">menu_book</span>
                             <span id="label-catalog-btn">제품 카탈로그 보기 (PDF)</span>
                         </div>
-                        <span class="material-icons" style="color: var(--color-accent); font-size: 18px;">open_in_new</span>
+                        <span class="material-icons catalog-icon-right">open_in_new</span>
                     </a>
                 </div>
             </div>
