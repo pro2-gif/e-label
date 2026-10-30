@@ -490,7 +490,7 @@
 
                 <!-- 브랜드 링크 섹션 -->
                 <div class="brand-links" style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
-                    <a href="https://janytree.com/" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1px solid var(--color-border); color: var(--color-accent); font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
+                    <a id="link-social-website" href="https://janytree.com/" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1px solid var(--color-border); color: var(--color-accent); font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <span class="material-icons" style="color: var(--color-border-strong);">language</span>
                             <span id="label-social-website">홈페이지</span>
@@ -916,6 +916,7 @@
                 ch: "核心成分<br><span style=\"font-size:11px; font-weight:normal; color:var(--color-text-secondary);\">点击查看详情</span>", tw: "核心成分<br><span style=\"font-size:11px; font-weight:normal; color:var(--color-text-secondary);\">點擊查看詳情</span>"
             },
             socialWebsite: { ko: "홈페이지", en: "Website", jp: "Website", ch: "Website", tw: "Website" },
+            socialWebsiteUrl: { ko: "https://janytree.com/", en: "https://janytree.com/en/", jp: "https://janytree.com/en/", ch: "https://janytree.com/en/", tw: "https://janytree.com/en/" },
             socialYoutube: { ko: "유튜브", en: "YouTube", jp: "YouTube", ch: "YouTube", tw: "YouTube" },
             socialInstagram: { ko: "인스타그램", en: "Instagram", jp: "Instagram", ch: "Instagram", tw: "Instagram" },
             makerBrand: { ko: "인투메디 (INTOMEDI)", en: "INTOMEDI", jp: "INTOMEDI", ch: "INTOMEDI", tw: "INTOMEDI" },
@@ -1592,6 +1593,8 @@
             if(lblWatchYoutube) lblWatchYoutube.textContent = uiLabels.watchYoutube[lang];
             const lblSocialWebsite = document.getElementById('label-social-website');
             if(lblSocialWebsite) lblSocialWebsite.textContent = uiLabels.socialWebsite[lang];
+            const linkSocialWebsite = document.getElementById('link-social-website');
+            if(linkSocialWebsite) linkSocialWebsite.href = (uiLabels.socialWebsiteUrl && uiLabels.socialWebsiteUrl[lang]) || 'https://janytree.com/en/';
             const lblSocialYoutube = document.getElementById('label-social-youtube');
             if(lblSocialYoutube) lblSocialYoutube.textContent = uiLabels.socialYoutube[lang];
             const lblSocialInstagram = document.getElementById('label-social-instagram');
@@ -2175,6 +2178,9 @@
             if(get('maker-btn-png')) get('maker-btn-png').innerHTML = uiLabels.makerBtnPng[lang];
             if(get('maker-btn-svg')) get('maker-btn-svg').innerHTML = uiLabels.makerBtnSvg[lang];
             if(get('maker-click-hint')) get('maker-click-hint').innerHTML = uiLabels.makerClickHint[lang];
+            if(get('link-social-website')) {
+                get('link-social-website').href = (uiLabels.socialWebsiteUrl && uiLabels.socialWebsiteUrl[lang]) || 'https://janytree.com/en/';
+            }
             
             // 업데이트 select dropdown options는 updateMakerOptionsAndQr 에서 비동기로 처리됨
         }
