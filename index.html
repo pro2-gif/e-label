@@ -480,73 +480,111 @@
         }
 
         /* ===================================================== */
-        /* PC/모바일 최적화 반응형 레이아웃 (780px 슬림 캔버스) */
+        /* PC/모바일 최적화 반응형 레이아웃 (900px 와이드 캔버스) */
         /* ===================================================== */
         .main-content {
-            max-width: 780px !important;
+            max-width: 900px !important;
             margin: 0 auto !important;
-            padding: 24px 16px 80px !important;
+            padding: 24px 20px 80px !important;
             box-sizing: border-box !important;
+        }
+
+        /* 제품명: 전 제품 가운데 정렬 통일 */
+        .product-name {
+            text-align: center !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            font-size: clamp(20px, 3.2vw, 26px) !important;
+            font-weight: 800 !important;
+            line-height: 1.35 !important;
+        }
+
+        /* 제품 구매하기 버튼 스타일 (한국어 전용) */
+        .hero-buy-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 13px 20px;
+            background: #305CDE;
+            color: #ffffff;
+            font-size: 14.5px;
+            font-weight: 700;
+            border-radius: 12px;
+            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(48, 92, 222, 0.25);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+        .hero-buy-btn:hover {
+            background: #254bb8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(48, 92, 222, 0.35);
         }
 
         /* 데스크톱 PC 최적화 (@media min-width: 860px) */
         @media (min-width: 860px) {
             .product-hero-layout {
                 display: grid !important;
-                grid-template-columns: 320px 1fr !important;
-                gap: 32px !important;
+                grid-template-columns: 340px 1fr !important;
+                grid-template-rows: auto auto !important;
+                grid-template-areas:
+                    "visual title"
+                    "visual actions" !important;
+                gap: 16px 36px !important;
                 align-items: center !important;
-                text-align: left !important;
-                padding-top: 20px !important;
+                padding-top: 24px !important;
                 padding-bottom: 28px !important;
                 margin-bottom: 28px !important;
                 border-bottom: 1px solid var(--color-border);
             }
             .product-hero-visual {
+                grid-area: visual !important;
                 width: 100% !important;
                 display: flex !important;
                 justify-content: center !important;
             }
             .product-hero-visual #product-image-wrapper {
                 width: 100% !important;
-                max-width: 320px !important;
+                max-width: 340px !important;
                 aspect-ratio: 1 / 1 !important;
                 margin: 0 !important;
             }
-            .product-hero-info {
-                width: 100% !important;
+            .product-hero-title-area {
+                grid-area: title !important;
                 display: flex !important;
                 flex-direction: column !important;
-                align-items: flex-start !important;
-                text-align: left !important;
-                gap: 14px !important;
+                align-items: center !important;
+                text-align: center !important;
+                gap: 12px !important;
+                align-self: end !important;
             }
-            .product-hero-info .product-name {
-                text-align: left !important;
-                font-size: clamp(20px, 3vw, 24px) !important;
-                font-weight: 800;
-                line-height: 1.35;
-                margin: 0 !important;
-                width: 100%;
-            }
-            .product-hero-info #sub-tabs-container {
+            .product-hero-title-area #sub-tabs-container {
                 display: flex !important;
-                justify-content: flex-start !important;
+                justify-content: center !important;
                 flex-wrap: nowrap !important;
                 gap: 8px !important;
                 width: 100% !important;
-                margin: 0 !important;
+                margin: 0 auto !important;
             }
-            .product-hero-info .catalog-btn-wrapper {
+            .product-hero-actions-area {
+                grid-area: actions !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 10px !important;
+                width: 100% !important;
+                align-self: start !important;
+            }
+            .catalog-btn-wrapper, .hero-quote-wrapper, .buy-btn-wrapper {
                 width: 100% !important;
                 max-width: 100% !important;
                 margin: 0 !important;
             }
-            .product-hero-info .hero-quote-wrapper {
-                width: 100% !important;
-                margin: 0 !important;
-            }
-            .product-hero-info .hero-quote-btn {
+            .hero-quote-btn, .hero-buy-btn {
                 width: 100% !important;
                 max-width: 100% !important;
             }
@@ -580,70 +618,80 @@
                 margin: 0 !important;
                 text-align: left !important;
             }
+
+            /* PC 정보 테이블 최적화: 시원한 900px 폭에서 편안한 비율 */
+            .info-table th {
+                width: 24% !important;
+                padding: 16px 20px !important;
+                font-size: 14px !important;
+            }
+            .info-table td {
+                padding: 16px 22px !important;
+                font-size: 14.5px !important;
+                line-height: 1.65 !important;
+            }
         }
 
-        /* 모바일 최적화 (@media max-width: 859px) */
+        /* 모바일 최적화 (@media max-width: 859px) - 기존 형태 100% 복원 */
         @media (max-width: 859px) {
             .product-hero-layout {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 20px;
-                text-align: center;
-                padding-top: 16px;
-                padding-bottom: 24px;
-                margin-bottom: 24px;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 20px !important;
+                text-align: center !important;
+                padding-top: 24px !important;
+                padding-bottom: 28px !important;
+                margin-bottom: 24px !important;
                 border-bottom: 1px solid var(--color-border);
             }
+            /* 순서 1: 상단 제품명 및 서브탭 */
+            .product-hero-title-area {
+                order: 1 !important;
+                width: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 12px !important;
+            }
+            .product-hero-title-area #sub-tabs-container {
+                display: flex !important;
+                justify-content: center !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+                width: 100% !important;
+                margin: 0 auto !important;
+            }
+            /* 순서 2: 제품 대표 이미지 카드 */
             .product-hero-visual {
-                width: 100%;
-                display: flex;
-                justify-content: center;
+                order: 2 !important;
+                width: 100% !important;
+                display: flex !important;
+                justify-content: center !important;
             }
             .product-hero-visual #product-image-wrapper {
-                width: 100%;
-                max-width: 280px;
-                aspect-ratio: 1 / 1;
-                margin: 0 auto;
+                width: 100% !important;
+                max-width: 320px !important;
+                aspect-ratio: 1 / 1 !important;
+                margin: 0 auto !important;
             }
-            .product-hero-info {
-                width: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                gap: 14px;
+            /* 순서 3: 액션 버튼들 (카탈로그 -> 견적 -> 구매하기) */
+            .product-hero-actions-area {
+                order: 3 !important;
+                width: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 10px !important;
             }
-            .product-hero-info .product-name {
-                text-align: center !important;
-                font-size: clamp(18px, 4.5vw, 22px) !important;
-                font-weight: 800;
-                line-height: 1.35;
-                margin: 0 auto;
-                width: 100%;
+            .catalog-btn-wrapper, .hero-quote-wrapper, .buy-btn-wrapper {
+                width: 100% !important;
+                max-width: 320px !important;
+                margin: 0 auto !important;
             }
-            .product-hero-info #sub-tabs-container {
-                display: flex;
-                justify-content: center;
-                flex-wrap: wrap;
-                gap: 8px;
-                width: 100%;
-                margin: 0 auto;
-            }
-            .product-hero-info .catalog-btn-wrapper {
-                width: 100%;
-                max-width: 320px;
-                margin: 0 auto;
-            }
-            .product-hero-info .hero-quote-wrapper {
-                display: flex;
-                justify-content: center;
-                width: 100%;
-                margin: 0 auto;
-            }
-            .product-hero-info .hero-quote-btn {
-                max-width: 320px;
+            .hero-quote-btn, .hero-buy-btn {
+                max-width: 320px !important;
             }
 
             .video-and-links-container {
@@ -718,7 +766,7 @@
                 <button id="btn-tw" class="lang-btn">ZH-TW</button>
             </div>
             <div class="barrier-free-actions">
-                <button id="btn-tts" class="icon-btn" title="음성 안내(TTS)">
+                <button id="btn-tts" class="icon-btn" title="음성 안내(TTS)" style="display: none;">
                     <span class="material-icons">volume_up</span>
                 </button>
             </div>
@@ -734,7 +782,7 @@
                     <img src="https://design.janytree.com/brand/logo/logo-h.svg" alt="JANYTREE INC." class="on-light" style="height: 28px; width: auto;">
                 </span>
             </div>
-            <h1 id="maker-title" style="font-size: clamp(20px, 4vw, 28px); font-weight: 800; color: var(--color-text); margin: 0 0 10px; letter-spacing: -0.02em;">e-Label 제품 라인업</h1>
+            <h1 id="maker-title" style="font-size: clamp(20px, 4vw, 28px); font-weight: 800; color: var(--color-text); margin: 0 0 10px; letter-spacing: -0.02em;">제니트리 e-Label 쇼룸</h1>
             <p id="maker-desc" style="font-size: 14px; color: var(--color-text-secondary); margin: 0; line-height: 1.5;">제품을 선택하시면 상세 전자라벨 정보 및 전성분을 확인하실 수 있습니다.</p>
         </div>
 
@@ -803,25 +851,28 @@
 
         <!-- 메인 라벨 영역 (숨김 상태로 시작) -->
         <main class="main-content" id="main-content" style="display:none;">
-            <!-- 제품 히어로 영역 (중앙 정렬 콤팩트 뷰) -->
+            <!-- 제품 히어로 영역 (모바일: 제품명->사진->버튼 / PC: 좌측 사진, 우측 정보) -->
             <div class="product-hero-layout">
-                <!-- 1. 제품 대표 이미지 -->
+                <!-- 상단 타이틀 & 서브탭 (모바일: 1순위, PC: 우측 상단) -->
+                <div class="product-hero-title-area">
+                    <h1 id="product-name" class="product-name" style="overflow-wrap: break-word; word-break: break-word; margin: 0; width: 100%; padding: 0; box-sizing: border-box; display: block; font-weight: 800; line-height: 1.35;"></h1>
+                    
+                    <!-- 서브탭 컨테이너 (필링 워시, 앰플 부스터 단락 없이 가로 나열) -->
+                    <div id="sub-tabs-container" style="display:none; width: 100%; padding: 0; margin: 0; box-sizing: border-box;"></div>
+                </div>
+
+                <!-- 1. 제품 대표 이미지 (모바일: 2순위, PC: 좌측) -->
                 <div class="product-hero-visual">
-                    <div id="product-image-wrapper" style="display:none; width: 100%; max-width: 320px; margin: 0 auto; border-radius: 20px; border: 1px solid var(--color-border); box-shadow: 0 8px 24px rgba(0,0,0,0.06); background-color: var(--color-on-primary); box-sizing: border-box; aspect-ratio: 1/1; position: relative;">
+                    <div id="product-image-wrapper" style="display:none; width: 100%; max-width: 340px; margin: 0 auto; border-radius: 20px; border: 1px solid var(--color-border); box-shadow: 0 8px 24px rgba(0,0,0,0.06); background-color: var(--color-on-primary); box-sizing: border-box; aspect-ratio: 1/1; position: relative;">
                         <div style="position: absolute; top: 14px; left: 14px; right: 14px; bottom: 14px; display: flex; justify-content: center; align-items: center;">
                             <img id="product-image" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block; border-radius: 10px;" />
                         </div>
                     </div>
                 </div>
 
-                <!-- 2. 제품 정보 (제품명 가운데 배치 -> 서브탭 나열 -> 카탈로그 -> 견적의뢰) -->
-                <div class="product-hero-info">
-                    <h1 id="product-name" class="product-name" style="overflow-wrap: break-word; word-break: break-word; margin: 0; width: 100%; padding: 0; box-sizing: border-box; display: block; font-weight: 800; line-height: 1.35;"></h1>
-                    
-                    <!-- 서브탭 컨테이너 (필링 워시, 앰플 부스터 단락 없이 가로 나열) -->
-                    <div id="sub-tabs-container" style="display:none; width: 100%; padding: 0; margin: 0; box-sizing: border-box;"></div>
-
-                    <!-- 3. 제품 카탈로그 바로보기 버튼 (견적 의뢰 위로 이동) -->
+                <!-- 액션 버튼 영역 (모바일: 3순위, PC: 우측 하단) -->
+                <div class="product-hero-actions-area">
+                    <!-- 3. 제품 카탈로그 바로보기 버튼 -->
                     <div id="catalog-btn-wrapper" class="catalog-btn-wrapper" style="display:none; width: 100%; box-sizing: border-box;">
                         <a id="btn-product-catalog" href="#" target="_blank" class="catalog-link-card" style="box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                             <div style="display: flex; align-items: center; gap: 10px;">
@@ -837,6 +888,15 @@
                         <a id="btn-hero-quote" href="https://gmp.janytree.app/catalog/3770ff9ccb7d42299afe152298451a1e" target="_blank" class="hero-quote-btn">
                             <span class="material-icons" style="font-size: 19px;">request_quote</span>
                             <span id="label-hero-quote-text">제품 견적 의뢰</span>
+                            <span class="material-icons" style="font-size: 15px; margin-left: 2px;">arrow_forward</span>
+                        </a>
+                    </div>
+
+                    <!-- 5. 제품 구매하기 버튼 (한국어 전용) -->
+                    <div id="buy-btn-wrapper" class="buy-btn-wrapper" style="display:none; width: 100%; box-sizing: border-box;">
+                        <a id="btn-hero-buy" href="https://intomedipro.com/shop" target="_blank" rel="noopener noreferrer" class="hero-buy-btn">
+                            <span class="material-icons" style="font-size: 19px;">shopping_bag</span>
+                            <span id="label-hero-buy-text">제품 구매하기</span>
                             <span class="material-icons" style="font-size: 15px; margin-left: 2px;">arrow_forward</span>
                         </a>
                     </div>
@@ -2078,6 +2138,18 @@
             const lblSocialInstagram = document.getElementById('label-social-instagram');
             if(lblSocialInstagram) lblSocialInstagram.textContent = uiLabels.socialInstagram[lang];
             document.getElementById('btn-home').textContent = uiLabels.homeBtn[lang];
+            
+            // 한국어 버전 전용 구매하기 버튼 표시/숨김 제어
+            const buyBtnWrapper = document.getElementById('buy-btn-wrapper');
+            if (buyBtnWrapper) {
+                buyBtnWrapper.style.display = (lang === 'ko') ? 'block' : 'none';
+            }
+
+            // 상세 뷰어 진입 시 헤더 TTS 스피커 표시 보장
+            const mainTtsHeaderBtn = document.getElementById('btn-tts');
+            if (mainTtsHeaderBtn) {
+                mainTtsHeaderBtn.style.display = 'inline-flex';
+            }
             if (document.getElementById('label-hero-quote-text') && uiLabels.quoteBtn) document.getElementById('label-hero-quote-text').textContent = uiLabels.quoteBtn[lang];
             if (document.getElementById('label-quote-title') && uiLabels.quoteBtn) document.getElementById('label-quote-title').textContent = uiLabels.quoteBtn[lang];
             if (document.getElementById('label-quote-desc') && uiLabels.quoteDesc) document.getElementById('label-quote-desc').textContent = uiLabels.quoteDesc[lang];
@@ -2225,10 +2297,59 @@
                 return;
             }
 
-            let activeData = data;
+            let activeData = Array.from(data);
             if (activeData.length > 0 && activeData[0][0] && activeData[0][0].includes("제품명")) {
                 activeData = activeData.slice(1);
             }
+
+            // 수인 지정 제품 순서 매핑:
+            // 1. 클리닉스 리쥬 (CLX-RJ)
+            // 2. 화이트 (CLX-WH)
+            // 3. 하이드로 (CLX-HY)
+            // 4. 라뉴필 (CLX-LAP)
+            // 5. 딥모이스처카머 (INTO-DMC)
+            // 6. 오일카머 (INTO-OCC)
+            // 7. 베리어카머 (INTO-IBC)
+            // 8. 앰플런스 버블폼 (AMP-HYB)
+            // 9. 하이드로 (AMP-HYA)
+            // 10. 크림 (AMP-HYC)
+            const targetOrder = [
+                'CLX-RJ',
+                'CLX-WH',
+                'CLX-HY',
+                'CLX-LAP',
+                'INTO-DMC',
+                'INTO-OCC',
+                'INTO-IBC',
+                'AMP-HYB',
+                'AMP-HYA',
+                'AMP-HYC'
+            ];
+
+            function getProductOrderRank(item) {
+                let rawCode = getColValue(item, COL.productCode) || '';
+                if (rawCode.includes('#')) rawCode = rawCode.split('#')[0].trim();
+                const code = (rawCode || item.code || '').trim().toUpperCase();
+
+                const codeIdx = targetOrder.findIndex(c => code === c || code.startsWith(c));
+                if (codeIdx !== -1) return codeIdx;
+
+                const name = (getColValue(item, COL.name) || (item.data && item.data.realNameKo) || '').replace(/\s+/g, '');
+                if (name.includes('리쥬')) return 0;
+                if (name.includes('화이트')) return 1;
+                if (name.includes('하이드로') && name.includes('클리닉스')) return 2;
+                if (name.includes('라뉴필')) return 3;
+                if (name.includes('딥모이스처') || name.includes('딥모이스쳐')) return 4;
+                if (name.includes('오일컨트롤') || name.includes('오일카머')) return 5;
+                if (name.includes('인텐시브베리어') || name.includes('베리어카머')) return 6;
+                if (name.includes('버블폼')) return 7;
+                if (name.includes('앰플런스하이드로') && !name.includes('크림') && !name.includes('버블폼')) return 8;
+                if (name.includes('하이드로크림') || (name.includes('앰플런스') && name.includes('크림'))) return 9;
+
+                return 999;
+            }
+
+            activeData.sort((a, b) => getProductOrderRank(a) - getProductOrderRank(b));
 
             activeData.forEach((item, idx) => {
                 const actualItem = item.isGroup ? item.data : item;
@@ -2550,7 +2671,9 @@
                 return;
             }
 
+            // 기존 음성 취소 후 오디오 컨텍스트 깨우기
             window.speechSynthesis.cancel();
+            window.speechSynthesis.resume();
             window.ttsChunks = [];
             window.isTtsPaused = false;
             window.currentItemTtsId = itemId;
@@ -2567,10 +2690,10 @@
             let valText = '';
             
             if (th) {
-                labelText = Array.from(th.childNodes)
-                    .filter(n => n.nodeType === Node.TEXT_NODE)
-                    .map(n => n.textContent)
-                    .join(' ').replace(/✨/g, '').trim();
+                const clone = th.cloneNode(true);
+                const subBtn = clone.querySelector('.item-tts-btn');
+                if (subBtn) subBtn.remove();
+                labelText = clone.textContent.replace(/[✨💡\n]/g, ' ').trim();
             }
             
             const td = document.getElementById('val-' + itemId);
@@ -2585,7 +2708,7 @@
                                 .filter(t => t)
                                 .join('. ');
                 } else {
-                    valText = td.textContent;
+                    valText = td.textContent.trim();
                 }
             }
             
@@ -2608,24 +2731,32 @@
 
             const utterance = new SpeechSynthesisUtterance(textToRead);
             utterance.lang = currentLang === 'ko' ? 'ko-KR' : (currentLang === 'jp' ? 'ja-JP' : (currentLang === 'ch' ? 'zh-CN' : 'en-US'));
+            utterance.volume = 1.0;
+            utterance.pitch = 1.0;
+            utterance.rate = 0.9;
             
             const voices = window.speechSynthesis.getVoices();
             if (currentLang === 'en') {
                 const googleVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('en'));
                 if (googleVoice) utterance.voice = googleVoice;
             }
-            utterance.rate = 0.9;
             
             utterance.onstart = () => { if (btnIcon) btnIcon.style.color = 'red'; };
             utterance.onend = () => { 
                 if (btnIcon) btnIcon.style.color = 'var(--color-primary)'; 
                 if (window.currentItemTtsId === itemId) window.currentItemTtsId = null;
             };
-            utterance.onerror = () => { 
+            utterance.onerror = (e) => { 
                 if (btnIcon) btnIcon.style.color = 'var(--color-primary)'; 
                 if (window.currentItemTtsId === itemId) window.currentItemTtsId = null;
             };
 
+            // 전역 변수에 바인딩하여 Chromium 가비지 컬렉션(GC)으로 인한 침묵 버그 원천 방지
+            window.currentUtterance = utterance;
+            
+            if (window.speechSynthesis.paused) {
+                window.speechSynthesis.resume();
+            }
             window.speechSynthesis.speak(utterance);
         };
 
@@ -2878,6 +3009,8 @@
                     window.history.pushState(null, '', window.location.pathname);
                     document.getElementById('viewer-container').style.display = 'none';
                     document.getElementById('maker-container').style.display = 'block';
+                    const mainTtsBtn = document.getElementById('btn-tts');
+                    if (mainTtsBtn) mainTtsBtn.style.display = 'none';
                     document.body.style.background = '';
                     window.scrollTo(0, 0);
                     if (window.globalSheetData) {
