@@ -530,7 +530,9 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            padding: 18px 26px;
+            max-width: 440px !important;
+            margin: 0 auto !important;
+            padding: 16px 24px;
             background: #1F2328;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px;
@@ -549,8 +551,8 @@
             border-color: #305CDE;
         }
         .standalone-quote-card .quote-icon-left {
-            color: #FBBF24; /* 골드 포인트 아이콘 */
-            font-size: 24px;
+            color: #ffffff; /* 깔끔하고 신뢰감 있는 화이트 아이콘 */
+            font-size: 22px;
             transition: transform 0.2s ease;
         }
         .standalone-quote-card:hover .quote-icon-left {
@@ -1081,7 +1083,7 @@
             <div id="quote-standalone-container" class="quote-standalone-container">
                 <a id="btn-standalone-quote" href="https://gmp.janytree.app/catalog/3770ff9ccb7d42299afe152298451a1e" target="_blank" class="standalone-quote-card">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <span class="material-icons quote-icon-left">request_quote</span>
+                        <span class="material-icons quote-icon-left">description</span>
                         <span id="label-standalone-quote-text">제품 견적 의뢰</span>
                     </div>
                     <span class="material-icons quote-icon-right">open_in_new</span>
