@@ -2762,55 +2762,75 @@
         // =====================================================
         // ■ TTS (음성 안내) 처리
         // =====================================================
-        // 크롬의 15초 버그 방지 및 즉각적인 일시정지/재개를 위해 문장 단위(청크) 재생으로 구현합니다.
+        function getTtsLangCode(lang) {
+            switch (lang) {
+                case 'ko': return 'ko-KR';
+                case 'en': return 'en-US';
+                case 'jp': return 'ja-JP';
+                case 'ch': return 'zh-CN';
+                case 'tw': return 'zh-TW';
+                default: return 'ko-KR';
+            }
+        }
+
         window.currentUtterance = null;
         window.ttsChunks = [];
         window.ttsIndex = 0;
-        window.isTtsPaused = false;
-        window.ttsLastCharIndex = 0; // 단어 경계 추적용
+        window.isHeaderTtsActive = false;
 
         function playNextTtsChunk() {
             const ttsBtn = document.getElementById('btn-tts');
-            if (window.ttsIndex >= window.ttsChunks.length) {
-                if (ttsBtn) ttsBtn.classList.remove('playing');
+            if (!window.isHeaderTtsActive || !window.ttsChunks || window.ttsIndex >= window.ttsChunks.length) {
+                window.isHeaderTtsActive = false;
                 window.ttsChunks = [];
+                window.ttsIndex = 0;
+                window.currentUtterance = null;
+                if (ttsBtn) {
+                    ttsBtn.classList.remove('playing');
+                    const icon = ttsBtn.querySelector('.material-icons');
+                    if (icon) icon.style.color = '';
+                }
                 return;
             }
             
             const text = window.ttsChunks[window.ttsIndex];
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = currentLang === 'ko' ? 'ko-KR' : (currentLang === 'jp' ? 'ja-JP' : (currentLang === 'ch' ? 'zh-CN' : 'en-US'));
-            
-            // 영문일 경우 구글 음성을 우선 선택하여 onboundary 이벤트 누락 버그 방지
-            const voices = window.speechSynthesis.getVoices();
-            if (currentLang === 'en') {
-                const googleVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('en'));
-                if (googleVoice) utterance.voice = googleVoice;
+            if (!text || !text.trim()) {
+                window.ttsIndex++;
+                playNextTtsChunk();
+                return;
             }
-            utterance.rate = 0.9;
-            window.ttsLastCharIndex = 0; // 초기화
 
-            utterance.onstart = () => { if (ttsBtn) ttsBtn.classList.add('playing'); };
-            utterance.onboundary = (e) => {
-                if (e.charIndex) {
-                    window.ttsLastCharIndex = e.charIndex;
-                }
-            };
+            const utterance = new SpeechSynthesisUtterance(text.trim());
+            utterance.lang = getTtsLangCode(currentLang);
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
             utterance.onend = () => {
-                if (window.isTtsPaused) return; // 정지 상태면 다음으로 안 넘어감
+                if (!window.isHeaderTtsActive) return;
                 window.ttsIndex++;
                 playNextTtsChunk();
             };
             utterance.onerror = (e) => {
-                if (e.error === 'interrupted' || e.error === 'canceled') return; // 취소된 경우 무시
-                if (ttsBtn) ttsBtn.classList.remove('playing');
+                if (e.error === 'interrupted' || e.error === 'canceled') return;
+                console.warn('TTS Chunk error:', e.error);
+                window.isHeaderTtsActive = false;
                 window.ttsChunks = [];
+                if (ttsBtn) {
+                    ttsBtn.classList.remove('playing');
+                    const icon = ttsBtn.querySelector('.material-icons');
+                    if (icon) icon.style.color = '';
+                }
             };
 
             window.currentUtterance = utterance;
+            try {
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                }
+            } catch(e) {}
             window.speechSynthesis.speak(utterance);
         }
-
 
         window.playItemTts = function(itemId, e) {
             if (e) {
@@ -2826,18 +2846,27 @@
             const btnIcon = th ? th.querySelector('.item-tts-btn span') : null;
 
             // 이미 동일한 항목이 재생 중이면 중지
-            if (window.currentItemTtsId === itemId && window.speechSynthesis.speaking) {
+            if (window.currentItemTtsId === itemId && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
                 window.speechSynthesis.cancel();
                 window.currentItemTtsId = null;
                 if (btnIcon) btnIcon.style.color = 'var(--color-primary)';
                 return;
             }
 
-            // 다른 음성이 재생 중이면 취소
-            if (window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
+            // 헤더 전체 TTS가 실행 중이었다면 정지
+            if (window.isHeaderTtsActive) {
+                window.isHeaderTtsActive = false;
+                window.ttsChunks = [];
+                window.ttsIndex = 0;
+                const ttsBtn = document.getElementById('btn-tts');
+                if (ttsBtn) {
+                    ttsBtn.classList.remove('playing');
+                    const icon = ttsBtn.querySelector('.material-icons');
+                    if (icon) icon.style.color = '';
+                }
             }
 
+            window.speechSynthesis.cancel();
             window.currentItemTtsId = itemId;
 
             let labelText = '';
@@ -2867,7 +2896,7 @@
             }
             
             if (!valText) {
-                valText = '내용이 없습니다.';
+                valText = currentLang === 'ko' ? '내용이 없습니다.' : 'No content available.';
             }
 
             let textToRead = `${labelText}. ${valText}.`;
@@ -2886,19 +2915,10 @@
             textToRead = textToRead.replace(/-/g, ' ');
 
             const utterance = new SpeechSynthesisUtterance(textToRead);
-            utterance.lang = (currentLang === 'ko') ? 'ko-KR' : (currentLang === 'jp' ? 'ja-JP' : (currentLang === 'ch' ? 'zh-CN' : 'en-US'));
+            utterance.lang = getTtsLangCode(currentLang);
             utterance.volume = 1.0;
             utterance.pitch = 1.0;
-            utterance.rate = 1.0;
-            
-            try {
-                const voices = window.speechSynthesis.getVoices();
-                if (voices && voices.length > 0) {
-                    const langPrefix = utterance.lang.split('-')[0];
-                    const matchedVoice = voices.find(v => v.lang && v.lang.startsWith(langPrefix));
-                    if (matchedVoice) utterance.voice = matchedVoice;
-                }
-            } catch(err) {}
+            utterance.rate = 0.95;
             
             document.querySelectorAll('.item-tts-btn span').forEach(icon => {
                 icon.style.color = 'var(--color-primary)';
@@ -2917,16 +2937,16 @@
                 if (window.currentItemTtsId === itemId) window.currentItemTtsId = null;
             };
 
-            // 전역 변수 바인딩 (Chromium/Safari 가비지 컬렉션 차단)
             window.currentUtterance = utterance;
 
-            // iOS Safari 및 Chromium에서 오디오 큐 활성화 후 즉각 발화
-            try {
-                if (window.speechSynthesis.paused) {
-                    window.speechSynthesis.resume();
-                }
-            } catch(err) {}
-            window.speechSynthesis.speak(utterance);
+            setTimeout(() => {
+                try {
+                    if (window.speechSynthesis.paused) {
+                        window.speechSynthesis.resume();
+                    }
+                } catch(err) {}
+                window.speechSynthesis.speak(utterance);
+            }, 60);
         };
 
         function handleTts(item) {
@@ -2936,37 +2956,46 @@
                 return;
             }
             
-            // 이미 재생 중이거나 청크가 남아있고 일시정지 상태인 경우 제어
-            if (window.speechSynthesis.speaking || window.ttsChunks.length > 0) {
-                if (window.isTtsPaused) {
-                    // 일시정지 -> 재개 (즉시 현재 청크부터 다시 시작)
-                    window.isTtsPaused = false;
-                    playNextTtsChunk();
-                } else {
-                    // 재생 -> 일시정지 (cancel과 substring을 통해 가장 안정적으로 정지 및 이어듣기 지원)
-                    window.isTtsPaused = true;
-                    window.speechSynthesis.cancel();
-                    if (window.ttsLastCharIndex > 0 && window.ttsChunks[window.ttsIndex]) {
-                        window.ttsChunks[window.ttsIndex] = window.ttsChunks[window.ttsIndex].substring(window.ttsLastCharIndex);
-                    }
-                    if (ttsBtn) ttsBtn.classList.remove('playing');
+            // 헤더 전체 TTS가 이미 활성화되어 있는 경우: 정지 토글
+            if (window.isHeaderTtsActive) {
+                window.isHeaderTtsActive = false;
+                window.ttsChunks = [];
+                window.ttsIndex = 0;
+                window.speechSynthesis.cancel();
+                if (ttsBtn) {
+                    ttsBtn.classList.remove('playing');
+                    const icon = ttsBtn.querySelector('.material-icons');
+                    if (icon) icon.style.color = '';
                 }
                 return;
             }
 
-            // 화면에 렌더링되어 있는 텍스트들을 그대로 읽어옵니다. (번역 오차 차단)
-            const productName = document.getElementById('product-name').textContent || '';
-            const volume = document.getElementById('val-volume').textContent || '';
-            const functional = document.getElementById('val-functional').textContent || '';
-                                    const manufacturer = document.getElementById('val-manufacturer').textContent || '';
-            const ingredients = document.getElementById('val-ingredients').textContent || '';
-            const customer = document.getElementById('val-customer').textContent || '';
+            // 개별 항목 음성이 재생 중이었으면 정리
+            window.speechSynthesis.cancel();
+            document.querySelectorAll('.item-tts-btn span').forEach(icon => {
+                icon.style.color = 'var(--color-primary)';
+            });
+            window.currentItemTtsId = null;
 
-            // 사용방법 전체 텍스트
-            const howToUse = document.getElementById('val-how-to-use').textContent || '';
-            const cautions = document.getElementById('val-cautions').textContent || '';
+            // 전체 TTS 활성화
+            window.isHeaderTtsActive = true;
+            if (ttsBtn) {
+                ttsBtn.classList.add('playing');
+                const icon = ttsBtn.querySelector('.material-icons');
+                if (icon) icon.style.color = '#dc2626';
+            }
+
+            // 화면에 렌더링되어 있는 텍스트들을 그대로 추출
+            const pNameEl = document.getElementById('product-name');
+            const productName = (pNameEl ? pNameEl.textContent : '') || '';
+            const volume = (document.getElementById('val-volume') ? document.getElementById('val-volume').textContent : '') || '';
+            const functional = (document.getElementById('val-functional') ? document.getElementById('val-functional').textContent : '') || '';
+            const manufacturer = (document.getElementById('val-manufacturer') ? document.getElementById('val-manufacturer').textContent : '') || '';
+            const ingredients = (document.getElementById('val-ingredients') ? document.getElementById('val-ingredients').textContent : '') || '';
+            const customer = (document.getElementById('val-customer') ? document.getElementById('val-customer').textContent : '') || '';
+            const howToUse = (document.getElementById('val-how-to-use') ? document.getElementById('val-how-to-use').textContent : '') || '';
+            const cautions = (document.getElementById('val-cautions') ? document.getElementById('val-cautions').textContent : '') || '';
             
-            // 핵심 컨셉 성분 텍스트 추출 (뱃지들)
             let concept = '';
             const conceptContainer = document.getElementById('val-concept-ingredients');
             if (conceptContainer) {
@@ -2976,7 +3005,6 @@
             }
             const conceptTitle = currentLang === 'ko' ? "핵심 컨셉 성분" : "Key Ingredients";
 
-            // 인체적용시험 텍스트 추출
             let clinical = '';
             const valClinical = document.getElementById('val-clinical');
             const clinicalRow = document.getElementById('row-clinical');
@@ -2987,17 +3015,16 @@
                             .join('. ');
             }
 
-            // 음성 발화용 문장 조립 (구글시트 열 순서 완벽 일치)
             let fullText = `${productName}. ` +
-                `${uiLabels.volume[currentLang]}, ${volume}. ` +
-                `${uiLabels.functional[currentLang]}, ${functional}. ` +
-                `${uiLabels.manufacturer[currentLang]}, ${manufacturer}. ` +
-                `${conceptTitle}, ${concept}. ` +
-                (clinical ? `${uiLabels.clinicalTitle[currentLang]}, ${clinical}. ` : '') +
-                `${uiLabels.ingredients[currentLang]}, ${ingredients}. ` +
-                `${uiLabels.howToUse[currentLang]}, ${howToUse}. ` +
-                `${uiLabels.cautions[currentLang]}, ${cautions}. ` +
-                `${uiLabels.customer[currentLang]}, ${customer}.`;
+                `${(uiLabels.volume && uiLabels.volume[currentLang]) || '용량'}, ${volume}. ` +
+                `${(uiLabels.functional && uiLabels.functional[currentLang]) || '기능성 분류'}, ${functional}. ` +
+                `${(uiLabels.manufacturer && uiLabels.manufacturer[currentLang]) || '제조업자'}, ${manufacturer}. ` +
+                (concept ? `${conceptTitle}, ${concept}. ` : '') +
+                (clinical ? `${(uiLabels.clinicalTitle && uiLabels.clinicalTitle[currentLang]) || '인체적용시험'}, ${clinical}. ` : '') +
+                `${(uiLabels.ingredients && uiLabels.ingredients[currentLang]) || '전성분'}, ${ingredients}. ` +
+                `${(uiLabels.howToUse && uiLabels.howToUse[currentLang]) || '사용방법'}, ${howToUse}. ` +
+                `${(uiLabels.cautions && uiLabels.cautions[currentLang]) || '주의사항'}, ${cautions}. ` +
+                `${(uiLabels.customer && uiLabels.customer[currentLang]) || '소비자상담'}, ${customer}.`;
 
             if (currentLang === 'en') {
                 fullText = fullText
@@ -3005,28 +3032,20 @@
                     .replace(/CLINIX/g, 'Clinix')
                     .replace(/REJUE/g, 'Rejue')
                     .replace(/WHITE/g, 'White')
-                    .replace(/HYDRO/g, 'Hydro');
-            }
-
-
-            // 발음 교정 (TTS 전용)
-            // 1. "sh" 독립 단어를 스펠링(에스에이치 / S H)으로 읽도록 교정
-            if (currentLang === 'en') {
-                fullText = fullText.replace(/\bsh\b/gi, 'S H');
+                    .replace(/HYDRO/g, 'Hydro')
+                    .replace(/\bsh\b/gi, 'S H');
             } else {
                 fullText = fullText.replace(/\bsh\b/gi, '에스에이치');
             }
-            
-            // 2. 모든 '-' 기호를 띄어쓰기로 변경하여 "마이너스"로 읽는 현상 방지
             fullText = fullText.replace(/-/g, ' ');
 
-            // 문장 단위로 쪼개기 (사파리 호환성을 위해 Lookbehind 정규식 제거)
-            window.ttsChunks = fullText.replace(/\.\s+/g, '.|').split('|').filter(s => s.trim().length > 0);
+            // 문장 단위로 분할하여 청크 생성
+            window.ttsChunks = fullText.split(/[\.\n]+/).map(s => s.trim()).filter(s => s.length > 0);
             window.ttsIndex = 0;
-            window.isTtsPaused = false;
-            
-            // 재생 시작
-            playNextTtsChunk();
+
+            setTimeout(() => {
+                playNextTtsChunk();
+            }, 60);
         }
 
     </script>
@@ -3170,9 +3189,10 @@
         // =====================================================
         // 글로벌 버튼 리스너 (구매하기, 돌아가기, TTS)
         // =====================================================
-        document.addEventListener('DOMContentLoaded', () => {
+        function bindGlobalButtons() {
             const homeBtn = document.getElementById('btn-home');
-            if (homeBtn) {
+            if (homeBtn && !homeBtn._bound) {
+                homeBtn._bound = true;
                 homeBtn.addEventListener('click', () => {
                     window.speechSynthesis && window.speechSynthesis.cancel();
                     window.history.pushState(null, '', window.location.pathname);
@@ -3189,14 +3209,19 @@
             }
 
             const ttsBtn = document.getElementById('btn-tts');
-            if (ttsBtn) {
+            if (ttsBtn && !ttsBtn._bound) {
+                ttsBtn._bound = true;
                 ttsBtn.addEventListener('click', () => {
-                    if (window.currentTargetItem) {
-                        handleTts(window.currentTargetItem);
-                    }
+                    handleTts(window.currentTargetItem);
                 });
             }
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindGlobalButtons);
+        } else {
+            bindGlobalButtons();
+        }
 </script>    <!-- 컨셉성분 설명 모달 팝업 -->
     <div id="ingredient-modal" class="modal-overlay" onclick="closeIngredientModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
