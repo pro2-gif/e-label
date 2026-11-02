@@ -454,29 +454,46 @@
         /* 상단 제품 견적의뢰 및 카탈로그 버튼 스타일 */
         /* ===================================================== */
         .hero-quote-btn {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            justify-content: space-between;
             width: 100%;
             max-width: 320px;
-            padding: 13px 20px;
-            background: #1F2328;
-            color: #ffffff;
-            font-size: 14.5px;
-            font-weight: 700;
+            padding: 13px 18px;
+            background-color: var(--color-on-primary, #ffffff);
             border-radius: 12px;
             text-decoration: none;
-            box-shadow: 0 4px 14px rgba(31, 35, 40, 0.16);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--color-border);
+            color: var(--color-text, #1F2328);
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
             box-sizing: border-box;
         }
         .hero-quote-btn:hover {
-            background: var(--color-primary, #305CDE);
-            color: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(48, 92, 222, 0.28);
+            background-color: var(--color-bg-layout);
+            border-color: var(--color-border-strong, #CBD5E1);
+            color: var(--color-text, #1F2328);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .hero-quote-btn .quote-icon-left {
+            color: var(--color-text-secondary);
+            font-size: 20px;
+            transition: color 0.2s ease;
+        }
+        .hero-quote-btn:hover .quote-icon-left {
+            color: var(--color-text, #1F2328);
+        }
+        .hero-quote-btn .quote-icon-right {
+            color: var(--color-text-secondary);
+            font-size: 18px;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+        .hero-quote-btn:hover .quote-icon-right {
+            color: var(--color-text, #1F2328);
+            transform: translate(1px, -1px);
         }
 
         /* ===================================================== */
@@ -499,30 +516,48 @@
             line-height: 1.35 !important;
         }
 
-        /* 제품 구매하기 버튼 스타일 (다크 테마 통일) */
+        /* 제품 구매하기 버튼 스타일 (흰색 카드형 통일) */
         .hero-buy-btn {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            justify-content: space-between;
             width: 100%;
-            padding: 13px 20px;
-            background: #1F2328 !important;
-            color: #ffffff !important;
-            font-size: 14.5px;
-            font-weight: 700;
+            padding: 13px 18px;
+            background-color: var(--color-on-primary, #ffffff) !important;
             border-radius: 12px;
             text-decoration: none;
-            box-shadow: 0 4px 14px rgba(31, 35, 40, 0.16);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--color-border) !important;
+            color: var(--color-text, #1F2328) !important;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
             box-sizing: border-box;
             cursor: pointer;
         }
         .hero-buy-btn:hover {
-            background: var(--color-primary, #305CDE) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(48, 92, 222, 0.28);
+            background-color: var(--color-bg-layout) !important;
+            border-color: var(--color-border-strong, #CBD5E1) !important;
+            color: var(--color-text, #1F2328) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .hero-buy-btn .buy-icon-left {
+            color: var(--color-text-secondary);
+            font-size: 20px;
+            transition: color 0.2s ease;
+        }
+        .hero-buy-btn:hover .buy-icon-left {
+            color: var(--color-text, #1F2328);
+        }
+        .hero-buy-btn .buy-icon-right {
+            color: var(--color-text-secondary);
+            font-size: 18px;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+        .hero-buy-btn:hover .buy-icon-right {
+            color: var(--color-text, #1F2328);
+            transform: translate(1px, -1px);
         }
 
         /* 데스크톱 PC 최적화 (@media min-width: 860px) */
@@ -563,12 +598,15 @@
                 align-self: end !important;
             }
             .product-hero-title-area #sub-tabs-container {
-                display: flex !important;
+                display: none;
                 justify-content: center !important;
                 flex-wrap: nowrap !important;
                 gap: 8px !important;
                 width: 100% !important;
                 margin: 0 auto !important;
+            }
+            .product-hero-title-area #sub-tabs-container.active-tabs {
+                display: flex !important;
             }
             .product-hero-actions-area {
                 grid-area: actions !important;
@@ -660,12 +698,15 @@
                 gap: 12px !important;
             }
             .product-hero-title-area #sub-tabs-container {
-                display: flex !important;
+                display: none;
                 justify-content: center !important;
                 flex-wrap: wrap !important;
                 gap: 8px !important;
                 width: 100% !important;
                 margin: 0 auto !important;
+            }
+            .product-hero-title-area #sub-tabs-container.active-tabs {
+                display: flex !important;
             }
             /* 순서 2: 제품 대표 이미지 카드 */
             .product-hero-visual {
@@ -915,7 +956,7 @@
                 <div class="product-hero-actions-area">
                     <!-- 3. 제품 카탈로그 바로보기 버튼 -->
                     <div id="catalog-btn-wrapper" class="catalog-btn-wrapper" style="display:none; width: 100%; box-sizing: border-box;">
-                        <a id="btn-product-catalog" href="#" target="_blank" class="catalog-link-card" style="box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                        <a id="btn-product-catalog" href="#" target="_blank" class="catalog-link-card">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <span class="material-icons catalog-icon-left">menu_book</span>
                                 <span id="label-catalog-btn">제품 카탈로그 보기 (PDF)</span>
@@ -927,18 +968,22 @@
                     <!-- 4. 제품 견적의뢰 버튼 -->
                     <div class="hero-quote-wrapper" style="width: 100%; box-sizing: border-box;">
                         <a id="btn-hero-quote" href="https://gmp.janytree.app/catalog/3770ff9ccb7d42299afe152298451a1e" target="_blank" class="hero-quote-btn">
-                            <span class="material-icons" style="font-size: 19px;">request_quote</span>
-                            <span id="label-hero-quote-text">제품 견적 의뢰</span>
-                            <span class="material-icons" style="font-size: 15px; margin-left: 2px;">arrow_forward</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span class="material-icons quote-icon-left">request_quote</span>
+                                <span id="label-hero-quote-text">제품 견적 의뢰</span>
+                            </div>
+                            <span class="material-icons quote-icon-right">open_in_new</span>
                         </a>
                     </div>
 
                     <!-- 5. 제품 구매하기 버튼 (한국어 전용) -->
                     <div id="buy-btn-wrapper" class="buy-btn-wrapper" style="display:none; width: 100%; box-sizing: border-box;">
                         <a id="btn-hero-buy" href="https://intomedipro.com/shop" target="_blank" rel="noopener noreferrer" class="hero-buy-btn">
-                            <span class="material-icons" style="font-size: 19px;">shopping_bag</span>
-                            <span id="label-hero-buy-text">제품 구매하기</span>
-                            <span class="material-icons" style="font-size: 15px; margin-left: 2px;">arrow_forward</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span class="material-icons buy-icon-left">shopping_bag</span>
+                                <span id="label-hero-buy-text">제품 구매하기</span>
+                            </div>
+                            <span class="material-icons buy-icon-right">open_in_new</span>
                         </a>
                     </div>
                 </div>
@@ -2232,17 +2277,26 @@
             }
             pNameEl.textContent = pName;
 
-            // 서브탭 렌더링
+            // 라뉴필 여부 엄격 판별 (오직 라뉴필 제품만 서브탭 필링워시/앰플부스터를 가짐)
+            const itemCode = (item.code || getColValue(item, COL.productCode) || (item.data && (item.data.code || getColValue(item.data, COL.productCode))) || '').toUpperCase();
+            const realName = ((item.data && item.data.realNameKo) || item.realNameKo || getColValue(item, COL.name) || pName || '');
+            const isLanupeel = itemCode.includes('CLX-LAP') || realName.includes('라뉴필') || realName.toUpperCase().includes('LAHNUPEEL');
+
+            const compList = (item.components || item.componentsList || []);
+            const hasMultipleComps = compList.length > 1;
+
+            // 서브탭 렌더링 (오직 라뉴필 제품에만 적용)
             const tabsContainer = document.getElementById('sub-tabs-container');
-            if ((item.components || item.componentsList) && (item.components || item.componentsList).length > 1) {
-                tabsContainer.style.display = 'flex';
+            if (isLanupeel && hasMultipleComps) {
+                tabsContainer.classList.add('active-tabs');
+                tabsContainer.style.setProperty('display', 'flex', 'important');
                 tabsContainer.innerHTML = '';
                 
                 // 첫 렌더링 플래그 (비동기 처리 중 UI 깜빡임 방지)
                 let isFirstRender = true;
                 
-                for (let i = 0; i < (item.components || item.componentsList).length; i++) {
-                    const comp = (item.components || item.componentsList)[i];
+                for (let i = 0; i < compList.length; i++) {
+                    const comp = compList[i];
                     const btn = document.createElement('button');
                     let rawName = getProductDisplayName(comp, lang);
                     
@@ -2305,18 +2359,22 @@
                 }
                 
                 // 데이터 그리기 (첫 번째 탭 기준)
-                await updateComponentData(item.components[0], lang, 0);
+                await updateComponentData(compList[0], lang, 0);
                 
                 // 활성화 스타일 적용 (onClick은 데이터 중복 렌더링을 막기 위해 직접 스타일만 제어)
                 const firstBtn = tabsContainer.children[0];
-                firstBtn.style.background = 'var(--color-accent)';
-                firstBtn.style.color = 'var(--neutral-0)';
-                firstBtn.style.borderColor = 'var(--color-accent)';
+                if (firstBtn) {
+                    firstBtn.style.background = 'var(--color-accent)';
+                    firstBtn.style.color = 'var(--neutral-0)';
+                    firstBtn.style.borderColor = 'var(--color-accent)';
+                }
                 isFirstRender = false;
                 
             } else {
-                tabsContainer.style.display = 'none';
-                await updateComponentData(item, lang, 0);
+                tabsContainer.classList.remove('active-tabs');
+                tabsContainer.style.setProperty('display', 'none', 'important');
+                tabsContainer.innerHTML = '';
+                await updateComponentData(item.isGroup ? item.data : item, lang, 0);
             }
 
             loadingEl.style.display = 'none';
@@ -2417,7 +2475,6 @@
                     </div>
                     <div class="product-card-body">
                         <div>
-                            ${codeDisplay ? `<div class="product-card-code">${codeDisplay}</div>` : ''}
                             <div class="product-card-name" title="${displayName}">${displayName}</div>
                         </div>
                         <div class="product-card-footer">
