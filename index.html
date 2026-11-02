@@ -314,19 +314,20 @@
             .product-card-footer {
                 display: flex !important;
                 align-items: center !important;
-                justify-content: space-between !important;
-                position: static !important;
+                justify-content: center !important;
+                position: relative !important;
                 padding-top: 8px !important;
                 min-height: 28px !important;
             }
             .product-card-action {
                 font-size: 11px !important;
                 gap: 2px !important;
-                letter-spacing: -0.02em !important;
-                justify-content: flex-start !important;
-                text-align: left !important;
-                flex: 1 !important;
-                min-width: 0 !important;
+                letter-spacing: -0.03em !important;
+                justify-content: center !important;
+                text-align: center !important;
+                width: 100% !important;
+                padding: 0 24px !important;
+                box-sizing: border-box !important;
                 white-space: nowrap !important;
                 overflow: hidden !important;
                 text-overflow: ellipsis !important;
@@ -336,12 +337,18 @@
                 flex-shrink: 0 !important;
             }
             .product-card-qr-btn {
-                position: static !important;
-                width: 26px !important;
-                height: 26px !important;
+                position: absolute !important;
+                right: 0 !important;
+                top: 50% !important;
+                bottom: auto !important;
+                transform: translateY(-50%) !important;
+                width: 24px !important;
+                height: 24px !important;
                 border-radius: 6px !important;
-                flex-shrink: 0 !important;
-                margin: 0 0 0 6px !important;
+                margin: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
             }
             .product-card-qr-btn .material-icons {
                 font-size: 15px !important;
