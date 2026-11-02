@@ -1111,6 +1111,49 @@
         }
 
         // =====================================================
+        // ■ 기기 기본 언어(브라우저 언어) 자동 감지 함수
+        // 해외 바이어 및 사용자의 기기 언어에 맞춰 최적의 언어 버전 자동 제공
+        // =====================================================
+        function getDevicePreferredLanguage() {
+            try {
+                const browserLangs = navigator.languages ? [...navigator.languages] : [navigator.language || navigator.userLanguage || ''];
+                
+                for (let raw of browserLangs) {
+                    if (!raw) continue;
+                    const lang = raw.toLowerCase().trim();
+                    
+                    // 1. 한국어 기기 (한국 사용자)
+                    if (lang.startsWith('ko')) {
+                        return 'ko';
+                    }
+                    // 2. 일본어 기기 (일본 바이어)
+                    if (lang.startsWith('ja')) {
+                        return 'jp';
+                    }
+                    // 3. 중국어 번체 기기 (대만, 홍콩, 마카오, 번체 설정)
+                    if (lang === 'zh-tw' || lang === 'zh-hk' || lang === 'zh-mo' || lang.includes('hant')) {
+                        return 'tw';
+                    }
+                    // 4. 중국어 간체 기기 (중국 본토, 싱가포르 등 간체 설정)
+                    if (lang.startsWith('zh')) {
+                        return 'ch';
+                    }
+                    // 5. 영어 기기 (미국, 영국, 캐나다, 호주 등)
+                    if (lang.startsWith('en')) {
+                        return 'en';
+                    }
+                }
+                
+                // 6. 기타 외국어 기기 (유럽, 동남아, 남미 등 비지원 언어)
+                // 해외 바이어를 위해 글로벌 비즈니스 공용어인 영어(en) 제공
+                return 'en';
+            } catch (e) {
+                console.warn('기기 언어 감지 중 오류, 기본값(ko) 사용:', e);
+                return 'ko';
+            }
+        }
+
+        // =====================================================
         // ■ 뷰어 모드 (index.html) - 소비자가 QR 스캔 시 보는 화면
         // =====================================================
         function initViewer() {
@@ -1128,19 +1171,25 @@
             else if (langParamRaw === 'j') langParam = 'jp';
             else if (langParamRaw === 'c') langParam = 'ch';
             else if (langParamRaw === 't') langParam = 'tw';
+            else if (langParamRaw === 'k') langParam = 'ko';
 
+            // 1순위: URL 파라미터가 유효하면 해당 언어 사용
+            // 2순위: 파라미터가 없으면 기기/브라우저 언어 자동 감지
             if (langParam && ['ko', 'en', 'jp', 'ch', 'tw'].includes(langParam)) {
                 currentLang = langParam;
-                updateGlobalLangUI(currentLang);
-                
-                ['ko', 'en', 'jp', 'ch', 'tw'].forEach(lang => {
-                    const btn = document.getElementById('btn-' + lang);
-                    if (btn) {
-                        if (lang === currentLang) btn.classList.add('active');
-                        else btn.classList.remove('active');
-                    }
-                });
+            } else {
+                currentLang = getDevicePreferredLanguage();
             }
+
+            updateGlobalLangUI(currentLang);
+            
+            ['ko', 'en', 'jp', 'ch', 'tw'].forEach(lang => {
+                const btn = document.getElementById('btn-' + lang);
+                if (btn) {
+                    if (lang === currentLang) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
 
             loadSheetData(function (err, data) {
                 if (err || !data || data.length === 0) {
@@ -1876,6 +1925,7 @@
             if (currentLang === 'en') langParam = '&l=e';
             else if (currentLang === 'jp') langParam = '&l=j';
             else if (currentLang === 'ch') langParam = '&l=c';
+            else if (currentLang === 'tw') langParam = '&l=t';
 
             const productUrl = `${E_LABEL_BASE_URL}?c=${encodeURIComponent(productCode)}${langParam}`;
 
