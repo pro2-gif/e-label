@@ -449,6 +449,223 @@
             margin: 0;
             white-space: pre-line;
         }
+    
+        /* ===================================================== */
+        /* 제품 견적 의뢰 배너 스타일 */
+        /* ===================================================== */
+        .quote-banner-wrap {
+            margin: 28px 0;
+            width: 100%;
+        }
+        .quote-banner-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 22px 28px;
+            background: linear-gradient(135deg, #1F2328 0%, #2A3038 100%);
+            border-radius: 18px;
+            text-decoration: none;
+            color: #ffffff;
+            box-shadow: 0 8px 24px rgba(31, 35, 40, 0.15);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-sizing: border-box;
+        }
+        .quote-banner-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 32px rgba(31, 35, 40, 0.25);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .quote-banner-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex: 1;
+        }
+        .quote-icon-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            backdrop-filter: blur(4px);
+        }
+        .quote-text-box {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .quote-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: #93C5FD;
+            text-transform: uppercase;
+        }
+        .quote-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+        .quote-desc {
+            margin: 0;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.78);
+            line-height: 1.45;
+        }
+        .quote-action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 11px 20px;
+            background: #ffffff;
+            color: #1F2328;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 10px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        .quote-banner-card:hover .quote-action-btn {
+            background: #F3F4F6;
+            transform: translateX(2px);
+        }
+        @media (max-width: 640px) {
+            .quote-banner-card {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 18px 20px;
+                gap: 16px;
+            }
+            .quote-banner-right {
+                width: 100%;
+            }
+            .quote-action-btn {
+                width: 100%;
+                justify-content: center;
+                box-sizing: border-box;
+            }
+        }
+
+        /* ===================================================== */
+        /* PC 데스크톱 최적화 반응형 레이아웃 (860px 이상) */
+        /* ===================================================== */
+        .product-hero-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            text-align: center;
+            padding-top: 32px;
+            padding-bottom: 28px;
+        }
+        .product-hero-info {
+            order: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+        .product-hero-visual {
+            order: 2;
+            width: 100%;
+        }
+
+        @media (min-width: 860px) {
+            .main-content {
+                max-width: 1040px !important;
+                padding: 40px 24px 100px !important;
+            }
+            /* 상단 히어로 영역 2열 분할 레이아웃 */
+            .product-hero-layout {
+                display: grid !important;
+                grid-template-columns: 440px 1fr !important;
+                gap: 48px !important;
+                align-items: start !important;
+                text-align: left !important;
+                padding-top: 20px !important;
+                padding-bottom: 40px !important;
+                margin-bottom: 24px !important;
+                border-bottom: 1px solid var(--color-border);
+            }
+            .product-hero-visual {
+                order: 1 !important;
+                width: 100% !important;
+            }
+            .product-hero-info {
+                order: 2 !important;
+                align-items: flex-start !important;
+                justify-content: center !important;
+                height: 100% !important;
+                padding-top: 8px !important;
+                gap: 20px !important;
+            }
+            .product-hero-info .product-name {
+                text-align: left !important;
+                font-size: 32px !important;
+                margin-bottom: 0 !important;
+                padding: 0 !important;
+                line-height: 1.3 !important;
+            }
+            .product-hero-info #sub-tabs-container {
+                justify-content: flex-start !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+            /* PC 전용 퀵 견적안내 박스 */
+            .hero-pc-quote-hint {
+                display: flex !important;
+                align-items: center;
+                gap: 12px;
+                padding: 14px 18px;
+                background: var(--color-bg-layout);
+                border: 1px solid var(--color-border);
+                border-radius: 12px;
+                margin-top: 10px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            /* 테이블 가독성 강화 */
+            .info-table th {
+                width: 22% !important;
+                font-size: 14px !important;
+                padding: 18px 24px !important;
+            }
+            .info-table td {
+                font-size: 15px !important;
+                padding: 18px 28px !important;
+            }
+            /* 비디오 섹션 및 브랜드 링크 2열 그리드 */
+            .video-and-links-grid {
+                display: grid !important;
+                grid-template-columns: 1.15fr 0.85fr !important;
+                gap: 28px !important;
+                align-items: start !important;
+                margin-top: 10px !important;
+            }
+            .video-section {
+                margin-top: 0 !important;
+            }
+            .brand-links-section {
+                margin-top: 0 !important;
+            }
+            /* 하단 홈으로 버튼 바 중앙 정돈 */
+            .bottom-fixed .buy-btn {
+                max-width: 440px !important;
+            }
+        }
+
     </style>
 
     <!-- Supabase SDK -->
@@ -558,29 +775,45 @@
 
         <!-- 메인 라벨 영역 (숨김 상태로 시작) -->
         <main class="main-content" id="main-content" style="display:none;">
-            <!-- 제품명 영역 -->
-            <div class="p-6 bg-white border-b relative" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; padding-top: 40px; padding-bottom: 32px;">
-                <h1 id="product-name" class="product-name" style="overflow-wrap: break-word; word-break: break-word; margin: 0; width: 100%; padding: 0 8px; box-sizing: border-box; display: block; text-align: center; font-size: clamp(14px, 4.5vw, 26px); line-height: 1.35;"></h1>
-                
-                <!-- 서브탭 컨테이너 (위치 이동) -->
-                <div id="sub-tabs-container" style="display:none; width: 100%; max-width: 600px; padding: 0 16px; margin: 0 auto; gap: 8px; box-sizing: border-box; justify-content: center; flex-wrap: nowrap;"></div>
+            <!-- 제품 히어로 영역 (모바일 1단 / PC 2단 분할) -->
+            <div class="product-hero-layout">
+                <!-- 비주얼 영역 (사진 + 카탈로그) -->
+                <div class="product-hero-visual">
+                    <div id="product-image-wrapper" style="display:none; width: 100%; max-width: 442px; margin: 0 auto; border-radius: 24px; border: 1px solid var(--color-border); box-shadow: 0 10px 30px rgba(0,0,0,0.08); background-color: var(--color-on-primary); box-sizing: border-box; aspect-ratio: 1/1; position: relative;">
+                        <div style="position: absolute; top: 16px; left: 16px; right: 16px; bottom: 16px; display: flex; justify-content: center; align-items: center;">
+                            <img id="product-image" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block; border-radius: 12px;" />
+                        </div>
+                    </div>
 
-                <div id="product-image-wrapper" style="display:none; width: 100%; max-width: 442px; margin: 0 auto; border-radius: 24px; border: 1px solid var(--color-border); box-shadow: 0 10px 30px rgba(0,0,0,0.08); background-color: var(--color-on-primary); box-sizing: border-box; aspect-ratio: 1/1; position: relative;">
-                    <div style="position: absolute; top: 16px; left: 16px; right: 16px; bottom: 16px; display: flex; justify-content: center; align-items: center;">
-                        <img id="product-image" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block; border-radius: 12px;" />
+                    <!-- 상단 카탈로그 바로보기 버튼 -->
+                    <div id="catalog-btn-wrapper" style="display:none; width: 100%; max-width: 442px; margin: 16px auto 0; box-sizing: border-box;">
+                        <a id="btn-product-catalog" href="#" target="_blank" class="catalog-link-card">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span class="material-icons catalog-icon-left">menu_book</span>
+                                <span id="label-catalog-btn">제품 카탈로그 보기 (PDF)</span>
+                            </div>
+                            <span class="material-icons catalog-icon-right">open_in_new</span>
+                        </a>
                     </div>
                 </div>
 
-                <!-- 상단 카탈로그 바로보기 버튼 -->
-                <div id="catalog-btn-wrapper" style="display:none; width: 100%; max-width: 442px; margin: 16px auto 0; box-sizing: border-box;">
-                    <a id="btn-product-catalog" href="#" target="_blank" class="catalog-link-card">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span class="material-icons catalog-icon-left">menu_book</span>
-                            <span id="label-catalog-btn">제품 카탈로그 보기 (PDF)</span>
+                <!-- 제품 정보 영역 (제품명 + 서브탭 + PC 퀵 안내) -->
+                <div class="product-hero-info">
+                    <h1 id="product-name" class="product-name" style="overflow-wrap: break-word; word-break: break-word; margin: 0; width: 100%; padding: 0 8px; box-sizing: border-box; display: block; text-align: center; font-size: clamp(14px, 4.5vw, 26px); line-height: 1.35;"></h1>
+                    
+                    <!-- 서브탭 컨테이너 (위치 이동) -->
+                    <div id="sub-tabs-container" style="display:none; width: 100%; max-width: 600px; padding: 0 16px; margin: 0 auto; gap: 8px; box-sizing: border-box; justify-content: center; flex-wrap: nowrap;"></div>
+
+                    <!-- PC 전용 퀵 견적안내 배너 (모바일에서는 숨김) -->
+                    <div class="hero-pc-quote-hint" style="display:none;">
+                        <span class="material-icons" style="color: var(--color-primary); font-size: 22px;">verified</span>
+                        <div style="flex: 1; font-size: 13px; color: var(--color-text-secondary); line-height: 1.4;">
+                            <strong style="color: var(--color-text);">GMP 인증 제조 시설</strong><br>
+                            하단의 견적 의뢰 링크를 통해 온라인 맞춤 견적 신청이 가능합니다.
                         </div>
-                        <span class="material-icons catalog-icon-right">open_in_new</span>
-                    </a>
+                    </div>
                 </div>
+            </div>
             </div>
 
             <div class="table-container">
@@ -627,49 +860,85 @@
                 </table>
             </div>
         
-            <!-- 비디오 섹션 (제니트리 소개 영상) -->
-            <div class="video-section">
-                <h3 id="label-video-title" class="video-section-title">🎬 제니트리 소개 영상</h3>
-                
-                <div class="video-wrapper" style="margin-top: 10px;">
-                    <a href="https://www.youtube.com/watch?v=OU6d0UGLrUM" target="_blank" style="display: block; width: 100%; height: 100%; position: relative; text-decoration: none;">
-                        <img src="https://img.youtube.com/vi/OU6d0UGLrUM/hqdefault.jpg" alt="YouTube Video" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
-                            <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                                <svg style="width: 56px; height: 56px; color: var(--color-error-text); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
-                                <span id="label-watch-youtube" style="color: white; font-weight: 700; font-size: 15px; background: rgba(0,0,0,0.7); padding: 6px 14px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">YouTube에서 동영상 보기</span>
-                            </div>
+            <!-- 제품 견적 의뢰 배너 (제품 정보 테이블 바로 하단) -->
+            <div id="quote-banner-section" class="quote-banner-wrap">
+                <a id="btn-quote-banner" href="https://gmp.janytree.app/catalog/3770ff9ccb7d42299afe152298451a1e" target="_blank" class="quote-banner-card">
+                    <div class="quote-banner-left">
+                        <div class="quote-icon-box">
+                            <span class="material-icons" style="font-size: 28px; color: #ffffff;">request_quote</span>
                         </div>
-                                        </a>
-                </div>
+                        <div class="quote-text-box">
+                            <span class="quote-badge">GMP CUSTOM QUOTE</span>
+                            <h3 id="label-quote-title" class="quote-title">제품 견적 의뢰</h3>
+                            <p id="label-quote-desc" class="quote-desc">제니트리 GMP 맞춤형 제품 견적을 온라인으로 바로 신청하실 수 있습니다.</p>
+                        </div>
+                    </div>
+                    <div class="quote-banner-right">
+                        <span class="quote-action-btn">
+                            <span id="label-quote-action">견적 신청하기</span>
+                            <span class="material-icons" style="font-size: 18px;">arrow_forward</span>
+                        </span>
+                    </div>
+                </a>
+            </div>
 
-                <!-- 브랜드 링크 섹션 -->
-                <div class="brand-links" style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
-                    <a id="link-social-website" href="https://janytree.com/" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1px solid var(--color-border); color: var(--color-accent); font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span class="material-icons" style="color: var(--color-border-strong);">language</span>
-                            <span id="label-social-website">홈페이지</span>
+            <!-- 비디오 및 브랜드 링크 영역 (PC에서 2열 그리드 배치) -->
+            <div class="video-and-links-container" style="margin-top: 36px;">
+                <div class="video-and-links-grid">
+                    <!-- 비디오 섹션 (제니트리 소개 영상) -->
+                    <div class="video-section" style="margin-top: 0;">
+                        <h3 id="label-video-title" class="video-section-title" style="margin-bottom: 12px;">🎬 제니트리 소개 영상</h3>
+                        <div class="video-wrapper" style="margin-top: 0;">
+                            <a href="https://www.youtube.com/watch?v=OU6d0UGLrUM" target="_blank" style="display: block; width: 100%; height: 100%; position: relative; text-decoration: none;">
+                                <img src="https://img.youtube.com/vi/OU6d0UGLrUM/hqdefault.jpg" alt="YouTube Video" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                                        <svg style="width: 56px; height: 56px; color: var(--color-error-text); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                                        <span id="label-watch-youtube" style="color: white; font-weight: 700; font-size: 15px; background: rgba(0,0,0,0.7); padding: 6px 14px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">YouTube에서 동영상 보기</span>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
-                        <span class="material-icons" style="color: var(--color-primary); font-size: 18px;">open_in_new</span>
-                    </a>
-                    <a href="https://www.youtube.com/@janytree" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1px solid var(--color-border); color: var(--color-accent); font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="color: var(--color-error-text); display: flex; align-items: center;">
-                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
-                            </span>
-                            <span id="label-social-youtube">유튜브</span>
+                    </div>
+
+                    <!-- 브랜드 링크 섹션 -->
+                    <div class="brand-links-section">
+                        <h3 id="label-brand-links-title" class="video-section-title" style="margin-bottom: 12px;">🔗 제니트리 채널 & 견적 문의</h3>
+                        <div class="brand-links" style="display: flex; flex-direction: column; gap: 10px;">
+                            <a id="link-social-quote" href="https://gmp.janytree.app/catalog/3770ff9ccb7d42299afe152298451a1e" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1.5px solid var(--color-primary); color: var(--color-primary); font-weight: 700; font-size: 15px; box-shadow: 0 2px 6px rgba(48, 92, 222, 0.08); transition: all 0.2s;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span class="material-icons" style="color: var(--color-primary);">request_quote</span>
+                                    <span id="label-social-quote">제품 견적 의뢰 (GMP)</span>
+                                </div>
+                                <span class="material-icons" style="color: var(--color-primary); font-size: 18px;">open_in_new</span>
+                            </a>
+                            <a id="link-social-website" href="https://janytree.com/" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1px solid var(--color-border); color: var(--color-accent); font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span class="material-icons" style="color: var(--color-border-strong);">language</span>
+                                    <span id="label-social-website">홈페이지</span>
+                                </div>
+                                <span class="material-icons" style="color: var(--color-primary); font-size: 18px;">open_in_new</span>
+                            </a>
+                            <a href="https://www.youtube.com/@janytree" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1px solid var(--color-border); color: var(--color-accent); font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span style="color: var(--color-error-text); display: flex; align-items: center;">
+                                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                                    </span>
+                                    <span id="label-social-youtube">유튜브</span>
+                                </div>
+                                <span class="material-icons" style="color: var(--color-primary); font-size: 18px;">open_in_new</span>
+                            </a>
+                            <a href="https://www.instagram.com/janytree_official/" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1px solid var(--color-border); color: var(--color-accent); font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span style="display: flex; align-items: center; width: 24px; height: 24px;">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" style="width: 20px; height: 20px; margin: 0 auto;">
+                                    </span>
+                                    <span id="label-social-instagram">인스타그램</span>
+                                </div>
+                                <span class="material-icons" style="color: var(--color-primary); font-size: 18px;">open_in_new</span>
+                            </a>
                         </div>
-                        <span class="material-icons" style="color: var(--color-primary); font-size: 18px;">open_in_new</span>
-                    </a>
-                    <a href="https://www.instagram.com/janytree_official/" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background-color: var(--color-on-primary); border-radius: 12px; text-decoration: none; border: 1px solid var(--color-border); color: var(--color-accent); font-weight: 600; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: all 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="display: flex; align-items: center; width: 24px; height: 24px;">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" style="width: 20px; height: 20px; margin: 0 auto;">
-                            </span>
-                            <span id="label-social-instagram">인스타그램</span>
-                        </div>
-                        <span class="material-icons" style="color: var(--color-primary); font-size: 18px;">open_in_new</span>
-                    </a>
+                    </div>
                 </div>
             </div>
         </main>
@@ -1060,6 +1329,10 @@
             cautions: { ko: "사용할 때의 주의사항", en: "Cautions", jp: "使用上の注意", ch: "使用注意事项", tw: "使用注意事项" },
             customer: { ko: "소비자 상담", en: "Customer Service", jp: "お客様相談", ch: "客户服务", tw: "客户服务" },
             homeBtn: { ko: "홈으로", en: "Home", jp: "ホームへ", ch: "首页", tw: "首頁" },
+            quoteBtn: { ko: "제품 견적 의뢰", en: "Request a Quote", jp: "製品の見積り依頼", ch: "产品报价咨询", tw: "產品報價諮詢" },
+            quoteDesc: { ko: "제니트리 GMP 맞춤형 제품 견적을 온라인으로 바로 신청하실 수 있습니다.", en: "Request a custom GMP product quote directly online from Janytree.", jp: "ジェニツリーGMPカスタム製品のお見積りをオンラインでご依頼いただけます。", ch: "可在线直接申请Janytree GMP定制产品报价。", tw: "可線上直接申請Janytree GMP定制產品報價。" },
+            quoteAction: { ko: "견적 신청하기", en: "Request Now", jp: "見積りを依頼する", ch: "立即申请", tw: "立即申請" },
+            brandLinksTitle: { ko: "🔗 제니트리 채널 & 견적 문의", en: "🔗 Janytree Channels & Quote", jp: "🔗 Janytree 公式チャンネル・見積り", ch: "🔗 Janytree 官方渠道与报价咨询", tw: "🔗 Janytree 官方渠道與報價諮詢" },
             clinicalTitle: { ko: "인체적용시험 결과", en: "Clinical Test Results", jp: "人体適用試験結果", ch: "人体应用试验结果", tw: "人体应用试验结果" },
             clinicalClose: { ko: "닫기", en: "Close", jp: "閉じる", ch: "关闭", tw: "关闭" },
             videoTitle: { ko: "🎬 제니트리 소개 영상", en: "🎬 Janytree Introduction Video", jp: "🎬 Janytree 紹介動画", ch: "🎬 Janytree 介绍视频", tw: "🎬 Janytree 介绍视频" },
@@ -1807,6 +2080,11 @@
             const lblSocialInstagram = document.getElementById('label-social-instagram');
             if(lblSocialInstagram) lblSocialInstagram.textContent = uiLabels.socialInstagram[lang];
             document.getElementById('btn-home').textContent = uiLabels.homeBtn[lang];
+            if (document.getElementById('label-quote-title') && uiLabels.quoteBtn) document.getElementById('label-quote-title').textContent = uiLabels.quoteBtn[lang];
+            if (document.getElementById('label-quote-desc') && uiLabels.quoteDesc) document.getElementById('label-quote-desc').textContent = uiLabels.quoteDesc[lang];
+            if (document.getElementById('label-quote-action') && uiLabels.quoteAction) document.getElementById('label-quote-action').textContent = uiLabels.quoteAction[lang];
+            if (document.getElementById('label-social-quote') && uiLabels.quoteBtn) document.getElementById('label-social-quote').textContent = `${uiLabels.quoteBtn[lang]} (GMP)`;
+            if (document.getElementById('label-brand-links-title') && uiLabels.brandLinksTitle) document.getElementById('label-brand-links-title').textContent = uiLabels.brandLinksTitle[lang];
 
             const ttsItems = ['volume', 'functional', 'manufacturer', 'concept-ingredients', 'clinical', 'ingredients', 'how-to-use', 'cautions', 'customer'];
             ttsItems.forEach(itemId => {
@@ -2478,6 +2756,12 @@
         function updateGlobalLangUI(lang) {
             const get = id => document.getElementById(id);
             // if(get('maker-brand-logo')) get('maker-brand-logo').innerHTML = uiLabels.makerBrand[lang];
+            if(get('label-quote-title') && uiLabels.quoteBtn) get('label-quote-title').textContent = uiLabels.quoteBtn[lang];
+            if(get('label-quote-desc') && uiLabels.quoteDesc) get('label-quote-desc').textContent = uiLabels.quoteDesc[lang];
+            if(get('label-quote-action') && uiLabels.quoteAction) get('label-quote-action').textContent = uiLabels.quoteAction[lang];
+            if(get('label-social-quote') && uiLabels.quoteBtn) get('label-social-quote').textContent = uiLabels.quoteBtn[lang] + ' (GMP)';
+            if(get('label-brand-links-title') && uiLabels.brandLinksTitle) get('label-brand-links-title').textContent = uiLabels.brandLinksTitle[lang];
+            
             if(get('maker-title')) get('maker-title').innerHTML = uiLabels.makerTitle[lang];
             if(get('maker-desc')) get('maker-desc').innerHTML = uiLabels.makerDesc[lang];
             if(get('maker-select-label')) get('maker-select-label').innerHTML = uiLabels.makerSelect[lang];
