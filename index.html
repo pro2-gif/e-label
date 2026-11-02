@@ -293,10 +293,12 @@
         .product-card-footer {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            position: relative;
             padding-top: 10px;
             border-top: 1px solid var(--color-border);
             margin-top: 4px;
+            min-height: 32px;
         }
         .product-card-action {
             font-size: 13px;
@@ -304,7 +306,9 @@
             color: var(--color-accent);
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 4px;
+            text-align: center;
         }
         @media (max-width: 640px) {
             .product-card-action {
@@ -312,6 +316,11 @@
             }
         }
         .product-card-qr-btn {
+            position: absolute;
+            right: 0;
+            top: 10px;
+            bottom: 0;
+            margin: auto 0;
             background: none;
             border: 1px solid var(--color-border);
             border-radius: 8px;
