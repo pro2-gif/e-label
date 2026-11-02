@@ -925,7 +925,11 @@
 
         <!-- 제품 카드 그리드 컨테이너 -->
         <div id="product-card-grid" class="product-grid">
-            <!-- 자바스크립트로 12개 제품 카드가 자동 생성됩니다 -->
+            <div id="home-loading-indicator" style="grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 70px 20px; color: var(--color-text-secondary); text-align: center;">
+                <div style="width: 38px; height: 38px; border: 3px solid rgba(48, 92, 222, 0.15); border-top-color: #305CDE; border-radius: 50%; animation: homeSpin 0.8s linear infinite; margin-bottom: 16px;"></div>
+                <div style="font-size: 15px; font-weight: 700; color: var(--color-text); margin-bottom: 4px;">제품 목록을 불러오는 중입니다...</div>
+                <div style="font-size: 13px; color: var(--color-text-secondary);">잠시만 기다려 주세요.</div>
+            </div>
         </div>
 
         <!-- 레거시 호환용 히든 엘리먼트 -->
@@ -2760,8 +2764,28 @@
         }
 
         // =====================================================
-        // ■ TTS (음성 안내) 처리
+        // ■ TTS (음성 안내) 처리 및 모바일 친화적 알림
         // =====================================================
+        function showTtsToast(msg) {
+            let toast = document.getElementById('tts-toast-notice');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'tts-toast-notice';
+                toast.style.cssText = "position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(31, 35, 40, 0.94); color: #ffffff; padding: 12px 22px; border-radius: 30px; font-size: 13.5px; font-weight: 600; line-height: 1.4; text-align: center; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28); border: 1px solid rgba(255, 255, 255, 0.18); z-index: 99999; opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; max-width: 90%; width: max-content; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);";
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) translateY(0)';
+            });
+
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(20px)';
+            }, 3800);
+        }
         function getTtsLangCode(lang) {
             switch (lang) {
                 case 'ko': return 'ko-KR';
@@ -2946,6 +2970,7 @@
                     }
                 } catch(err) {}
                 window.speechSynthesis.speak(utterance);
+                showTtsToast(currentLang === 'ko' ? '🔊 음성 안내를 시작합니다. (소리가 안 들리실 경우 기기 무음 모드를 끄고 볼륨을 올려주세요)' : '🔊 Playing voice guide. Please check your volume.');
             }, 60);
         };
 
@@ -3045,6 +3070,7 @@
 
             setTimeout(() => {
                 playNextTtsChunk();
+                showTtsToast(currentLang === 'ko' ? '🔊 전체 음성 안내를 시작합니다. (소리가 안 들리실 경우 기기 무음 모드를 끄고 볼륨을 확인해 주세요)' : '🔊 Playing full voice guide. Please check your volume.');
             }, 60);
         }
 
