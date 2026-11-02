@@ -802,6 +802,10 @@
                 display: table-row !important;
                 border-bottom: 1px solid var(--color-border) !important;
             }
+            .info-table tr.row-hidden,
+            .info-table tr[style*="display: none"] {
+                display: none !important;
+            }
             .info-table th {
                 display: table-cell !important;
                 width: 32% !important;
@@ -2036,11 +2040,14 @@
                 const row = document.getElementById(rowId);
                 const valElem = document.getElementById(valId);
                 if (!row || !valElem) return;
-                if (!value || value.trim() === '-' || value.trim() === '') {
-                    row.style.display = 'none';
+                const isBlank = !value || value.trim() === '-' || value.trim() === '—' || value.trim() === '';
+                if (isBlank) {
+                    row.classList.add('row-hidden');
+                    row.style.setProperty('display', 'none', 'important');
                     valElem.textContent = '';
                 } else {
-                    row.style.display = 'table-row';
+                    row.classList.remove('row-hidden');
+                    row.style.removeProperty('display');
                     valElem.textContent = value;
                 }
             }
@@ -2166,7 +2173,7 @@
                     });
                 });
             } else {
-                clinicalRow.style.display = 'none';
+                clinicalRow.classList.add('row-hidden'); clinicalRow.style.setProperty('display', 'none', 'important');
             }
 
             // 핵심 컨셉 성분 렌더링
@@ -2204,7 +2211,7 @@
             if (koNames.length > 0) {
                 conceptRow.style.display = 'table-row';
             } else {
-                conceptRow.style.display = 'none';
+                conceptRow.classList.add('row-hidden'); conceptRow.style.setProperty('display', 'none', 'important');
             }
 
             updateRowDisplay('row-cautions', 'val-cautions', cautions);
@@ -2217,7 +2224,7 @@
             valHowToUseEl.innerHTML = '';
             
             if (!originalHowToUse || originalHowToUse.trim() === '-' || originalHowToUse.trim() === '') {
-                rowHowToUse.style.display = 'none';
+                rowHowToUse.classList.add('row-hidden'); rowHowToUse.style.setProperty('display', 'none', 'important');
             } else {
                 rowHowToUse.style.display = 'table-row';
 
