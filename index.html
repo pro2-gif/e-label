@@ -355,16 +355,63 @@
             cursor: pointer;
             transition: all 0.2s ease;
             line-height: 1;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
         }
         .top-home-btn:hover {
             background-color: var(--color-bg-layout, #E2E8F0);
             color: var(--color-primary, #305CDE);
             border-color: var(--color-primary, #305CDE);
         }
+        .lang-btn {
+            white-space: nowrap !important;
+        }
+
+        /* 모바일 상단 네비게이션 1줄 컴팩트 정렬 (줄바꿈 방지) */
         @media (max-width: 640px) {
+            .top-controller {
+                padding: 10px 12px !important;
+            }
             .top-home-btn {
-                padding: 6px 10px;
-                font-size: 12px;
+                padding: 5px 8px !important;
+                font-size: 11px !important;
+                gap: 3px !important;
+            }
+            .top-home-btn .material-icons {
+                font-size: 16px !important;
+            }
+            .top-right-actions {
+                gap: 5px !important;
+            }
+            .lang-switcher {
+                padding: 2px !important;
+                border-radius: 6px !important;
+            }
+            .lang-btn {
+                padding: 4px 6px !important;
+                font-size: 11px !important;
+                letter-spacing: -0.02em !important;
+            }
+            .icon-btn {
+                width: 30px !important;
+                height: 30px !important;
+                flex-shrink: 0 !important;
+            }
+            .icon-btn .material-icons {
+                font-size: 17px !important;
+            }
+        }
+        @media (max-width: 390px) {
+            .top-controller {
+                padding: 8px 8px !important;
+            }
+            .top-home-btn {
+                padding: 4px 6px !important;
+                font-size: 10.5px !important;
+            }
+            .lang-btn {
+                padding: 3px 5px !important;
+                font-size: 10px !important;
             }
         }
 
