@@ -451,17 +451,19 @@
         }
     
         /* ===================================================== */
-        /* 상단 제품 견적의뢰 버튼 스타일 */
+        /* 상단 제품 견적의뢰 및 카탈로그 버튼 스타일 */
         /* ===================================================== */
         .hero-quote-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            padding: 13px 26px;
+            width: 100%;
+            max-width: 320px;
+            padding: 13px 20px;
             background: #1F2328;
             color: #ffffff;
-            font-size: 15px;
+            font-size: 14.5px;
             font-weight: 700;
             border-radius: 12px;
             text-decoration: none;
@@ -476,121 +478,94 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(48, 92, 222, 0.28);
         }
-        @media (max-width: 640px) {
-            .hero-quote-btn {
-                width: 100%;
-                max-width: 320px;
-                padding: 12px 20px;
-                font-size: 14px;
-            }
+
+        /* 소개영상 콤팩트 320px 규격 */
+        .video-section {
+            max-width: 320px;
+            margin: 36px auto 0;
+            text-align: center;
+        }
+        .video-wrapper {
+            width: 100%;
+            max-width: 320px;
+            aspect-ratio: 16 / 9;
+            margin: 10px auto 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        .brand-links-section {
+            max-width: 360px;
+            margin: 28px auto 0;
         }
 
         /* ===================================================== */
-        /* PC 데스크톱 최적화 반응형 레이아웃 (가로 840px 맞춤) */
+        /* PC/모바일 최적화 반응형 레이아웃 (슬림 660px 캔버스) */
         /* ===================================================== */
+        .main-content {
+            max-width: 660px !important;
+            margin: 0 auto !important;
+            padding: 24px 16px 100px !important;
+        }
         .product-hero-layout {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 24px;
+            gap: 20px;
             text-align: center;
-            padding-top: 32px;
-            padding-bottom: 28px;
+            padding-top: 20px;
+            padding-bottom: 24px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--color-border);
         }
         .product-hero-info {
-            order: 1;
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 16px;
+            text-align: center;
+            gap: 14px;
         }
-        .product-hero-visual {
-            order: 2;
+        .product-hero-info .product-name {
+            text-align: center !important;
+            font-size: clamp(18px, 4.5vw, 24px) !important;
+            font-weight: 800;
+            line-height: 1.35;
+            margin: 0 auto;
             width: 100%;
         }
+        .product-hero-info #sub-tabs-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .product-hero-visual {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
 
-        @media (min-width: 860px) {
-            .main-content {
-                max-width: 840px !important;
-                padding: 36px 20px 100px !important;
-            }
-            /* 상단 히어로 영역 2열 분할 레이아웃 (사진 360px + 우측 정보) */
-            .product-hero-layout {
-                display: grid !important;
-                grid-template-columns: 360px 1fr !important;
-                gap: 40px !important;
-                align-items: center !important;
-                text-align: left !important;
-                padding-top: 16px !important;
-                padding-bottom: 32px !important;
-                margin-bottom: 24px !important;
-                border-bottom: 1px solid var(--color-border);
-            }
-            .product-hero-visual {
-                order: 1 !important;
-                width: 100% !important;
-            }
-            .product-hero-visual #product-image-wrapper {
-                max-width: 360px !important;
-            }
-            .product-hero-visual #catalog-btn-wrapper {
-                max-width: 360px !important;
-            }
-            .product-hero-info {
-                order: 2 !important;
-                align-items: flex-start !important;
-                justify-content: center !important;
-                height: 100% !important;
-                padding-top: 4px !important;
-                gap: 18px !important;
-            }
-            .product-hero-info .product-name {
-                text-align: left !important;
-                font-size: 28px !important;
-                margin-bottom: 0 !important;
-                padding: 0 !important;
-                line-height: 1.3 !important;
-            }
-            .product-hero-info #sub-tabs-container {
-                justify-content: flex-start !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                max-width: 100% !important;
-            }
-            /* 테이블 가독성 최적화 */
-            .info-table th {
-                width: 24% !important;
-                font-size: 14px !important;
-                padding: 16px 20px !important;
-            }
-            .info-table td {
-                font-size: 14.5px !important;
-                padding: 16px 22px !important;
-            }
-            /* 비디오 섹션 크기 적정화 및 브랜드 링크와 나란히 배치 */
-            .video-and-links-grid {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                gap: 24px !important;
-                align-items: start !important;
-                margin-top: 10px !important;
-            }
-            .video-wrapper {
-                max-width: 100% !important;
-                aspect-ratio: 16/9 !important;
-            }
-            .video-section {
-                margin-top: 0 !important;
-            }
-            .brand-links-section {
-                margin-top: 0 !important;
-            }
-            /* 하단 홈으로 버튼 바 */
-            .bottom-fixed .buy-btn {
-                max-width: 400px !important;
-            }
+        /* 테이블 가독성 최적화 */
+        .info-table th {
+            width: 30% !important;
+            font-size: 13.5px !important;
+            padding: 14px 16px !important;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .info-table td {
+            font-size: 14px !important;
+            padding: 14px 18px !important;
+            line-height: 1.6;
+        }
+
+        /* 하단 홈으로 버튼 바 */
+        .bottom-fixed .buy-btn {
+            max-width: 380px !important;
         }
 
     </style>
@@ -702,19 +677,27 @@
 
         <!-- 메인 라벨 영역 (숨김 상태로 시작) -->
         <main class="main-content" id="main-content" style="display:none;">
-            <!-- 제품 히어로 영역 (모바일 1단 / PC 2단 분할) -->
+            <!-- 제품 히어로 영역 (중앙 정렬 콤팩트 뷰) -->
             <div class="product-hero-layout">
-                <!-- 비주얼 영역 (사진 + 카탈로그) -->
+                <!-- 1. 제품 대표 이미지 -->
                 <div class="product-hero-visual">
-                    <div id="product-image-wrapper" style="display:none; width: 100%; max-width: 442px; margin: 0 auto; border-radius: 24px; border: 1px solid var(--color-border); box-shadow: 0 10px 30px rgba(0,0,0,0.08); background-color: var(--color-on-primary); box-sizing: border-box; aspect-ratio: 1/1; position: relative;">
-                        <div style="position: absolute; top: 16px; left: 16px; right: 16px; bottom: 16px; display: flex; justify-content: center; align-items: center;">
-                            <img id="product-image" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block; border-radius: 12px;" />
+                    <div id="product-image-wrapper" style="display:none; width: 100%; max-width: 320px; margin: 0 auto; border-radius: 20px; border: 1px solid var(--color-border); box-shadow: 0 8px 24px rgba(0,0,0,0.06); background-color: var(--color-on-primary); box-sizing: border-box; aspect-ratio: 1/1; position: relative;">
+                        <div style="position: absolute; top: 14px; left: 14px; right: 14px; bottom: 14px; display: flex; justify-content: center; align-items: center;">
+                            <img id="product-image" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block; border-radius: 10px;" />
                         </div>
                     </div>
+                </div>
 
-                    <!-- 상단 카탈로그 바로보기 버튼 -->
-                    <div id="catalog-btn-wrapper" style="display:none; width: 100%; max-width: 442px; margin: 16px auto 0; box-sizing: border-box;">
-                        <a id="btn-product-catalog" href="#" target="_blank" class="catalog-link-card">
+                <!-- 2. 제품 정보 (제품명 가운데 배치 -> 서브탭 나열 -> 카탈로그 -> 견적의뢰) -->
+                <div class="product-hero-info">
+                    <h1 id="product-name" class="product-name" style="overflow-wrap: break-word; word-break: break-word; margin: 0; width: 100%; padding: 0; box-sizing: border-box; display: block; text-align: center; font-size: clamp(18px, 4.5vw, 24px); font-weight: 800; line-height: 1.35;"></h1>
+                    
+                    <!-- 서브탭 컨테이너 (필링 워시, 앰플 부스터 단락 없이 가로 나열) -->
+                    <div id="sub-tabs-container" style="display:none; width: 100%; padding: 0; margin: 0 auto; gap: 8px; box-sizing: border-box; justify-content: center; flex-wrap: wrap;"></div>
+
+                    <!-- 3. 제품 카탈로그 바로보기 버튼 (견적 의뢰 위로 이동) -->
+                    <div id="catalog-btn-wrapper" style="display:none; width: 100%; max-width: 320px; margin: 4px auto 0; box-sizing: border-box;">
+                        <a id="btn-product-catalog" href="#" target="_blank" class="catalog-link-card" style="box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <span class="material-icons catalog-icon-left">menu_book</span>
                                 <span id="label-catalog-btn">제품 카탈로그 보기 (PDF)</span>
@@ -722,21 +705,13 @@
                             <span class="material-icons catalog-icon-right">open_in_new</span>
                         </a>
                     </div>
-                </div>
 
-                <!-- 제품 정보 영역 (제품명 + 서브탭 + PC 퀵 안내) -->
-                <div class="product-hero-info">
-                    <h1 id="product-name" class="product-name" style="overflow-wrap: break-word; word-break: break-word; margin: 0; width: 100%; padding: 0 8px; box-sizing: border-box; display: block; text-align: center; font-size: clamp(14px, 4.5vw, 26px); line-height: 1.35;"></h1>
-                    
-                    <!-- 서브탭 컨테이너 (위치 이동) -->
-                    <div id="sub-tabs-container" style="display:none; width: 100%; max-width: 600px; padding: 0 16px; margin: 0 auto; gap: 8px; box-sizing: border-box; justify-content: center; flex-wrap: nowrap;"></div>
-
-                    <!-- 제품 견적의뢰 버튼 (제품명 바로 밑) -->
-                    <div style="margin-top: 8px; width: 100%; display: flex; justify-content: inherit;">
+                    <!-- 4. 제품 견적의뢰 버튼 -->
+                    <div style="width: 100%; display: flex; justify-content: center; margin: 0 auto;">
                         <a id="btn-hero-quote" href="https://gmp.janytree.app/catalog/3770ff9ccb7d42299afe152298451a1e" target="_blank" class="hero-quote-btn">
-                            <span class="material-icons" style="font-size: 20px;">request_quote</span>
-                            <span id="label-hero-quote-text">제품 견적의뢰</span>
-                            <span class="material-icons" style="font-size: 16px; margin-left: 2px;">arrow_forward</span>
+                            <span class="material-icons" style="font-size: 19px;">request_quote</span>
+                            <span id="label-hero-quote-text">제품 견적 의뢰</span>
+                            <span class="material-icons" style="font-size: 15px; margin-left: 2px;">arrow_forward</span>
                         </a>
                     </div>
                 </div>
@@ -2035,24 +2010,24 @@
                     const btn = document.createElement('button');
                     let rawName = getProductDisplayName(comp, lang);
                     
-                    // 구성품명이 부모 제품명을 포함하는 경우, 부모 제품명 뒤에서 강제 줄바꿈(<br>) 처리
+                    // 서브탭 문구: 부모 제품명 및 중복 키워드를 제거하여 '필링 워시', '앰플 부스터' 등 간결한 명칭만 단락 없이 한 줄로 나열
                     const parentName = commonPrefixGlobal || getColValue(window.currentTargetItem, COL.name);
-                    if (parentName && rawName.includes(parentName)) {
-                        if (rawName.includes(parentName + ' ')) {
-                            rawName = rawName.replace(parentName + ' ', parentName + '<br>');
-                        } else {
-                            rawName = rawName.replace(parentName, parentName + '<br>');
-                        }
-                    } else {
-                        // 만약 포함되지 않는다면 라뉴필 키워드로 강제 줄바꿈 (안전망)
-                        rawName = rawName
-                            .replace('라뉴필 ', '라뉴필<br>')
-                            .replace('LAHNUPEEL ', 'LAHNUPEEL<br>')
-                            .replace('ラヌピール ', 'ラヌピール<br>')
-                            .replace('拉纽皮尔 ', '拉纽皮尔<br>');
+                    let cleanTabName = rawName;
+                    if (parentName && cleanTabName.includes(parentName)) {
+                        cleanTabName = cleanTabName.replace(parentName, '').trim();
                     }
-                    
-                    btn.innerHTML = rawName;
+                    // 라뉴필 등 중복 브랜드 접두사 제거 (단락 나누지 않고 한 줄 유지)
+                    cleanTabName = cleanTabName
+                        .replace(/^인투메디\s*(클리닉스)?\s*(라뉴필)?\s*/i, '')
+                        .replace(/^INTOMEDI\s*(CLINICS)?\s*(LAHNUPEEL)?\s*/i, '')
+                        .replace(/^ラヌピール\s*/i, '')
+                        .replace(/^拉纽皮尔\s*/i, '')
+                        .replace(/^라뉴필\s*/i, '')
+                        .replace(/<br\s*\/?>/gi, ' ')
+                        .trim();
+                    if (!cleanTabName) cleanTabName = rawName;
+
+                    btn.textContent = cleanTabName;
                     btn.className = 'sub-tab-btn';
                     // 인라인 스타일 (JT 디자인 토큰 컬러 활용 가능시 클래스로 대체)
                     btn.style.padding = '10px 20px';
@@ -2061,7 +2036,8 @@
                     btn.style.background = 'var(--color-bg-container)';
                     btn.style.color = 'var(--color-text-secondary)';
                     btn.style.fontWeight = '700';
-                    btn.style.fontSize = '15px';
+                    btn.style.fontSize = '14.5px';
+                    btn.style.whiteSpace = 'nowrap';
                     btn.style.cursor = 'pointer';
                     btn.style.transition = 'all 0.2s ease-in-out';
                     btn.style.flex = '1'; // 버튼들이 똑같은 너비로 가득 차게 분배됨
