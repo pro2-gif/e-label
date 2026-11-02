@@ -311,8 +311,40 @@
             text-align: center;
         }
         @media (max-width: 640px) {
+            .product-card-footer {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                position: static !important;
+                padding-top: 8px !important;
+                min-height: 28px !important;
+            }
             .product-card-action {
-                font-size: 11px;
+                font-size: 11px !important;
+                gap: 2px !important;
+                letter-spacing: -0.02em !important;
+                justify-content: flex-start !important;
+                text-align: left !important;
+                flex: 1 !important;
+                min-width: 0 !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+            .product-card-action .material-icons {
+                font-size: 13px !important;
+                flex-shrink: 0 !important;
+            }
+            .product-card-qr-btn {
+                position: static !important;
+                width: 26px !important;
+                height: 26px !important;
+                border-radius: 6px !important;
+                flex-shrink: 0 !important;
+                margin: 0 0 0 6px !important;
+            }
+            .product-card-qr-btn .material-icons {
+                font-size: 15px !important;
             }
         }
         .product-card-qr-btn {
@@ -1657,11 +1689,16 @@
         };
 
         // =====================================================
-        // ■ 구글 시트 데이터 로딩 (JSONP 방식)
-        // 크롬 브라우저의 로컬 환경(file://) CORS 차단을 완벽하게 우회하여 데이터를 가져옵니다.
+        // ■ 구글 시트 / Supabase 데이터 로딩 (인메모리 캐시 지원으로 0초 초고속 전환)
         // =====================================================
+        window._sheetDataCache = window._sheetDataCache || {};
         
         async function loadSheetData(callback, bypassCache = false, lang = currentLang) {
+            // 이미 로드된 데이터가 있으면 네트워크 재호출 없이 0초 즉시 반환
+            if (!bypassCache && window._sheetDataCache[lang] && window._sheetDataCache[lang].length > 0) {
+                if (callback) callback(null, window._sheetDataCache[lang]);
+                return;
+            }
             try {
                 // 1. Fetch Ingredient Details (Sheet 2 equivalent)
                 const { data: ingData, error: ingError } = await supabaseClient.from('ingredient_details').select('*');
@@ -1770,6 +1807,8 @@
 
                 if (productsData.length === 0) throw new Error("데이터 부족");
 
+                window._sheetDataCache[lang] = productsData;
+                window.globalSheetData = productsData;
                 callback(null, productsData);
             } catch (err) {
                 console.error("데이터 로드 실패:", err);
@@ -1925,6 +1964,12 @@
                     errorEl.style.display = 'flex';
                     return;
                 }
+
+                window.globalSheetData = data;
+                // 홈으로 돌아갈 때 즉시 표시되도록 홈 화면 카드들을 미리 준비
+                try {
+                    renderProductGrid(data, currentLang);
+                } catch (_) {}
 
                 // QR 파라미터(또는 경로)로 제품 찾기
                 let targetIndex = -1;
@@ -3337,8 +3382,22 @@
 
             document.body.style.background = '';
             window.scrollTo(0, 0);
-            if (window.globalSheetData) {
-                renderProductGrid(window.globalSheetData, currentLang);
+
+            // 홈 화면 카드 표시 보장 (이미 카드가 렌더링되어 있으면 0초 즉각 노출)
+            const grid = document.getElementById('product-card-grid');
+            const hasCards = grid && grid.querySelector('.product-card');
+
+            if (window.globalSheetData && window.globalSheetData.length > 0) {
+                if (!hasCards) {
+                    renderProductGrid(window.globalSheetData, currentLang);
+                }
+            } else {
+                loadSheetData(function(err, data) {
+                    if (!err && data) {
+                        window.globalSheetData = data;
+                        renderProductGrid(data, currentLang);
+                    }
+                }, false, currentLang);
             }
         };
 
