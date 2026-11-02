@@ -872,13 +872,29 @@
             .product-hero-title-area #sub-tabs-container {
                 display: none;
                 justify-content: center !important;
-                flex-wrap: wrap !important;
+                flex-wrap: nowrap !important;
                 gap: 8px !important;
                 width: 100% !important;
+                max-width: 420px !important;
                 margin: 0 auto !important;
+                box-sizing: border-box !important;
+                padding: 0 4px !important;
             }
             .product-hero-title-area #sub-tabs-container.active-tabs {
                 display: flex !important;
+            }
+            .product-hero-title-area #sub-tabs-container .sub-tab-btn {
+                flex: 1 1 0px !important;
+                min-width: 0 !important;
+                padding: 10px 6px !important;
+                font-size: 13px !important;
+                font-weight: 700 !important;
+                text-align: center !important;
+                white-space: nowrap !important;
+                letter-spacing: -0.3px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
             }
             /* 순서 2: 제품 대표 이미지 카드 */
             .product-hero-visual {
@@ -1659,7 +1675,7 @@
             customer: { ko: "소비자 상담", en: "Customer Service", jp: "お客様相談", ch: "客户服务", tw: "客户服务" },
             homeBtn: { ko: "홈으로", en: "Home", jp: "ホームへ", ch: "首页", tw: "首頁" },
             quoteBtn: { ko: "제품 견적 의뢰", en: "Request a Quote", jp: "製品の見積り依頼", ch: "产品报价咨询", tw: "產品報價諮詢" },
-            quoteDesc: { ko: "제니트리 GMP 맞춤형 제품 견적을 온라인으로 바로 신청하실 수 있습니다.", en: "Request a custom GMP product quote directly online from Janytree.", jp: "ジェニツリーGMPカスタム製品のお見積りをオンラインでご依頼いただけます。", ch: "可在线直接申请Janytree GMP定制产品报价。", tw: "可線上直接申請Janytree GMP定制產品報價。" },
+            quoteDesc: { ko: "제니트리 GMP 맞춤형 제품 견적을 온라인으로 바로 신청하실 수 있습니다.", en: "Request a custom GMP product quote directly online from Janytree.", jp: "Janytree GMPカスタム製品のお見積りをオンラインでご依頼いただけます。", ch: "可在线直接申请Janytree GMP定制产品报价。", tw: "可線上直接申請Janytree GMP定制產品報價。" },
             quoteAction: { ko: "견적 신청하기", en: "Request Now", jp: "見積りを依頼する", ch: "立即申请", tw: "立即申請" },
             brandLinksTitle: { ko: "🔗 제니트리 공식 채널", en: "🔗 Official Channels", jp: "🔗 公式チャンネル", ch: "🔗 官方渠道", tw: "🔗 官方渠道" },
             clinicalTitle: { ko: "인체적용시험 결과", en: "Clinical Test Results", jp: "人体適用試験結果", ch: "人体应用试验结果", tw: "人体应用试验结果" },
@@ -1677,7 +1693,7 @@
             socialYoutube: { ko: "유튜브", en: "YouTube", jp: "YouTube", ch: "YouTube", tw: "YouTube" },
             socialInstagram: { ko: "인스타그램", en: "Instagram", jp: "Instagram", ch: "Instagram", tw: "Instagram" },
             makerBrand: { ko: "인투메디 (INTOMEDI)", en: "INTOMEDI", jp: "INTOMEDI", ch: "INTOMEDI", tw: "INTOMEDI" },
-            makerTitle: { ko: "제니트리 제품 정보 안내", en: "Janytree Product Information", jp: "ジェニツリー製品情報のご案内", ch: "Janytree产品信息指南", tw: "Janytree產品資訊指南" },
+            makerTitle: { ko: "제니트리 제품 정보 안내", en: "Janytree Product Information", jp: "Janytree製品情報のご案内", ch: "Janytree产品信息指南", tw: "Janytree產品資訊指南" },
             makerDesc: { ko: "제품을 선택하시면 제품 상세 설명, 카탈로그를 확인하실 수 있습니다.", en: "Select a product to view detailed descriptions and catalogs.", jp: "製品を選択すると、製品の詳細説明とカタログをご確認いただけます。", ch: "选择产品即可查看产品详细说明及目录。", tw: "選擇產品即可查看產品詳細說明及目錄。" },
             viewLabelBtn: { ko: "QR 확인 및 다운로드", en: "QR & Download", jp: "QR確認・ダウンロード", ch: "QR确认与下载", tw: "QR確認與下載" },
             downloadQrTitle: { ko: "QR 코드 다운로드", en: "Download QR Code", jp: "QRコードダウンロード", ch: "下载二维码", tw: "下載QR碼" },
