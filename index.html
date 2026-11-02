@@ -1958,19 +1958,19 @@
 
                 let imageUrl = getColValue(item, COL.productImage) || '';
                 if (imageUrl) {
-                    let firstUrl = imageUrl.split(/[s,]+/)[0];
+                    let firstUrl = imageUrl.split(/[\s,]+/)[0].trim();
                     if (firstUrl.includes('imgur.com') && !firstUrl.includes('i.imgur.com')) {
                         const imgurId = firstUrl.split('imgur.com/')[1];
                         if (imgurId) firstUrl = `https://i.imgur.com/${imgurId}.jpg`;
                     }
-                    imageUrl = firstUrl;
+                    imageUrl = firstUrl.startsWith('http') ? firstUrl : '';
                 }
 
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
                     <div class="product-card-img-wrap">
-                        ${imageUrl ? `<img class="product-card-img" src="${imageUrl}" alt="${displayName}" loading="lazy">` : `<span class="material-icons" style="font-size: 48px; color: var(--color-border-strong);">inventory_2</span>`}
+                        ${imageUrl ? `<img class="product-card-img" src="${imageUrl}" alt="${displayName}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><span class="material-icons" style="font-size: 48px; color: var(--color-border-strong); display: none;">inventory_2</span>` : `<span class="material-icons" style="font-size: 48px; color: var(--color-border-strong); display: flex;">inventory_2</span>`}
                     </div>
                     <div class="product-card-body">
                         <div>
