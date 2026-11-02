@@ -516,6 +516,33 @@
             line-height: 1.35 !important;
         }
 
+        
+        /* 하단 테이블 내 제품 견적 의뢰 카드 스타일 */
+        .table-quote-card {
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 16px;
+            background-color: var(--color-on-primary, #ffffff);
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            color: var(--color-text, #1F2328);
+            text-decoration: none;
+            font-size: 13.5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: all 0.2s ease;
+            max-width: 320px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .table-quote-card:hover {
+            background-color: var(--color-bg-layout, #F8FAFC);
+            border-color: var(--color-border-strong, #CBD5E1);
+            color: var(--color-text, #1F2328);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.06);
+        }
         /* 제품 구매하기 버튼 스타일 (흰색 카드형 통일) */
         .hero-buy-btn {
             display: flex;
@@ -617,14 +644,15 @@
                 width: 100% !important;
                 align-self: start !important;
             }
-            .catalog-btn-wrapper, .hero-quote-wrapper, .buy-btn-wrapper {
+            .catalog-btn-wrapper, .buy-btn-wrapper {
                 width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 !important;
+                max-width: 360px !important;
+                margin: 0 auto !important;
             }
-            .hero-quote-btn, .hero-buy-btn {
+            .catalog-link-card, .hero-buy-btn {
                 width: 100% !important;
-                max-width: 100% !important;
+                max-width: 360px !important;
+                box-sizing: border-box !important;
             }
 
             /* 하단 소개영상 및 공식 채널 2열 그리드 배치 */
@@ -730,13 +758,15 @@
                 align-items: center !important;
                 gap: 10px !important;
             }
-            .catalog-btn-wrapper, .hero-quote-wrapper, .buy-btn-wrapper {
+            .catalog-btn-wrapper, .buy-btn-wrapper {
                 width: 100% !important;
-                max-width: 320px !important;
+                max-width: 340px !important;
                 margin: 0 auto !important;
             }
-            .hero-quote-btn, .hero-buy-btn {
-                max-width: 320px !important;
+            .catalog-link-card, .hero-buy-btn {
+                width: 100% !important;
+                max-width: 340px !important;
+                box-sizing: border-box !important;
             }
 
             /* 모바일 표 정렬 완벽 복원 (가로 2열 정상 표) */
@@ -805,18 +835,20 @@
             }
         }
 
-        /* 테이블 가독성 최적화 */
-        .info-table th {
-            width: 30% !important;
-            font-size: 13.5px !important;
-            padding: 14px 16px !important;
-            text-align: center;
-            vertical-align: middle;
-        }
-        .info-table td {
-            font-size: 14px !important;
-            padding: 14px 18px !important;
-            line-height: 1.6;
+        /* 테이블 가독성 최적화 (PC 전용) */
+        @media (min-width: 860px) {
+            .info-table th {
+                width: 28% !important;
+                font-size: 13.5px !important;
+                padding: 14px 16px !important;
+                text-align: center;
+                vertical-align: middle;
+            }
+            .info-table td {
+                font-size: 14px !important;
+                padding: 14px 18px !important;
+                line-height: 1.6;
+            }
         }
 
         /* 하단 홈으로 버튼 바 */
@@ -865,7 +897,7 @@
                 </span>
             </div>
             <h1 id="maker-title" style="font-size: clamp(20px, 4vw, 28px); font-weight: 800; color: var(--color-text); margin: 0 0 10px; letter-spacing: -0.02em;">제품 라인업</h1>
-            <p id="maker-desc" style="font-size: 14px; color: var(--color-text-secondary); margin: 0; line-height: 1.5;">제품을 선택하시면 제품 정보 및 견적을 의뢰하실 수 있습니다.</p>
+            <p id="maker-desc" style="font-size: 14px; color: var(--color-text-secondary); margin: 0; line-height: 1.5;">제품을 선택하시면 제품 정보 확인 및 견적을 의뢰하실 수 있습니다.</p>
         </div>
 
         <!-- 제품 카드 그리드 컨테이너 -->
@@ -965,18 +997,7 @@
                         </a>
                     </div>
 
-                    <!-- 4. 제품 견적의뢰 버튼 -->
-                    <div class="hero-quote-wrapper" style="width: 100%; box-sizing: border-box;">
-                        <a id="btn-hero-quote" href="https://gmp.janytree.app/catalog/3770ff9ccb7d42299afe152298451a1e" target="_blank" class="hero-quote-btn">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <span class="material-icons quote-icon-left">request_quote</span>
-                                <span id="label-hero-quote-text">제품 견적 의뢰</span>
-                            </div>
-                            <span class="material-icons quote-icon-right">open_in_new</span>
-                        </a>
-                    </div>
-
-                    <!-- 5. 제품 구매하기 버튼 (한국어 전용) -->
+                    <!-- 4. 제품 구매하기 버튼 (한국어 전용) -->
                     <div id="buy-btn-wrapper" class="buy-btn-wrapper" style="display:none; width: 100%; box-sizing: border-box;">
                         <a id="btn-hero-buy" href="https://intomedipro.com/shop" target="_blank" rel="noopener noreferrer" class="hero-buy-btn">
                             <div style="display: flex; align-items: center; gap: 10px;">
@@ -1028,6 +1049,18 @@
                         <tr id="row-customer">
                             <th id="label-customer">소비자 상담</th>
                             <td id="val-customer"></td>
+                        </tr>
+                        <tr id="row-quote">
+                            <th id="label-quote">제품 견적 의뢰</th>
+                            <td id="val-quote">
+                                <a id="btn-table-quote" href="https://gmp.janytree.app/catalog/3770ff9ccb7d42299afe152298451a1e" target="_blank" class="table-quote-card">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="material-icons" style="font-size: 19px; color: var(--color-primary, #305CDE);">request_quote</span>
+                                        <span id="label-table-quote-btn" style="font-weight: 600; font-size: 14px;">제품 견적 의뢰 (GMP)</span>
+                                    </div>
+                                    <span class="material-icons" style="font-size: 17px; color: var(--color-text-secondary);">open_in_new</span>
+                                </a>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -1493,8 +1526,8 @@
             socialInstagram: { ko: "인스타그램", en: "Instagram", jp: "Instagram", ch: "Instagram", tw: "Instagram" },
             makerBrand: { ko: "인투메디 (INTOMEDI)", en: "INTOMEDI", jp: "INTOMEDI", ch: "INTOMEDI", tw: "INTOMEDI" },
             makerTitle: { ko: "제품 라인업", en: "Product Lineup", jp: "製品ラインナップ", ch: "产品系列", tw: "產品系列" },
-            makerDesc: { ko: "제품을 선택하시면 제품 정보 및 견적을 의뢰하실 수 있습니다.", en: "Select a product to view product details and request a quote.", jp: "製品を選択すると、製品情報の確認やお見積りのご依頼が可能です。", ch: "选择产品即可查看产品信息并申请报价。", tw: "選擇產品即可查看產品資訊並申請報價。" },
-            viewLabelBtn: { ko: "라벨 정보 보기", en: "View Label Info", jp: "ラベル情報を見る", ch: "查看标签信息", tw: "查看標籤資訊" },
+            makerDesc: { ko: "제품을 선택하시면 제품 정보 확인 및 견적을 의뢰하실 수 있습니다.", en: "Select a product to view product details and request a quote.", jp: "製品を選択すると、製品情報の確認とお見積りのご依頼が可能です。", ch: "选择产品即可查看产品信息并申请报价。", tw: "選擇產品即可查看產品資訊並申請報價。" },
+            viewLabelBtn: { ko: "QR 확인 및 다운로드", en: "QR & Download", jp: "QR確認・ダウンロード", ch: "QR确认与下载", tw: "QR確認與下載" },
             downloadQrTitle: { ko: "QR 코드 다운로드", en: "Download QR Code", jp: "QRコードダウンロード", ch: "下载二维码", tw: "下載QR碼" },
             makerSelect: { ko: "제품 선택", en: "Select Product", jp: "製品選択", ch: "选择产品", tw: "選擇產品" },
             makerEmptyTitle: { ko: "제품을 선택해 주세요", en: "Please select a product", jp: "製品を選択してください", ch: "请选择产品", tw: "請選擇產品" },
@@ -2209,6 +2242,12 @@
             document.getElementById('label-ingredients').textContent = uiLabels.ingredients[lang];
             document.getElementById('label-cautions').textContent = uiLabels.cautions[lang];
             document.getElementById('label-customer').textContent = uiLabels.customer[lang];
+            if (document.getElementById('label-quote') && uiLabels.quoteBtn) {
+                document.getElementById('label-quote').textContent = uiLabels.quoteBtn[lang];
+            }
+            if (document.getElementById('label-table-quote-btn') && uiLabels.quoteBtn) {
+                document.getElementById('label-table-quote-btn').textContent = uiLabels.quoteBtn[lang] + ' (GMP)';
+            }
             
             const lblVideoTitle = document.getElementById('label-video-title');
             if(lblVideoTitle) lblVideoTitle.textContent = uiLabels.videoTitle[lang];
@@ -2479,7 +2518,7 @@
                         </div>
                         <div class="product-card-footer">
                             <span class="product-card-action">
-                                ${(uiLabels.viewLabelBtn && uiLabels.viewLabelBtn[lang]) || '라벨 정보 보기'}
+                                ${(uiLabels.viewLabelBtn && uiLabels.viewLabelBtn[lang]) || 'QR 확인 및 다운로드'}
                                 <span class="material-icons" style="font-size: 16px;">arrow_forward</span>
                             </span>
                             <button class="product-card-qr-btn" title="QR 코드 다운로드" type="button">
