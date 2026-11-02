@@ -479,74 +479,200 @@
             box-shadow: 0 8px 20px rgba(48, 92, 222, 0.28);
         }
 
-        /* 소개영상 콤팩트 320px 규격 */
-        .video-section {
-            max-width: 320px;
-            margin: 36px auto 0;
-            text-align: center;
-        }
-        .video-wrapper {
-            width: 100%;
-            max-width: 320px;
-            aspect-ratio: 16 / 9;
-            margin: 10px auto 0;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-        }
-        .brand-links-section {
-            max-width: 360px;
-            margin: 28px auto 0;
-        }
-
         /* ===================================================== */
-        /* PC/모바일 최적화 반응형 레이아웃 (슬림 660px 캔버스) */
+        /* PC/모바일 최적화 반응형 레이아웃 (780px 슬림 캔버스) */
         /* ===================================================== */
         .main-content {
-            max-width: 660px !important;
+            max-width: 780px !important;
             margin: 0 auto !important;
-            padding: 24px 16px 100px !important;
+            padding: 24px 16px 80px !important;
+            box-sizing: border-box !important;
         }
-        .product-hero-layout {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            text-align: center;
-            padding-top: 20px;
-            padding-bottom: 24px;
-            margin-bottom: 24px;
-            border-bottom: 1px solid var(--color-border);
+
+        /* 데스크톱 PC 최적화 (@media min-width: 860px) */
+        @media (min-width: 860px) {
+            .product-hero-layout {
+                display: grid !important;
+                grid-template-columns: 320px 1fr !important;
+                gap: 32px !important;
+                align-items: center !important;
+                text-align: left !important;
+                padding-top: 20px !important;
+                padding-bottom: 28px !important;
+                margin-bottom: 28px !important;
+                border-bottom: 1px solid var(--color-border);
+            }
+            .product-hero-visual {
+                width: 100% !important;
+                display: flex !important;
+                justify-content: center !important;
+            }
+            .product-hero-visual #product-image-wrapper {
+                width: 100% !important;
+                max-width: 320px !important;
+                aspect-ratio: 1 / 1 !important;
+                margin: 0 !important;
+            }
+            .product-hero-info {
+                width: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                text-align: left !important;
+                gap: 14px !important;
+            }
+            .product-hero-info .product-name {
+                text-align: left !important;
+                font-size: clamp(20px, 3vw, 24px) !important;
+                font-weight: 800;
+                line-height: 1.35;
+                margin: 0 !important;
+                width: 100%;
+            }
+            .product-hero-info #sub-tabs-container {
+                display: flex !important;
+                justify-content: flex-start !important;
+                flex-wrap: nowrap !important;
+                gap: 8px !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            .product-hero-info .catalog-btn-wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+            .product-hero-info .hero-quote-wrapper {
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            .product-hero-info .hero-quote-btn {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            /* 하단 소개영상 및 공식 채널 2열 그리드 배치 */
+            .video-and-links-container {
+                margin-top: 36px !important;
+            }
+            .video-and-links-grid {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 24px !important;
+                align-items: start !important;
+            }
+            .video-section {
+                max-width: 100% !important;
+                margin: 0 !important;
+                text-align: left !important;
+            }
+            .video-wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+                aspect-ratio: 16 / 9 !important;
+                margin: 10px 0 0 !important;
+                border-radius: 14px !important;
+                overflow: hidden !important;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            }
+            .brand-links-section {
+                max-width: 100% !important;
+                margin: 0 !important;
+                text-align: left !important;
+            }
         }
-        .product-hero-info {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 14px;
-        }
-        .product-hero-info .product-name {
-            text-align: center !important;
-            font-size: clamp(18px, 4.5vw, 24px) !important;
-            font-weight: 800;
-            line-height: 1.35;
-            margin: 0 auto;
-            width: 100%;
-        }
-        .product-hero-info #sub-tabs-container {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 8px;
-            width: 100%;
-            margin: 0 auto;
-        }
-        .product-hero-visual {
-            width: 100%;
-            display: flex;
-            justify-content: center;
+
+        /* 모바일 최적화 (@media max-width: 859px) */
+        @media (max-width: 859px) {
+            .product-hero-layout {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 20px;
+                text-align: center;
+                padding-top: 16px;
+                padding-bottom: 24px;
+                margin-bottom: 24px;
+                border-bottom: 1px solid var(--color-border);
+            }
+            .product-hero-visual {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+            .product-hero-visual #product-image-wrapper {
+                width: 100%;
+                max-width: 280px;
+                aspect-ratio: 1 / 1;
+                margin: 0 auto;
+            }
+            .product-hero-info {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 14px;
+            }
+            .product-hero-info .product-name {
+                text-align: center !important;
+                font-size: clamp(18px, 4.5vw, 22px) !important;
+                font-weight: 800;
+                line-height: 1.35;
+                margin: 0 auto;
+                width: 100%;
+            }
+            .product-hero-info #sub-tabs-container {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 8px;
+                width: 100%;
+                margin: 0 auto;
+            }
+            .product-hero-info .catalog-btn-wrapper {
+                width: 100%;
+                max-width: 320px;
+                margin: 0 auto;
+            }
+            .product-hero-info .hero-quote-wrapper {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+                margin: 0 auto;
+            }
+            .product-hero-info .hero-quote-btn {
+                max-width: 320px;
+            }
+
+            .video-and-links-container {
+                margin-top: 28px;
+            }
+            .video-and-links-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 24px;
+            }
+            .video-section {
+                max-width: 100%;
+                margin: 0 auto;
+                text-align: center;
+            }
+            .video-wrapper {
+                width: 100%;
+                max-width: 440px;
+                aspect-ratio: 16 / 9;
+                margin: 10px auto 0;
+                border-radius: 14px;
+                overflow: hidden;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            }
+            .brand-links-section {
+                max-width: 440px;
+                margin: 0 auto;
+                width: 100%;
+            }
         }
 
         /* 테이블 가독성 최적화 */
@@ -690,13 +816,13 @@
 
                 <!-- 2. 제품 정보 (제품명 가운데 배치 -> 서브탭 나열 -> 카탈로그 -> 견적의뢰) -->
                 <div class="product-hero-info">
-                    <h1 id="product-name" class="product-name" style="overflow-wrap: break-word; word-break: break-word; margin: 0; width: 100%; padding: 0; box-sizing: border-box; display: block; text-align: center; font-size: clamp(18px, 4.5vw, 24px); font-weight: 800; line-height: 1.35;"></h1>
+                    <h1 id="product-name" class="product-name" style="overflow-wrap: break-word; word-break: break-word; margin: 0; width: 100%; padding: 0; box-sizing: border-box; display: block; font-weight: 800; line-height: 1.35;"></h1>
                     
                     <!-- 서브탭 컨테이너 (필링 워시, 앰플 부스터 단락 없이 가로 나열) -->
-                    <div id="sub-tabs-container" style="display:none; width: 100%; padding: 0; margin: 0 auto; gap: 8px; box-sizing: border-box; justify-content: center; flex-wrap: wrap;"></div>
+                    <div id="sub-tabs-container" style="display:none; width: 100%; padding: 0; margin: 0; box-sizing: border-box;"></div>
 
                     <!-- 3. 제품 카탈로그 바로보기 버튼 (견적 의뢰 위로 이동) -->
-                    <div id="catalog-btn-wrapper" style="display:none; width: 100%; max-width: 320px; margin: 4px auto 0; box-sizing: border-box;">
+                    <div id="catalog-btn-wrapper" class="catalog-btn-wrapper" style="display:none; width: 100%; box-sizing: border-box;">
                         <a id="btn-product-catalog" href="#" target="_blank" class="catalog-link-card" style="box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <span class="material-icons catalog-icon-left">menu_book</span>
@@ -707,7 +833,7 @@
                     </div>
 
                     <!-- 4. 제품 견적의뢰 버튼 -->
-                    <div style="width: 100%; display: flex; justify-content: center; margin: 0 auto;">
+                    <div class="hero-quote-wrapper" style="width: 100%; box-sizing: border-box;">
                         <a id="btn-hero-quote" href="https://gmp.janytree.app/catalog/3770ff9ccb7d42299afe152298451a1e" target="_blank" class="hero-quote-btn">
                             <span class="material-icons" style="font-size: 19px;">request_quote</span>
                             <span id="label-hero-quote-text">제품 견적 의뢰</span>
@@ -715,8 +841,6 @@
                         </a>
                     </div>
                 </div>
-            </div>
-            </div>
             </div>
 
             <div class="table-container">
@@ -2041,10 +2165,7 @@
                     btn.style.cursor = 'pointer';
                     btn.style.transition = 'all 0.2s ease-in-out';
                     btn.style.flex = '1'; // 버튼들이 똑같은 너비로 가득 차게 분배됨
-                    btn.style.width = '100%';
-                    btn.style.whiteSpace = 'normal'; // 글자가 길면 두 줄로 줄바꿈
-                    btn.style.wordBreak = 'keep-all'; // 단어 단위로 줄바꿈
-                    btn.style.lineHeight = '1.3'; // 두 줄로 뜰 때 간격 유지
+                    btn.style.lineHeight = '1.3';
                     btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.05)';
                     
                     btn.onclick = async () => {
