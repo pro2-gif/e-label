@@ -2059,7 +2059,7 @@
                         const imgurId = firstUrl.split('imgur.com/')[1];
                         if (imgurId) firstUrl = `https://i.imgur.com/${imgurId}.jpg`;
                     }
-                    if (firstUrl.startsWith('http')) {
+                    if (firstUrl.startsWith('http') || firstUrl.startsWith('.') || firstUrl.startsWith('/')) {
                         productImgEl.src = firstUrl;
                         productImgWrapperEl.style.display = 'block';
                         productImgWrapperEl.style.maxWidth = '442px';
@@ -2516,13 +2516,23 @@
                 const codeDisplay = rawCode || item.code || '';
 
                 let imageUrl = getColValue(item, COL.productImage) || '';
-                if (imageUrl) {
+                
+                // 라뉴필 세트 상품 대표 이미지 교체 (준비된 세트 2종 이미지 lanupeel_set.png 적용)
+                const isLanupeelCard = (
+                    codeDisplay.includes('CLX-LAP') || 
+                    displayName.includes('라뉴필') || 
+                    displayName.toUpperCase().includes('LAHNUPEEL') ||
+                    (actualItem && actualItem.realNameKo && actualItem.realNameKo.includes('라뉴필'))
+                );
+                if (isLanupeelCard) {
+                    imageUrl = './lanupeel_set.png';
+                } else if (imageUrl) {
                     let firstUrl = imageUrl.split(/[\s,]+/)[0].trim();
                     if (firstUrl.includes('imgur.com') && !firstUrl.includes('i.imgur.com')) {
                         const imgurId = firstUrl.split('imgur.com/')[1];
                         if (imgurId) firstUrl = `https://i.imgur.com/${imgurId}.jpg`;
                     }
-                    imageUrl = firstUrl.startsWith('http') ? firstUrl : '';
+                    imageUrl = (firstUrl.startsWith('http') || firstUrl.startsWith('.') || firstUrl.startsWith('/')) ? firstUrl : '';
                 }
 
                 const card = document.createElement('div');
