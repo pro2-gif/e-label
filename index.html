@@ -480,12 +480,12 @@
         }
 
         /* ===================================================== */
-        /* PC/모바일 최적화 반응형 레이아웃 (900px 와이드 캔버스) */
+        /* PC/모바일 최적화 반응형 레이아웃 (1140px 와이드 캔버스) */
         /* ===================================================== */
         .main-content {
-            max-width: 900px !important;
+            max-width: 1140px !important;
             margin: 0 auto !important;
-            padding: 24px 20px 80px !important;
+            padding: 28px 24px 80px !important;
             box-sizing: border-box !important;
         }
 
@@ -499,7 +499,7 @@
             line-height: 1.35 !important;
         }
 
-        /* 제품 구매하기 버튼 스타일 (한국어 전용) */
+        /* 제품 구매하기 버튼 스타일 (다크 테마 통일) */
         .hero-buy-btn {
             display: inline-flex;
             align-items: center;
@@ -507,38 +507,38 @@
             gap: 8px;
             width: 100%;
             padding: 13px 20px;
-            background: #305CDE;
-            color: #ffffff;
+            background: #1F2328 !important;
+            color: #ffffff !important;
             font-size: 14.5px;
             font-weight: 700;
             border-radius: 12px;
             text-decoration: none;
-            box-shadow: 0 4px 14px rgba(48, 92, 222, 0.25);
+            box-shadow: 0 4px 14px rgba(31, 35, 40, 0.16);
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             box-sizing: border-box;
             cursor: pointer;
         }
         .hero-buy-btn:hover {
-            background: #254bb8;
+            background: var(--color-primary, #305CDE) !important;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(48, 92, 222, 0.35);
+            box-shadow: 0 8px 20px rgba(48, 92, 222, 0.28);
         }
 
         /* 데스크톱 PC 최적화 (@media min-width: 860px) */
         @media (min-width: 860px) {
             .product-hero-layout {
                 display: grid !important;
-                grid-template-columns: 340px 1fr !important;
+                grid-template-columns: 360px 1fr !important;
                 grid-template-rows: auto auto !important;
                 grid-template-areas:
                     "visual title"
                     "visual actions" !important;
-                gap: 16px 36px !important;
+                gap: 20px 48px !important;
                 align-items: center !important;
                 padding-top: 24px !important;
-                padding-bottom: 28px !important;
-                margin-bottom: 28px !important;
+                padding-bottom: 32px !important;
+                margin-bottom: 32px !important;
                 border-bottom: 1px solid var(--color-border);
             }
             .product-hero-visual {
@@ -549,7 +549,7 @@
             }
             .product-hero-visual #product-image-wrapper {
                 width: 100% !important;
-                max-width: 340px !important;
+                max-width: 360px !important;
                 aspect-ratio: 1 / 1 !important;
                 margin: 0 !important;
             }
@@ -559,7 +559,7 @@
                 flex-direction: column !important;
                 align-items: center !important;
                 text-align: center !important;
-                gap: 12px !important;
+                gap: 14px !important;
                 align-self: end !important;
             }
             .product-hero-title-area #sub-tabs-container {
@@ -591,12 +591,12 @@
 
             /* 하단 소개영상 및 공식 채널 2열 그리드 배치 */
             .video-and-links-container {
-                margin-top: 36px !important;
+                margin-top: 40px !important;
             }
             .video-and-links-grid {
                 display: grid !important;
                 grid-template-columns: 1fr 1fr !important;
-                gap: 24px !important;
+                gap: 28px !important;
                 align-items: start !important;
             }
             .video-section {
@@ -619,20 +619,24 @@
                 text-align: left !important;
             }
 
-            /* PC 정보 테이블 최적화: 시원한 900px 폭에서 편안한 비율 */
+            /* PC 정보 테이블: 시원한 1140px 폭에서 편안한 비율 */
             .info-table th {
-                width: 24% !important;
-                padding: 16px 20px !important;
-                font-size: 14px !important;
+                width: 22% !important;
+                padding: 18px 24px !important;
+                font-size: 14.5px !important;
+                text-align: center !important;
+                vertical-align: middle !important;
             }
             .info-table td {
-                padding: 16px 22px !important;
-                font-size: 14.5px !important;
-                line-height: 1.65 !important;
+                width: 78% !important;
+                padding: 18px 28px !important;
+                font-size: 15px !important;
+                line-height: 1.7 !important;
+                vertical-align: middle !important;
             }
         }
 
-        /* 모바일 최적화 (@media max-width: 859px) - 기존 형태 100% 복원 */
+        /* 모바일 최적화 (@media max-width: 859px) */
         @media (max-width: 859px) {
             .product-hero-layout {
                 display: flex !important;
@@ -692,6 +696,43 @@
             }
             .hero-quote-btn, .hero-buy-btn {
                 max-width: 320px !important;
+            }
+
+            /* 모바일 표 정렬 완벽 복원 (가로 2열 정상 표) */
+            .info-table {
+                display: table !important;
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+            .info-table tr {
+                display: table-row !important;
+                border-bottom: 1px solid var(--color-border) !important;
+            }
+            .info-table th {
+                display: table-cell !important;
+                width: 32% !important;
+                min-width: 85px !important;
+                max-width: 110px !important;
+                padding: 14px 10px !important;
+                text-align: center !important;
+                vertical-align: middle !important;
+                font-size: 13px !important;
+                line-height: 1.4 !important;
+                background-color: var(--color-bg-layout, #F8FAFC) !important;
+            }
+            .info-table td {
+                display: table-cell !important;
+                width: 68% !important;
+                padding: 14px 14px !important;
+                font-size: 13.5px !important;
+                line-height: 1.6 !important;
+                text-align: left !important;
+                vertical-align: middle !important;
+            }
+            .info-table th .item-tts-btn {
+                display: inline-flex !important;
+                vertical-align: middle !important;
+                margin-left: 4px !important;
             }
 
             .video-and-links-container {
@@ -2647,7 +2688,9 @@
 
 
         window.playItemTts = function(itemId, e) {
-            if (e) e.stopPropagation();
+            if (e) {
+                e.stopPropagation();
+            }
             
             if (!window.speechSynthesis) {
                 alert('이 브라우저는 음성 안내를 지원하지 않습니다.');
@@ -2657,33 +2700,20 @@
             const th = document.getElementById('label-' + itemId);
             const btnIcon = th ? th.querySelector('.item-tts-btn span') : null;
 
+            // 이미 동일한 항목이 재생 중이면 중지
             if (window.currentItemTtsId === itemId && window.speechSynthesis.speaking) {
-                if (window.isItemTtsPaused) {
-                    window.isItemTtsPaused = false;
-                    window.speechSynthesis.resume();
-                    if (btnIcon) btnIcon.style.color = 'red';
-                } else {
-                    window.isItemTtsPaused = true;
-                    window.speechSynthesis.pause();
-                    if (btnIcon) btnIcon.style.color = 'var(--color-primary)';
-                }
+                window.speechSynthesis.cancel();
+                window.currentItemTtsId = null;
+                if (btnIcon) btnIcon.style.color = 'var(--color-primary)';
                 return;
             }
 
-            // 기존 음성 취소 후 오디오 컨텍스트 깨우기
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.resume();
-            window.ttsChunks = [];
-            window.isTtsPaused = false;
-            window.currentItemTtsId = itemId;
-            window.isItemTtsPaused = false;
-            
-            document.querySelectorAll('.item-tts-btn span').forEach(icon => {
-                icon.style.color = 'var(--color-primary)';
-            });
+            // 다른 음성이 재생 중이면 취소
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
 
-            const mainTtsBtn = document.getElementById('btn-tts');
-            if (mainTtsBtn) mainTtsBtn.classList.remove('playing');
+            window.currentItemTtsId = itemId;
 
             let labelText = '';
             let valText = '';
@@ -2692,7 +2722,7 @@
                 const clone = th.cloneNode(true);
                 const subBtn = clone.querySelector('.item-tts-btn');
                 if (subBtn) subBtn.remove();
-                labelText = clone.textContent.replace(/[✨💡\n]/g, ' ').trim();
+                labelText = clone.textContent.replace(/[✨💡\n\r]/g, ' ').trim();
             }
             
             const td = document.getElementById('val-' + itemId);
@@ -2711,7 +2741,9 @@
                 }
             }
             
-            if (!valText || valText.trim() === '') return;
+            if (!valText) {
+                valText = '내용이 없습니다.';
+            }
 
             let textToRead = `${labelText}. ${valText}.`;
             
@@ -2729,33 +2761,46 @@
             textToRead = textToRead.replace(/-/g, ' ');
 
             const utterance = new SpeechSynthesisUtterance(textToRead);
-            utterance.lang = currentLang === 'ko' ? 'ko-KR' : (currentLang === 'jp' ? 'ja-JP' : (currentLang === 'ch' ? 'zh-CN' : 'en-US'));
+            utterance.lang = (currentLang === 'ko') ? 'ko-KR' : (currentLang === 'jp' ? 'ja-JP' : (currentLang === 'ch' ? 'zh-CN' : 'en-US'));
             utterance.volume = 1.0;
             utterance.pitch = 1.0;
-            utterance.rate = 0.9;
+            utterance.rate = 1.0;
             
-            const voices = window.speechSynthesis.getVoices();
-            if (currentLang === 'en') {
-                const googleVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('en'));
-                if (googleVoice) utterance.voice = googleVoice;
-            }
+            try {
+                const voices = window.speechSynthesis.getVoices();
+                if (voices && voices.length > 0) {
+                    const langPrefix = utterance.lang.split('-')[0];
+                    const matchedVoice = voices.find(v => v.lang && v.lang.startsWith(langPrefix));
+                    if (matchedVoice) utterance.voice = matchedVoice;
+                }
+            } catch(err) {}
             
-            utterance.onstart = () => { if (btnIcon) btnIcon.style.color = 'red'; };
-            utterance.onend = () => { 
+            document.querySelectorAll('.item-tts-btn span').forEach(icon => {
+                icon.style.color = 'var(--color-primary)';
+            });
+            if (btnIcon) btnIcon.style.color = '#dc2626';
+
+            utterance.onstart = function() {
+                if (btnIcon) btnIcon.style.color = '#dc2626';
+            };
+            utterance.onend = function() { 
                 if (btnIcon) btnIcon.style.color = 'var(--color-primary)'; 
                 if (window.currentItemTtsId === itemId) window.currentItemTtsId = null;
             };
-            utterance.onerror = (e) => { 
+            utterance.onerror = function() { 
                 if (btnIcon) btnIcon.style.color = 'var(--color-primary)'; 
                 if (window.currentItemTtsId === itemId) window.currentItemTtsId = null;
             };
 
-            // 전역 변수에 바인딩하여 Chromium 가비지 컬렉션(GC)으로 인한 침묵 버그 원천 방지
+            // 전역 변수 바인딩 (Chromium/Safari 가비지 컬렉션 차단)
             window.currentUtterance = utterance;
-            
-            if (window.speechSynthesis.paused) {
-                window.speechSynthesis.resume();
-            }
+
+            // iOS Safari 및 Chromium에서 오디오 큐 활성화 후 즉각 발화
+            try {
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                }
+            } catch(err) {}
             window.speechSynthesis.speak(utterance);
         };
 
