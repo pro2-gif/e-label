@@ -180,7 +180,150 @@
             transform: translateY(0);
         }
 
-                /* 상단 제품 카탈로그 바로보기 카드 스타일 (하단 정보 테이블과 통일감 유지) */
+                
+        /* 홈화면 제품 쇼룸 카드 그리드 스타일 */
+        .product-grid-wrapper {
+            max-width: 1100px;
+            margin: 32px auto 60px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 24px;
+        }
+        @media (max-width: 640px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+        }
+        @media (max-width: 380px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .product-card {
+            background: var(--color-on-primary, #ffffff);
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+            border-color: var(--color-border-strong, #CBD5E1);
+        }
+        .product-card-img-wrap {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background-color: var(--color-bg-layout, #F8FAFC);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            box-sizing: border-box;
+            position: relative;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .product-card-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover .product-card-img {
+            transform: scale(1.04);
+        }
+        .product-card-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        @media (max-width: 640px) {
+            .product-card-body {
+                padding: 12px;
+                gap: 6px;
+            }
+        }
+        .product-card-code {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .product-card-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-text);
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: keep-all;
+            min-height: 40px;
+        }
+        @media (max-width: 640px) {
+            .product-card-name {
+                font-size: 13px;
+                min-height: 35px;
+            }
+        }
+        .product-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid var(--color-border);
+            margin-top: 4px;
+        }
+        .product-card-action {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-accent);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        @media (max-width: 640px) {
+            .product-card-action {
+                font-size: 11px;
+            }
+        }
+        .product-card-qr-btn {
+            background: none;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0;
+        }
+        .product-card-qr-btn:hover {
+            background: var(--color-bg-layout);
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        /* 상단 제품 카탈로그 바로보기 카드 스타일 (하단 정보 테이블과 통일감 유지) */
         .catalog-link-card {
             display: flex;
             align-items: center;
@@ -330,50 +473,55 @@
         </header>
 
     <!-- ========================================== -->
-    <!-- 1. 메인 화면 (QR 코드 생성기 모드)           -->
+    <!-- 1. 홈 화면 (쇼룸형 제품 카드 그리드)          -->
     <!-- ========================================== -->
-    <div id="maker-container" class="qr-maker-wrapper">
-        <div class="qr-maker-header">
-            <!-- 브랜드 로고 (QR 메이커 화면) -->
+    <div id="maker-container" class="product-grid-wrapper">
+        <div class="qr-maker-header" style="text-align: center; margin-bottom: 32px;">
             <div style="text-align: center; margin-bottom: 16px;">
                 <span class="jt-logo" style="height: 28px; display: inline-flex; align-items: center;">
                     <img src="https://design.janytree.com/brand/logo/logo-h.svg" alt="JANYTREE INC." class="on-light" style="height: 28px; width: auto;">
-                    </span>
+                </span>
             </div>
-            <h1 id="maker-title">e-Label QR 코드</h1>
-            <p id="maker-desc">제품을 선택하면 QR 코드가 즉시 생성됩니다.<br>QR 코드를 클릭하면 바로 제품 정보를 확인할 수 있습니다.</p>
+            <h1 id="maker-title" style="font-size: clamp(20px, 4vw, 28px); font-weight: 800; color: var(--color-text); margin: 0 0 10px; letter-spacing: -0.02em;">e-Label 제품 라인업</h1>
+            <p id="maker-desc" style="font-size: 14px; color: var(--color-text-secondary); margin: 0; line-height: 1.5;">제품을 선택하시면 상세 전자라벨 정보 및 전성분을 확인하실 수 있습니다.</p>
         </div>
 
-        <div class="qr-card">
-            <label id="maker-select-label" class="select-label" for="product-select-maker">제품 선택</label>
-            <select id="product-select-maker" class="product-select-full">
-                <option value="0">인투메디 클리닉스 리쥬</option>
-                <option value="1">인투메디 클리닉스 화이트</option>
-                <option value="2">인투메디 클리닉스 하이드로</option>
-            </select>
+        <!-- 제품 카드 그리드 컨테이너 -->
+        <div id="product-card-grid" class="product-grid">
+            <!-- 자바스크립트로 12개 제품 카드가 자동 생성됩니다 -->
+        </div>
 
-            <div class="qr-canvas-wrapper" id="qr-to-viewer-btn" title="클릭하여 전자라벨 바로보기">
-                <div id="qr-product-title-display" class="qr-product-title">제품을 선택해 주세요</div>
-                <!-- 구글 QR API를 통해 이미지가 삽입될 컨테이너 -->
-                <div id="qr-container" style="text-align: center; margin-top: 10px;"></div>
-                <div id="qr-url-preview" class="qr-url-preview"></div>
+        <!-- 레거시 호환용 히든 엘리먼트 -->
+        <select id="product-select-maker" style="display:none;"></select>
+        <div id="qr-to-viewer-btn" style="display:none;"></div>
+        <div id="qr-container" style="display:none;"></div>
+        <div id="qr-url-preview" style="display:none;"></div>
+        <button id="btn-download" style="display:none;"></button>
+        <button id="btn-download-svg" style="display:none;"></button>
+    </div>
+
+    <!-- QR 다운로드 전용 팝업 모달 -->
+    <div id="qr-modal" class="modal-overlay" onclick="closeQrModal(event)">
+        <div class="modal-content" style="max-width: 360px; text-align: center; padding: 24px;" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeQrModal()">✕</button>
+            <div id="qr-modal-code" style="font-size: 11px; font-weight: 700; color: var(--color-text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em;"></div>
+            <h3 id="qr-modal-title" style="margin: 0 0 16px; font-size: 17px; font-weight: 700; color: var(--color-text); word-break: keep-all;">제품명</h3>
+            
+            <div id="qr-modal-img-container" style="background: white; padding: 16px; border-radius: 12px; border: 1px solid var(--color-border); display: inline-block; margin-bottom: 16px; cursor: pointer; transition: transform 0.2s;" title="클릭하여 전자라벨 바로보기">
+                <img id="qr-modal-img" src="" alt="QR Code" style="width: 180px; height: 180px; display: block; margin: 0 auto; border-radius: 8px;">
+                <p style="font-size: 12px; color: var(--color-accent); font-weight: 600; margin: 8px 0 0;">👉 클릭하여 라벨 정보 바로 보기</p>
             </div>
 
-            <!-- 다운로드 버튼 그룹 -->
-            <div style="display: flex; flex-direction: row; gap: 8px; padding-bottom: 10px; width: 100%;">
-                <button id="btn-download" class="btn-download">
-                    <span class="material-icons" style="font-size:18px;">download</span>
-                    <span id="maker-btn-png">QR 다운로드 (.png)</span>
+            <div style="display: flex; gap: 8px; width: 100%;">
+                <button id="qr-modal-btn-png" class="btn-download" style="flex: 1; padding: 12px 6px; font-size: 12px; border-radius: 10px;">
+                    <span class="material-icons" style="font-size: 16px;">download</span> PNG 다운
                 </button>
-                <button id="btn-download-svg" class="btn-download"
-                    style="background: var(--color-primary); color: var(--color-on-primary);">
-                    <span class="material-icons" style="font-size:18px;">download</span>
-                    <span id="maker-btn-svg">QR 다운로드 (.svg)</span>
+                <button id="qr-modal-btn-svg" class="btn-download" style="flex: 1; padding: 12px 6px; font-size: 12px; border-radius: 10px; background: var(--color-primary); color: white;">
+                    <span class="material-icons" style="font-size: 16px;">download</span> SVG 다운
                 </button>
             </div>
         </div>
     </div>
-
 
     <!-- ========================================== -->
     <!-- 2. 전자라벨 뷰어 모드 (스캔 또는 클릭 시)    -->
@@ -920,7 +1068,10 @@
             socialYoutube: { ko: "유튜브", en: "YouTube", jp: "YouTube", ch: "YouTube", tw: "YouTube" },
             socialInstagram: { ko: "인스타그램", en: "Instagram", jp: "Instagram", ch: "Instagram", tw: "Instagram" },
             makerBrand: { ko: "인투메디 (INTOMEDI)", en: "INTOMEDI", jp: "INTOMEDI", ch: "INTOMEDI", tw: "INTOMEDI" },
-            makerTitle: { ko: "e-Label QR 코드", en: "e-Label QR Code", jp: "e-Label QRコード", ch: "e-Label 二维码", tw: "e-Label QR碼" },
+            makerTitle: { ko: "e-Label 제품 라인업", en: "e-Label Product Lineup", jp: "e-Label 製品ラインナップ", ch: "e-Label 产品系列", tw: "e-Label 產品系列" },
+            makerDesc: { ko: "제품을 선택하시면 상세 전자라벨 정보 및 전성분을 확인하실 수 있습니다.", en: "Select a product to view detailed e-label info and ingredients.", jp: "製品を選択すると、詳細な電子ラベル情報と全成分を確認できます。", ch: "选择产品即可查看详细电子标签信息及全成分。", tw: "選擇產品即可查看詳細電子標籤資訊及全成分。" },
+            viewLabelBtn: { ko: "라벨 정보 보기", en: "View Label Info", jp: "ラベル情報を見る", ch: "查看标签信息", tw: "查看標籤資訊" },
+            downloadQrTitle: { ko: "QR 코드 다운로드", en: "Download QR Code", jp: "QRコードダウンロード", ch: "下载二维码", tw: "下載QR碼" },
             makerDesc: { ko: "제품을 선택하면 QR 코드가 즉시 생성됩니다.<br>QR 코드를 클릭하면 바로 제품 정보를 확인할 수 있습니다.", en: "Select a product to generate a QR code instantly.<br>Click the QR code to view the product information.", jp: "製品を選択するとQRコードが即座に生成されます。<br>QRコードをクリックするとすぐに製品情報を確認できます。", ch: "选择产品后即可立即生成二维码。<br>点击二维码即可查看产品信息。", tw: "選擇產品後即可立即生成QR碼。<br>點擊QR碼即可查看產品資訊。" },
             makerSelect: { ko: "제품 선택", en: "Select Product", jp: "製品選択", ch: "选择产品", tw: "選擇產品" },
             makerEmptyTitle: { ko: "제품을 선택해 주세요", en: "Please select a product", jp: "製品を選択してください", ch: "请选择产品", tw: "請選擇產品" },
@@ -1780,7 +1931,193 @@
         }
 
         // =====================================================
-        // ■ QR 메이커 모드 (qr_maker.html) - 관리자용
+        // ■ 홈 화면 제품 카드 그리드 렌더링
+        // =====================================================
+        function renderProductGrid(data, lang) {
+            const gridEl = document.getElementById('product-card-grid');
+            if (!gridEl) return;
+            gridEl.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                gridEl.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-text-secondary);">등록된 제품이 없습니다.</div>';
+                return;
+            }
+
+            let activeData = data;
+            if (activeData.length > 0 && activeData[0][0] && activeData[0][0].includes("제품명")) {
+                activeData = activeData.slice(1);
+            }
+
+            activeData.forEach((item, idx) => {
+                const actualItem = item.isGroup ? item.data : item;
+                const displayName = getProductDisplayName(item, lang);
+                
+                let rawCode = getColValue(item, COL.productCode) || '';
+                if (rawCode.includes('#')) rawCode = rawCode.split('#')[0].trim();
+                const codeDisplay = rawCode || item.code || '';
+
+                let imageUrl = getColValue(item, COL.productImage) || '';
+                if (imageUrl) {
+                    let firstUrl = imageUrl.split(/[s,]+/)[0];
+                    if (firstUrl.includes('imgur.com') && !firstUrl.includes('i.imgur.com')) {
+                        const imgurId = firstUrl.split('imgur.com/')[1];
+                        if (imgurId) firstUrl = `https://i.imgur.com/${imgurId}.jpg`;
+                    }
+                    imageUrl = firstUrl;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="product-card-img-wrap">
+                        ${imageUrl ? `<img class="product-card-img" src="${imageUrl}" alt="${displayName}" loading="lazy">` : `<span class="material-icons" style="font-size: 48px; color: var(--color-border-strong);">inventory_2</span>`}
+                    </div>
+                    <div class="product-card-body">
+                        <div>
+                            ${codeDisplay ? `<div class="product-card-code">${codeDisplay}</div>` : ''}
+                            <div class="product-card-name" title="${displayName}">${displayName}</div>
+                        </div>
+                        <div class="product-card-footer">
+                            <span class="product-card-action">
+                                ${(uiLabels.viewLabelBtn && uiLabels.viewLabelBtn[lang]) || '라벨 정보 보기'}
+                                <span class="material-icons" style="font-size: 16px;">arrow_forward</span>
+                            </span>
+                            <button class="product-card-qr-btn" title="QR 코드 다운로드" type="button">
+                                <span class="material-icons" style="font-size: 18px;">qr_code_2</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // 카드 클릭 ➔ 상세 뷰어로 즉시 이동
+                card.addEventListener('click', () => {
+                    navigateToProduct(item, lang);
+                });
+
+                // QR 버튼 클릭 ➔ QR 팝업 모달 호출
+                const qrBtn = card.querySelector('.product-card-qr-btn');
+                if (qrBtn) {
+                    qrBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openQrModal(item, lang);
+                    });
+                }
+
+                gridEl.appendChild(card);
+            });
+        }
+
+        // 제품 상세 정보 화면으로 전환
+        function navigateToProduct(item, lang) {
+            window.currentTargetItem = item;
+            document.getElementById('maker-container').style.display = 'none';
+            document.getElementById('viewer-container').style.display = 'block';
+            document.body.style.background = 'var(--color-bg-layout)';
+            window.scrollTo(0, 0);
+
+            const code = getColValue(item, COL.productCode) || getProductDisplayName(item, 'ko');
+            let langParam = '';
+            if (lang === 'en') langParam = '&l=e';
+            else if (lang === 'jp') langParam = '&l=j';
+            else if (lang === 'ch') langParam = '&l=c';
+            else if (lang === 'tw') langParam = '&l=t';
+            window.history.pushState(null, '', `?c=${encodeURIComponent(code)}${langParam}`);
+
+            renderLabel(item, lang);
+        }
+
+        // QR 모달 열기
+        let currentModalQrUrl = '';
+        let currentModalItem = null;
+        function openQrModal(item, lang) {
+            currentModalItem = item;
+            const modal = document.getElementById('qr-modal');
+            const codeEl = document.getElementById('qr-modal-code');
+            const titleEl = document.getElementById('qr-modal-title');
+            const imgEl = document.getElementById('qr-modal-img');
+
+            let rawCode = getColValue(item, COL.productCode) || '';
+            if (rawCode.includes('#')) rawCode = rawCode.split('#')[0].trim();
+            const code = rawCode || item.code || '';
+            const displayName = getProductDisplayName(item, lang);
+
+            codeEl.textContent = code;
+            titleEl.textContent = displayName;
+
+            let langParam = '';
+            if (lang === 'en') langParam = '&l=e';
+            else if (lang === 'jp') langParam = '&l=j';
+            else if (lang === 'ch') langParam = '&l=c';
+            else if (lang === 'tw') langParam = '&l=t';
+
+            const productUrl = `${E_LABEL_BASE_URL}?c=${encodeURIComponent(code)}${langParam}`;
+            currentModalQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&ecc=M&margin=4&data=${encodeURIComponent(productUrl)}`;
+            imgEl.src = currentModalQrUrl;
+
+            // QR 클릭 시 라벨 정보 바로가기
+            const imgContainer = document.getElementById('qr-modal-img-container');
+            imgContainer.onclick = () => {
+                closeQrModal();
+                navigateToProduct(item, lang);
+            };
+
+            // 다운로드 버튼 연결
+            const btnPng = document.getElementById('qr-modal-btn-png');
+            btnPng.onclick = () => downloadModalQr('png', displayName);
+
+            const btnSvg = document.getElementById('qr-modal-btn-svg');
+            btnSvg.onclick = () => downloadModalQr('svg', displayName);
+
+            modal.classList.add('show');
+        }
+
+        function closeQrModal(e) {
+            if (e && e.target && !e.target.classList.contains('modal-overlay') && !e.target.classList.contains('modal-close')) {
+                return;
+            }
+            const modal = document.getElementById('qr-modal');
+            if (modal) modal.classList.remove('show');
+        }
+
+        function downloadModalQr(format, productName) {
+            if (!currentModalQrUrl) return;
+            const safeName = productName.replace(/[/\\?%*:|"<>]/g, '_');
+
+            if (format === 'png') {
+                fetch(currentModalQrUrl)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const link = document.createElement('a');
+                        link.download = `${safeName}_QR코드.png`;
+                        link.href = URL.createObjectURL(blob);
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    })
+                    .catch(() => window.open(currentModalQrUrl, '_blank'));
+            } else if (format === 'svg') {
+                const urlObj = new URL(currentModalQrUrl);
+                const qrData = urlObj.searchParams.get('data');
+                const svgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&ecc=M&margin=4&format=svg&data=${encodeURIComponent(qrData)}`;
+
+                fetch(svgUrl)
+                    .then(res => res.text())
+                    .then(svgText => {
+                        svgText = svgText.replace(/<svg\s+/, '<svg viewBox="0 0 377 377" ');
+                        const blob = new Blob([svgText], {type: 'image/svg+xml'});
+                        const link = document.createElement('a');
+                        link.download = `${safeName}_QR코드.svg`;
+                        link.href = URL.createObjectURL(blob);
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    })
+                    .catch(() => window.open(svgUrl, '_blank'));
+            }
+        }
+
+        // =====================================================
+        // ■ 홈 화면 초기화
         // =====================================================
         function initQrMaker() {
             const selectEl = document.getElementById('product-select-maker');
@@ -1800,18 +2137,12 @@
                 let activeData = data;
                 window.globalSheetData = activeData;
                 
-                // 구글 시트 첫 행이 헤더("제품명")인 경우 제거
                 if (activeData.length > 0 && activeData[0][0] && activeData[0][0].includes("제품명")) {
                     activeData.shift();
                 }
 
-                selectEl.innerHTML = '<option value="" disabled selected>' + uiLabels.makerEmptyTitle[currentLang] + '</option>';
-                activeData.forEach((item, idx) => {
-                    const option = document.createElement('option');
-                    option.value = idx;
-                    option.textContent = getProductDisplayName(item, currentLang);
-                    selectEl.appendChild(option);
-                });
+                // 제품 쇼룸 카드 그리드 렌더링
+                renderProductGrid(activeData, currentLang);
                 
                 // 처음엔 QR 캔버스와 다운로드 버튼을 숨깁니다.
                 document.getElementById('qr-to-viewer-btn').style.display = 'none';
@@ -2318,7 +2649,7 @@
                 if (document.getElementById('viewer-container').style.display === 'block') {
                     renderLabel(window.currentTargetItem, currentLang);
                 } else {
-                    updateMakerOptionsAndQr();
+                    renderProductGrid(window.globalSheetData, currentLang);
                 }
             }, false, currentLang);
         }
@@ -2336,7 +2667,15 @@
             const homeBtn = document.getElementById('btn-home');
             if (homeBtn) {
                 homeBtn.addEventListener('click', () => {
-                    window.location.href = window.location.pathname; // 쿼리 제거하고 새로고침
+                    window.speechSynthesis && window.speechSynthesis.cancel();
+                    window.history.pushState(null, '', window.location.pathname);
+                    document.getElementById('viewer-container').style.display = 'none';
+                    document.getElementById('maker-container').style.display = 'block';
+                    document.body.style.background = '';
+                    window.scrollTo(0, 0);
+                    if (window.globalSheetData) {
+                        renderProductGrid(window.globalSheetData, currentLang);
+                    }
                 });
             }
 
