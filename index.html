@@ -340,6 +340,39 @@
             color: var(--color-accent);
         }
 
+        /* 상단 좌측 홈 이동 버튼 스타일 */
+        .top-home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-text, #1F2328);
+            background-color: var(--color-fill-hover, #F1F5F9);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            line-height: 1;
+        }
+        .top-home-btn:hover {
+            background-color: var(--color-bg-layout, #E2E8F0);
+            color: var(--color-primary, #305CDE);
+            border-color: var(--color-primary, #305CDE);
+        }
+        @media (max-width: 640px) {
+            .top-home-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+
+        /* 하단 고정 홈 버튼 바 완전 비표시 (상단 네비게이션으로 대체) */
+        .bottom-fixed {
+            display: none !important;
+        }
+
         /* 상단 제품 카탈로그 바로보기 카드 스타일 (하단 정보 테이블과 통일감 유지) */
         .catalog-link-card {
             display: flex;
@@ -676,12 +709,12 @@
                 width: 100% !important;
                 align-self: start !important;
             }
-            .catalog-btn-wrapper, .buy-btn-wrapper {
+            .catalog-btn-wrapper, .website-btn-wrapper {
                 width: 100% !important;
                 max-width: 340px !important;
                 margin: 0 auto !important;
             }
-            .catalog-link-card, .hero-buy-btn {
+            .catalog-link-card {
                 width: 100% !important;
                 max-width: 340px !important;
                 box-sizing: border-box !important;
@@ -790,12 +823,12 @@
                 align-items: center !important;
                 gap: 10px !important;
             }
-            .catalog-btn-wrapper, .buy-btn-wrapper {
+            .catalog-btn-wrapper, .website-btn-wrapper {
                 width: 100% !important;
                 max-width: 340px !important;
                 margin: 0 auto !important;
             }
-            .catalog-link-card, .hero-buy-btn {
+            .catalog-link-card {
                 width: 100% !important;
                 max-width: 340px !important;
                 box-sizing: border-box !important;
@@ -908,17 +941,25 @@
 
     <!-- 상단 컨트롤러 -->
         <header class="top-controller">
-            <div class="lang-switcher">
-                <button id="btn-ko" class="lang-btn active">KO</button>
-                <button id="btn-en" class="lang-btn">EN</button>
-                <button id="btn-jp" class="lang-btn">JP</button>
-                <button id="btn-ch" class="lang-btn">ZH-CN</button>
-                <button id="btn-tw" class="lang-btn">ZH-TW</button>
-            </div>
-            <div class="barrier-free-actions">
-                <button id="btn-tts" class="icon-btn" title="음성 안내(TTS)" style="display: none;">
-                    <span class="material-icons">volume_up</span>
+            <div class="top-left-actions">
+                <button id="btn-top-home" class="top-home-btn" title="홈으로 이동" type="button" style="display: none;">
+                    <span class="material-icons" style="font-size: 19px;">home</span>
+                    <span id="label-top-home">홈</span>
                 </button>
+            </div>
+            <div class="top-right-actions" style="display: flex; align-items: center; gap: 8px;">
+                <div class="lang-switcher">
+                    <button id="btn-ko" class="lang-btn active">KO</button>
+                    <button id="btn-en" class="lang-btn">EN</button>
+                    <button id="btn-jp" class="lang-btn">JP</button>
+                    <button id="btn-ch" class="lang-btn">ZH-CN</button>
+                    <button id="btn-tw" class="lang-btn">ZH-TW</button>
+                </div>
+                <div class="barrier-free-actions">
+                    <button id="btn-tts" class="icon-btn" title="음성 안내(TTS)" style="display: none;">
+                        <span class="material-icons">volume_up</span>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -928,8 +969,8 @@
     <div id="maker-container" class="product-grid-wrapper">
         <div class="qr-maker-header" style="text-align: center; margin-bottom: 32px;">
             <div style="text-align: center; margin-bottom: 16px;">
-                <span class="jt-logo" style="height: 28px; display: inline-flex; align-items: center;">
-                    <img src="https://design.janytree.com/brand/logo/logo-h.svg" alt="JANYTREE INC." class="on-light" style="height: 28px; width: auto;">
+                <span class="jt-logo brand-logo-home" style="height: 28px; display: inline-flex; align-items: center; cursor: pointer;" title="홈 화면">
+                    <img src="./logo/JT_Logo_Wordmark.svg" alt="JANYTREE" class="on-light" style="height: 28px; width: auto;">
                 </span>
             </div>
             <h1 id="maker-title" style="font-size: clamp(20px, 4vw, 28px); font-weight: 800; color: var(--color-text); margin: 0 0 10px; letter-spacing: -0.02em;">제품 라인업</h1>
@@ -983,9 +1024,9 @@
     <div id="viewer-container">
         <!-- 브랜드 로고 (고객 뷰어 최상단) -->
         <div style="text-align: center; padding: 24px 0 16px;">
-            <span class="jt-logo" style="height: 28px; display: inline-flex; align-items: center;">
-                <img src="https://design.janytree.com/brand/logo/logo-h.svg" alt="JANYTREE INC." class="on-light" style="height: 28px; width: auto;">
-                </span>
+            <span class="jt-logo brand-logo-viewer" style="height: 28px; display: inline-flex; align-items: center; cursor: pointer;" title="홈 화면으로 이동">
+                <img src="./logo/JT_Logo_Wordmark.svg" alt="JANYTREE" class="on-light" style="height: 28px; width: auto;">
+            </span>
         </div>
         <!-- 상단 컨트롤러 -->
         
@@ -1037,14 +1078,14 @@
                         </a>
                     </div>
 
-                    <!-- 4. 제품 구매하기 버튼 (한국어 전용) -->
-                    <div id="buy-btn-wrapper" class="buy-btn-wrapper" style="display:none; width: 100%; box-sizing: border-box;">
-                        <a id="btn-hero-buy" href="https://intomedipro.com/shop" target="_blank" rel="noopener noreferrer" class="hero-buy-btn">
+                    <!-- 4. 제니트리 공식 홈페이지 바로보기 버튼 -->
+                    <div id="website-btn-wrapper" class="website-btn-wrapper" style="width: 100%; box-sizing: border-box;">
+                        <a id="btn-hero-website" href="https://janytree.com/" target="_blank" rel="noopener noreferrer" class="catalog-link-card">
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <span class="material-icons buy-icon-left">shopping_bag</span>
-                                <span id="label-hero-buy-text">제품 구매하기</span>
+                                <span class="material-icons catalog-icon-left">language</span>
+                                <span id="label-hero-website-text">홈페이지 바로가기</span>
                             </div>
-                            <span class="material-icons buy-icon-right">open_in_new</span>
+                            <span class="material-icons catalog-icon-right">open_in_new</span>
                         </a>
                     </div>
                 </div>
@@ -1094,16 +1135,7 @@
                 </table>
             </div>
 
-            <!-- 제품 견적 의뢰 독립 섹션 (표 바로 아래 별도 항목) -->
-            <div id="quote-standalone-container" class="quote-standalone-container">
-                <a id="btn-standalone-quote" href="https://gmp.janytree.app/catalog/3770ff9ccb7d42299afe152298451a1e" target="_blank" class="standalone-quote-card">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span class="material-icons quote-icon-left">description</span>
-                        <span id="label-standalone-quote-text">제품 견적 의뢰</span>
-                    </div>
-                    <span class="material-icons quote-icon-right">open_in_new</span>
-                </a>
-            </div>
+
         
             <!-- 비디오 및 브랜드 링크 영역 (PC에서 2열 그리드 배치) -->
             <div class="video-and-links-container" style="margin-top: 36px;">
@@ -1536,6 +1568,8 @@
 
         // 다국어 UI 라벨
                 const uiLabels = {
+            topHomeBtn: { ko: "홈", en: "Home", jp: "ホーム", ch: "首页", tw: "首頁" },
+            websiteBtn: { ko: "홈페이지 바로가기", en: "Official Website", jp: "公式サイトへ", ch: "官方网站", tw: "官方網站" },
             catalogBtn: { ko: "제품 카탈로그 보기 (PDF)", en: "View Product Catalog (PDF)", jp: "製品カタログを見る (PDF)", ch: "查看产品目录 (PDF)", tw: "查看產品目錄 (PDF)" },
             volume: { ko: "용량", en: "Volume", jp: "容量", ch: "容量", tw: "容量" },
             functional: { ko: "기능성 분류", en: "Functional Classification", jp: "機能性分類", ch: "功能性分类", tw: "功能性分类" },
@@ -2300,12 +2334,22 @@
             if(lblSocialYoutube) lblSocialYoutube.textContent = uiLabels.socialYoutube[lang];
             const lblSocialInstagram = document.getElementById('label-social-instagram');
             if(lblSocialInstagram) lblSocialInstagram.textContent = uiLabels.socialInstagram[lang];
-            document.getElementById('btn-home').textContent = uiLabels.homeBtn[lang];
+            if (document.getElementById('btn-home')) document.getElementById('btn-home').textContent = uiLabels.homeBtn[lang];
             
-            // 한국어 버전 전용 구매하기 버튼 표시/숨김 제어
-            const buyBtnWrapper = document.getElementById('buy-btn-wrapper');
-            if (buyBtnWrapper) {
-                buyBtnWrapper.style.display = (lang === 'ko') ? 'block' : 'none';
+            // 상단 홈 버튼 라벨 갱신 및 표시
+            const topHomeBtn = document.getElementById('btn-top-home');
+            if (topHomeBtn) topHomeBtn.style.display = 'inline-flex';
+            const topHomeLbl = document.getElementById('label-top-home');
+            if (topHomeLbl && uiLabels.topHomeBtn) topHomeLbl.textContent = uiLabels.topHomeBtn[lang];
+
+            // 카탈로그 버튼 및 홈페이지 바로가기 버튼 언어별 갱신
+            const catalogLbl = document.getElementById('label-catalog-btn');
+            if (catalogLbl && uiLabels.catalogBtn) catalogLbl.textContent = uiLabels.catalogBtn[lang];
+            const websiteLbl = document.getElementById('label-hero-website-text');
+            if (websiteLbl && uiLabels.websiteBtn) websiteLbl.textContent = uiLabels.websiteBtn[lang];
+            const websiteBtn = document.getElementById('btn-hero-website');
+            if (websiteBtn && uiLabels.socialWebsiteUrl) {
+                websiteBtn.href = uiLabels.socialWebsiteUrl[lang] || 'https://janytree.com/';
             }
 
             // 상세 뷰어 진입 시 헤더 TTS 스피커 표시 보장
@@ -3229,27 +3273,57 @@
         document.getElementById('btn-tw').addEventListener('click', () => switchLanguage('tw'));
 
         // =====================================================
-        // 글로벌 버튼 리스너 (구매하기, 돌아가기, TTS)
+        // 공통 홈 화면 이동 함수
+        // =====================================================
+        window.navigateToHome = function() {
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            window.history.pushState(null, '', window.location.pathname);
+            const viewer = document.getElementById('viewer-container');
+            const maker = document.getElementById('maker-container');
+            if (viewer) viewer.style.display = 'none';
+            if (maker) maker.style.display = 'block';
+            
+            const mainTtsBtn = document.getElementById('btn-tts');
+            if (mainTtsBtn) mainTtsBtn.style.display = 'none';
+            const topHomeBtn = document.getElementById('btn-top-home');
+            if (topHomeBtn) topHomeBtn.style.display = 'none';
+
+            document.body.style.background = '';
+            window.scrollTo(0, 0);
+            if (window.globalSheetData) {
+                renderProductGrid(window.globalSheetData, currentLang);
+            }
+        };
+
+        // =====================================================
+        // 글로벌 버튼 리스너 (홈 이동, 상단 로고, TTS)
         // =====================================================
         function bindGlobalButtons() {
+            // 하단 레거시 홈 버튼
             const homeBtn = document.getElementById('btn-home');
             if (homeBtn && !homeBtn._bound) {
                 homeBtn._bound = true;
-                homeBtn.addEventListener('click', () => {
-                    window.speechSynthesis && window.speechSynthesis.cancel();
-                    window.history.pushState(null, '', window.location.pathname);
-                    document.getElementById('viewer-container').style.display = 'none';
-                    document.getElementById('maker-container').style.display = 'block';
-                    const mainTtsBtn = document.getElementById('btn-tts');
-                    if (mainTtsBtn) mainTtsBtn.style.display = 'none';
-                    document.body.style.background = '';
-                    window.scrollTo(0, 0);
-                    if (window.globalSheetData) {
-                        renderProductGrid(window.globalSheetData, currentLang);
-                    }
-                });
+                homeBtn.addEventListener('click', window.navigateToHome);
             }
 
+            // 상단 좌측 신규 홈 버튼
+            const topHomeBtn = document.getElementById('btn-top-home');
+            if (topHomeBtn && !topHomeBtn._bound) {
+                topHomeBtn._bound = true;
+                topHomeBtn.addEventListener('click', window.navigateToHome);
+            }
+
+            // 상단 브랜드 로고 클릭 시 홈 이동
+            const logos = document.querySelectorAll('.jt-logo');
+            logos.forEach(logo => {
+                if (!logo._bound) {
+                    logo._bound = true;
+                    logo.style.cursor = 'pointer';
+                    logo.addEventListener('click', window.navigateToHome);
+                }
+            });
+
+            // 상단 TTS 스피커 버튼
             const ttsBtn = document.getElementById('btn-tts');
             if (ttsBtn && !ttsBtn._bound) {
                 ttsBtn._bound = true;
