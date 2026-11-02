@@ -500,7 +500,7 @@
         /* PC/모바일 최적화 반응형 레이아웃 (1140px 와이드 캔버스) */
         /* ===================================================== */
         .main-content {
-            max-width: 1140px !important;
+            max-width: 1240px !important;
             margin: 0 auto !important;
             padding: 28px 24px 80px !important;
             box-sizing: border-box !important;
@@ -517,31 +517,53 @@
         }
 
         
-        /* 하단 테이블 내 제품 견적 의뢰 카드 스타일 */
-        .table-quote-card {
-            display: inline-flex;
+        /* 하단 테이블 아래 독립 제품 견적 의뢰 카드 스타일 */
+        .quote-standalone-container {
+            margin-top: 24px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .standalone-quote-card {
+            display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
-            padding: 10px 16px;
+            width: 100%;
+            padding: 16px 24px;
             background-color: var(--color-on-primary, #ffffff);
             border: 1px solid var(--color-border);
-            border-radius: 10px;
-            color: var(--color-text, #1F2328);
+            border-radius: 14px;
             text-decoration: none;
-            font-size: 13.5px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-            transition: all 0.2s ease;
-            max-width: 320px;
-            width: 100%;
+            color: var(--color-text, #1F2328);
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             box-sizing: border-box;
         }
-        .table-quote-card:hover {
-            background-color: var(--color-bg-layout, #F8FAFC);
+        .standalone-quote-card:hover {
+            background-color: var(--color-bg-layout);
             border-color: var(--color-border-strong, #CBD5E1);
             color: var(--color-text, #1F2328);
-            transform: translateY(-1px);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.06);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+        .standalone-quote-card .quote-icon-left {
+            color: var(--color-primary, #305CDE);
+            font-size: 22px;
+            transition: color 0.2s ease;
+        }
+        .standalone-quote-card:hover .quote-icon-left {
+            color: var(--color-accent, #305CDE);
+        }
+        .standalone-quote-card .quote-icon-right {
+            color: var(--color-text-secondary);
+            font-size: 20px;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+        .standalone-quote-card:hover .quote-icon-right {
+            color: var(--color-text, #1F2328);
+            transform: translate(2px, -2px);
         }
         /* 제품 구매하기 버튼 스타일 (흰색 카드형 통일) */
         .hero-buy-btn {
@@ -591,16 +613,17 @@
         @media (min-width: 860px) {
             .product-hero-layout {
                 display: grid !important;
-                grid-template-columns: 360px 1fr !important;
+                grid-template-columns: 340px 400px !important;
+                justify-content: center !important;
                 grid-template-rows: auto auto !important;
                 grid-template-areas:
                     "visual title"
                     "visual actions" !important;
-                gap: 20px 48px !important;
+                gap: 16px 28px !important;
                 align-items: center !important;
                 padding-top: 24px !important;
                 padding-bottom: 32px !important;
-                margin-bottom: 32px !important;
+                margin: 0 auto 36px !important;
                 border-bottom: 1px solid var(--color-border);
             }
             .product-hero-visual {
@@ -611,7 +634,7 @@
             }
             .product-hero-visual #product-image-wrapper {
                 width: 100% !important;
-                max-width: 360px !important;
+                max-width: 340px !important;
                 aspect-ratio: 1 / 1 !important;
                 margin: 0 !important;
             }
@@ -646,12 +669,12 @@
             }
             .catalog-btn-wrapper, .buy-btn-wrapper {
                 width: 100% !important;
-                max-width: 360px !important;
+                max-width: 340px !important;
                 margin: 0 auto !important;
             }
             .catalog-link-card, .hero-buy-btn {
                 width: 100% !important;
-                max-width: 360px !important;
+                max-width: 340px !important;
                 box-sizing: border-box !important;
             }
 
@@ -1050,20 +1073,19 @@
                             <th id="label-customer">소비자 상담</th>
                             <td id="val-customer"></td>
                         </tr>
-                        <tr id="row-quote">
-                            <th id="label-quote">제품 견적 의뢰</th>
-                            <td id="val-quote">
-                                <a id="btn-table-quote" href="https://gmp.janytree.app/catalog/3770ff9ccb7d42299afe152298451a1e" target="_blank" class="table-quote-card">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <span class="material-icons" style="font-size: 19px; color: var(--color-primary, #305CDE);">request_quote</span>
-                                        <span id="label-table-quote-btn" style="font-weight: 600; font-size: 14px;">제품 견적 의뢰 (GMP)</span>
-                                    </div>
-                                    <span class="material-icons" style="font-size: 17px; color: var(--color-text-secondary);">open_in_new</span>
-                                </a>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- 제품 견적 의뢰 독립 섹션 (표 바로 아래 별도 항목) -->
+            <div id="quote-standalone-container" class="quote-standalone-container">
+                <a id="btn-standalone-quote" href="https://gmp.janytree.app/catalog/3770ff9ccb7d42299afe152298451a1e" target="_blank" class="standalone-quote-card">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="material-icons quote-icon-left">request_quote</span>
+                        <span id="label-standalone-quote-text">제품 견적 의뢰</span>
+                    </div>
+                    <span class="material-icons quote-icon-right">open_in_new</span>
+                </a>
             </div>
         
             <!-- 비디오 및 브랜드 링크 영역 (PC에서 2열 그리드 배치) -->
@@ -2242,11 +2264,8 @@
             document.getElementById('label-ingredients').textContent = uiLabels.ingredients[lang];
             document.getElementById('label-cautions').textContent = uiLabels.cautions[lang];
             document.getElementById('label-customer').textContent = uiLabels.customer[lang];
-            if (document.getElementById('label-quote') && uiLabels.quoteBtn) {
-                document.getElementById('label-quote').textContent = uiLabels.quoteBtn[lang];
-            }
-            if (document.getElementById('label-table-quote-btn') && uiLabels.quoteBtn) {
-                document.getElementById('label-table-quote-btn').textContent = uiLabels.quoteBtn[lang] + ' (GMP)';
+            if (document.getElementById('label-standalone-quote-text') && uiLabels.quoteBtn) {
+                document.getElementById('label-standalone-quote-text').textContent = uiLabels.quoteBtn[lang];
             }
             
             const lblVideoTitle = document.getElementById('label-video-title');
