@@ -2120,17 +2120,20 @@
         // ■ 홈 화면 초기화
         // =====================================================
         function initQrMaker() {
-            const selectEl = document.getElementById('product-select-maker');
-            const downloadBtn = document.getElementById('btn-download');
+            // 메이커(쇼룸) 컨테이너 표시 보장
+            const makerContainer = document.getElementById('maker-container');
+            if (makerContainer) {
+                makerContainer.style.display = 'block';
+            }
 
-            // 페이지 시작 시 "데이터 로딩 중" 표시를 위해 옵션을 리셋합니다.
-            selectEl.innerHTML = '<option value="">데이터 로딩 중...</option>';
-
-            // 2. 실제 시트 데이터 비동기(Fetch) 로딩 (전체 Try-Catch 보호 적용)
+            // 시트 데이터 비동기(Fetch) 로딩
             loadSheetData(function (err, data) {
                 if (err || !data || data.length === 0) {
-                    alert("데이터 로드 에러: " + (err ? err.message : "Unknown error")); console.error(err);
-                    selectEl.innerHTML = '<option value="">로딩 실패</option>';
+                    console.error("데이터 로드 에러: ", err);
+                    const gridEl = document.getElementById('product-card-grid');
+                    if (gridEl) {
+                        gridEl.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #dc2626;">제품 목록을 불러오는 중 오류가 발생했습니다.<br><small style="color: #6b7280; margin-top: 8px; display: inline-block;">잠시 후 새로고침해 주세요.</small></div>';
+                    }
                     return;
                 }
 
@@ -2141,101 +2144,16 @@
                     activeData.shift();
                 }
 
+                // 쇼룸 컨테이너 표시 상태 재확인
+                if (makerContainer) {
+                    makerContainer.style.display = 'block';
+                }
+
                 // 제품 쇼룸 카드 그리드 렌더링
                 renderProductGrid(activeData, currentLang);
-                
-                // 처음엔 QR 캔버스와 다운로드 버튼을 숨깁니다.
-                document.getElementById('qr-to-viewer-btn').style.display = 'none';
-                document.getElementById('btn-download').parentElement.style.display = 'none';
-
-                // 이벤트 리스너
-                selectEl.addEventListener('change', () => {
-                    if (selectEl.value === "") return;
-                    const idx = parseInt(selectEl.value);
-                    if (activeData[idx]) {
-                        updateQrDisplay(activeData[idx]);
-                        // 제품 선택 시 보이게 처리
-                        document.getElementById('qr-to-viewer-btn').style.display = 'block';
-                        document.getElementById('btn-download').parentElement.style.display = 'flex';
-                    }
-                });
-
-                document.getElementById('qr-to-viewer-btn').addEventListener('click', () => {
-                    if (window.currentTargetItem) {
-                        document.getElementById('maker-container').style.display = 'none';
-                        document.getElementById('viewer-container').style.display = 'block';
-                        document.body.style.background = 'var(--color-bg-layout)';
-                        renderLabel(window.currentTargetItem, currentLang);
-                        
-                        // 뒤로가기 처리를 위해 pushState 추가
-                        const code = getColValue(window.currentTargetItem, COL.productCode) || getProductDisplayName(window.currentTargetItem, 'ko');
-                        let langParam = '';
-                        if (currentLang === 'en') langParam = '&l=e';
-                        else if (currentLang === 'jp') langParam = '&l=j';
-                        else if (currentLang === 'ch') langParam = '&l=c';
-                        else if (currentLang === 'tw') langParam = '&l=t';
-                        window.history.pushState(null, '', `?c=${encodeURIComponent(code)}${langParam}`);
-                    }
-                });
-            }, true, currentLang); // 메이커 모드는 무조건 캐시 무시(최신 데이터 로드)
-
-            // QR 이미지 다운로드 (PNG)
-            downloadBtn.addEventListener('click', () => {
-                if (!currentQrUrl) return;
-                const productName = selectEl.options[selectEl.selectedIndex]?.textContent || '제품';
-                const safeName = productName.replace(/[/\\?%*:|"<>]/g, '_');
-
-                fetch(currentQrUrl)
-                    .then(res => res.blob())
-                    .then(blob => {
-                        const link = document.createElement('a');
-                        link.download = `${safeName}_QR코드.png`;
-                        link.href = URL.createObjectURL(blob);
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                    })
-                    .catch(err => {
-                        // Fetch(CORS) 실패 시 새 창으로 이미지 열기
-                        window.open(currentQrUrl, '_blank');
-                    });
-            });
-
-            // QR 이미지 다운로드 (SVG 벡터 - 인쇄용 고품질)
-            const downloadSvgBtn = document.getElementById('btn-download-svg');
-            if (downloadSvgBtn) {
-                downloadSvgBtn.addEventListener('click', () => {
-                    if (!currentQrUrl) return;
-                    const productName = selectEl.options[selectEl.selectedIndex]?.textContent || '제품';
-                    const safeName = productName.replace(/[/\\?%*:|"<>]/g, '_');
-
-                    // currentQrUrl의 data= 파라미터를 추출하여 SVG URL을 별도로 생성
-                    const urlObj = new URL(currentQrUrl);
-                    const qrData = urlObj.searchParams.get('data');
-                    // QR Server API: format=svg 로 SVG 형식 요청 (크기 무관하게 벡터로 저장됨)
-                    const svgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&ecc=M&margin=4&format=svg&data=${encodeURIComponent(qrData)}`;
-
-                    fetch(svgUrl)
-                        .then(res => res.text())
-                        .then(svgText => {
-                            svgText = svgText.replace(/<svg\s+/, '<svg viewBox="0 0 377 377" ');
-                            const blob = new Blob([svgText], {type: 'image/svg+xml'});
-                            const link = document.createElement('a');
-                            link.download = `${safeName}_QR코드.svg`;
-                            link.href = URL.createObjectURL(blob);
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                        })
-                        .catch(err => {
-                            // Fetch(CORS) 실패 시 새 창으로 SVG 열기
-                            window.open(svgUrl, '_blank');
-                        });
-                });
-            }
+            }, true, currentLang);
         }
 
-        // QR 코드 화면 업데이트
         async function updateQrDisplay(item) {
             window.currentTargetItem = item; // Store for lang updates
             const container = document.getElementById('qr-container');
